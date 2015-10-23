@@ -8,4 +8,12 @@ public class Stage {
 		this.spawnTimes = spawnTimes;
 	}
 	
+	public boolean allSpawned(int stageTime) {
+		for (int i = 0; i < spawnTimes.length; i++) {
+			if (spawnTimes[i] > stageTime) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

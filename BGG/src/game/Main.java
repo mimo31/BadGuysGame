@@ -1,6 +1,7 @@
 package game;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -17,11 +18,18 @@ public class Main {
 	public static ArrayList<BadGuy> badGuys = new ArrayList<BadGuy>();
 	public static ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 	private static ArrayList<BadGuy> badGuysBuffer = new ArrayList<BadGuy>();
+	
+	public static Point showingStageMousePos;
+	public static boolean showingStage;
+	public static int showingStageState = 0;
+	public static boolean gameOver = false;
+	public static boolean runOutOfStages = false;
+	
 	public static Timer updateTimer = new Timer(40, new ActionListener() {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			update(Gui.gui.getContentPane().getSize());
+			update(Gui.getContentSize());
 		}
 		
 	});
@@ -38,6 +46,7 @@ public class Main {
 	public static void main(String[] arg0){
 		Gui.intializeGraphics();
 		initializeStages();
+		inStartScreen = true;
 		updateTimer.start();
 		repaintTimer.start();
 	}
@@ -48,50 +57,78 @@ public class Main {
 		stages[2] = new Stage(new int[]{10, 75, 200});
 	}
 	
+	public static void startPlaying() {
+		inStartScreen = false;
+		showingStage = true;
+		showingStageMousePos = Gui.getMousePanePosition();
+	}
+	
 	private static void update(Dimension contentSize){
-		for (int i = 0; i < stages[currentStage].spawnTimes.length; i++) {
-			if (stages[currentStage].spawnTimes[i] == timeInStage) {
-				badGuysBuffer.add(new BadGuy());
-			}
-		}
-		boolean[] isColumnOccupied = new boolean[4];
-		float heightSizeOfABadGuy = contentSize.width / (float)16 / contentSize.height;
-		for (int i = 0; i < badGuys.size(); i++) {
-			BadGuy currentBadGuy = badGuys.get(i);
-			currentBadGuy.y += 1/(float)512;
-			if (currentBadGuy.y > 1 ) {
-				System.out.println("Game over!!!!");
-			}
-			if (currentBadGuy.y < heightSizeOfABadGuy) {
-				isColumnOccupied[currentBadGuy.x] = true;
-			}
-		}
-		while(!isFull(isColumnOccupied) && !(badGuysBuffer.size() == 0)) {
-			badGuysBuffer.get(0).x = takeFree(isColumnOccupied);
-			badGuys.add(badGuysBuffer.get(0));
-			badGuysBuffer.remove(0);
-		}
-		float heightFraction = contentSize.width / (float) contentSize.height / (float) 128;
-		for (int i = 0; i < bullets.size(); i++) {
-			Bullet currentBullet = bullets.get(i);
-			currentBullet.x += currentBullet.dirX / 128;
-			currentBullet.y += currentBullet.dirY / 128;
-			if (currentBullet.x + 1 / (float)128 < 0 || currentBullet.x - 1 / (float)128 >= 1 || currentBullet.y + heightFraction < 0 || currentBullet.y - heightFraction >= 1) {
-				bullets.remove(i);
-				i--;
-			}
-			for (int j = 0; j < badGuys.size(); j++) {
-				BadGuy currentBadGuy = badGuys.get(j);
-				if (doesCollide(currentBadGuy.x / (float)4 + 1 / (float)8, currentBadGuy.y * contentSize.height / (float)contentSize.width - 1 / (float) 32, 1 / (float)32,
-						currentBullet.x, currentBullet.y * contentSize.height / (float)contentSize.width, 1 / (float)128)) {
-					badGuys.remove(j);
-					bullets.remove(i);
-					i--;
-					break;
+		if (!inStartScreen && !showingStage) {
+			for (int i = 0; i < stages[currentStage].spawnTimes.length; i++) {
+				if (stages[currentStage].spawnTimes[i] == timeInStage) {
+					badGuysBuffer.add(new BadGuy());
 				}
 			}
+			boolean[] isColumnOccupied = new boolean[4];
+			float heightSizeOfABadGuy = contentSize.width / (float)16 / contentSize.height;
+			for (int i = 0; i < badGuys.size(); i++) {
+				BadGuy currentBadGuy = badGuys.get(i);
+				currentBadGuy.y += 1/(float)512;
+				if (currentBadGuy.y > 1 ) {
+					System.out.println("Game over!!!!");
+				}
+				if (currentBadGuy.y < heightSizeOfABadGuy) {
+					isColumnOccupied[currentBadGuy.x] = true;
+				}
+			}
+			while(!isFull(isColumnOccupied) && !(badGuysBuffer.size() == 0)) {
+				badGuysBuffer.get(0).x = takeFree(isColumnOccupied);
+				badGuys.add(badGuysBuffer.get(0));
+				badGuysBuffer.remove(0);
+			}
+			float heightFraction = contentSize.width / (float) contentSize.height / (float) 128;
+			for (int i = 0; i < bullets.size(); i++) {
+				Bullet currentBullet = bullets.get(i);
+				currentBullet.x += currentBullet.dirX / 128;
+				currentBullet.y += currentBullet.dirY / 128;
+				if (currentBullet.x + 1 / (float)128 < 0 || currentBullet.x - 1 / (float)128 >= 1 || currentBullet.y + heightFraction < 0 || currentBullet.y - heightFraction >= 1) {
+					bullets.remove(i);
+					i--;
+				}
+				for (int j = 0; j < badGuys.size(); j++) {
+					BadGuy currentBadGuy = badGuys.get(j);
+					if (doesCollide(currentBadGuy.x / (float)4 + 1 / (float)8, currentBadGuy.y * contentSize.height / (float)contentSize.width - 1 / (float) 32, 1 / (float)32,
+							currentBullet.x, currentBullet.y * contentSize.height / (float)contentSize.width, 1 / (float)128)) {
+						badGuys.remove(j);
+						bullets.remove(i);
+						i--;
+						if (badGuys.isEmpty()) {
+							if (badGuysBuffer.isEmpty() && stages[currentStage].allSpawned(timeInStage)) {
+								bullets.clear();
+								if (currentStage == stages.length - 1) {
+									
+								}
+								currentStage++;
+								showingStage = true;
+								showingStageMousePos = Gui.getMousePanePosition();
+								showingStageState = 0;
+								timeInStage = 0;
+							}
+						}
+						break;
+					}
+				}
+			}
+			timeInStage++;
 		}
-		timeInStage++;
+		else {
+			showingStageState++;
+			if (showingStageState == 120) {
+				showingStageState = 0;
+				showingStage = false;
+			}
+		}
 	}
 	
 	private static boolean doesCollide(float squareCenterX, float squareCenterY, float squareSize, float circleCenterX, float circleCenterY, float circleRadius) {
