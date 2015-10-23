@@ -61,13 +61,16 @@ public final class Gui {
 			else {
 				if (!Main.showingStage) {
 					Dimension contentSize = getContentSize();
-					Point barrelCenter = new Point(contentSize.width / 2, contentSize.height - contentSize.width / 16);
-					float vecX = event.getX() - barrelCenter.x;
-					float vecY = event.getY() - barrelCenter.y;
-					float factor = (float)(contentSize.width / (float)32 / Math.sqrt(Math.pow(vecX, 2) + Math.pow(vecY, 2)));
-					Point firePoint = new Point((int)(barrelCenter.x + vecX * factor), (int)(barrelCenter.y + vecY * factor));
-					Bullet bullet = new Bullet(firePoint.x / (float)contentSize.width, firePoint.y / (float)contentSize.height, vecX / (float)contentSize.width, vecY / (float)contentSize.height);
-					Main.bullets.add(bullet);
+					if (Main.loadState == 1) {
+						Point barrelCenter = new Point(contentSize.width / 2, contentSize.height - contentSize.width / 16);
+						float vecX = event.getX() - barrelCenter.x;
+						float vecY = event.getY() - barrelCenter.y;
+						float factor = (float)(contentSize.width / (float)32 / Math.sqrt(Math.pow(vecX, 2) + Math.pow(vecY, 2)));
+						Point firePoint = new Point((int)(barrelCenter.x + vecX * factor), (int)(barrelCenter.y + vecY * factor));
+						Projectile bullet = new Projectile(firePoint.x / (float)contentSize.width, firePoint.y / (float)contentSize.height, vecX / (float)contentSize.width, vecY / (float)contentSize.height);
+						Main.projectiles.add(bullet);
+						Main.loadState = 0;
+					}
 				}
 			}
 		}

@@ -11,19 +11,19 @@ import javax.swing.Timer;
 public class Main {
 
 	public static boolean inStartScreen;
-	public final String rootDirectory = "D:\\Viktor\\Programming";
 	public static Stage[] stages = new Stage[3];
 	public static int currentStage = 0;
 	public static int timeInStage = 0;
 	public static ArrayList<BadGuy> badGuys = new ArrayList<BadGuy>();
-	public static ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+	public static ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private static ArrayList<BadGuy> badGuysBuffer = new ArrayList<BadGuy>();
+	public static float loadState = 1;
 	
 	public static Point showingStageMousePos;
 	public static boolean showingStage;
 	public static int showingStageState = 0;
 	public static boolean gameOver = false;
-	public static boolean runOutOfStages = false;
+	public static boolean noMoreStages = false;
 	
 	public static Timer updateTimer = new Timer(40, new ActionListener() {
 		
@@ -63,6 +63,19 @@ public class Main {
 		showingStageMousePos = Gui.getMousePanePosition();
 	}
 	
+	private static void startNewStage() {
+		projectiles.clear();
+		if (currentStage == stages.length - 1) {
+			noMoreStages = true;
+		}
+		currentStage++;
+		showingStage = true;
+		showingStageMousePos = Gui.getMousePanePosition();
+		showingStageState = 0;
+		timeInStage = 0;
+		loadState = 1;
+	}
+	
 	private static void update(Dimension contentSize){
 		if (!inStartScreen && !showingStage) {
 			for (int i = 0; i < stages[currentStage].spawnTimes.length; i++) {
@@ -74,12 +87,28 @@ public class Main {
 			float heightSizeOfABadGuy = contentSize.width / (float)16 / contentSize.height;
 			for (int i = 0; i < badGuys.size(); i++) {
 				BadGuy currentBadGuy = badGuys.get(i);
-				currentBadGuy.y += 1/(float)512;
-				if (currentBadGuy.y > 1 ) {
-					System.out.println("Game over!!!!");
+				currentBadGuy.hittingProgress += 1 / (float)32;
+				if (currentBadGuy.isBeingHit && currentBadGuy.hittingProgress >= 1) {
+					currentBadGuy.isBeingHit = false;
+					currentBadGuy.live -= currentBadGuy.hitBy;
+					if (currentBadGuy.isDead) {
+						badGuys.remove(i);
+						i--;
+						if (badGuys.isEmpty()) {
+							if (badGuysBuffer.isEmpty() && stages[currentStage].allSpawned(timeInStage)) {
+								startNewStage();
+							}
+						}
+					}
 				}
-				if (currentBadGuy.y < heightSizeOfABadGuy) {
-					isColumnOccupied[currentBadGuy.x] = true;
+				if (!currentBadGuy.isDead) {
+					currentBadGuy.y += 1 / (float)512;
+					if (currentBadGuy.y > 1) {
+						System.out.println("Game over!!!!");
+					}
+					if (currentBadGuy.y < heightSizeOfABadGuy) {
+						isColumnOccupied[currentBadGuy.x] = true;
+					}
 				}
 			}
 			while(!isFull(isColumnOccupied) && !(badGuysBuffer.size() == 0)) {
@@ -88,36 +117,29 @@ public class Main {
 				badGuysBuffer.remove(0);
 			}
 			float heightFraction = contentSize.width / (float) contentSize.height / (float) 128;
-			for (int i = 0; i < bullets.size(); i++) {
-				Bullet currentBullet = bullets.get(i);
-				currentBullet.x += currentBullet.dirX / 128;
-				currentBullet.y += currentBullet.dirY / 128;
-				if (currentBullet.x + 1 / (float)128 < 0 || currentBullet.x - 1 / (float)128 >= 1 || currentBullet.y + heightFraction < 0 || currentBullet.y - heightFraction >= 1) {
-					bullets.remove(i);
+			for (int i = 0; i < projectiles.size(); i++) {
+				Projectile currentProjectile = projectiles.get(i);
+				currentProjectile.x += currentProjectile.dirX / 128;
+				currentProjectile.y += currentProjectile.dirY / 128;
+				if (currentProjectile.x + 1 / (float)128 < 0 || currentProjectile.x - 1 / (float)128 >= 1 || currentProjectile.y + heightFraction < 0 || currentProjectile.y - heightFraction >= 1) {
+					projectiles.remove(i);
 					i--;
 				}
 				for (int j = 0; j < badGuys.size(); j++) {
 					BadGuy currentBadGuy = badGuys.get(j);
 					if (doesCollide(currentBadGuy.x / (float)4 + 1 / (float)8, currentBadGuy.y * contentSize.height / (float)contentSize.width - 1 / (float) 32, 1 / (float)32,
-							currentBullet.x, currentBullet.y * contentSize.height / (float)contentSize.width, 1 / (float)128)) {
-						badGuys.remove(j);
-						bullets.remove(i);
+							currentProjectile.x, currentProjectile.y * contentSize.height / (float)contentSize.width, 1 / (float)128)) {
+						currentBadGuy.hit(currentProjectile.hitPower);
+						projectiles.remove(i);
 						i--;
-						if (badGuys.isEmpty()) {
-							if (badGuysBuffer.isEmpty() && stages[currentStage].allSpawned(timeInStage)) {
-								bullets.clear();
-								if (currentStage == stages.length - 1) {
-									
-								}
-								currentStage++;
-								showingStage = true;
-								showingStageMousePos = Gui.getMousePanePosition();
-								showingStageState = 0;
-								timeInStage = 0;
-							}
-						}
 						break;
 					}
+				}
+			}
+			if (loadState != 1) {
+				loadState += 1 / (float) 32;
+				if (loadState > 1) {
+					loadState = 1;
 				}
 			}
 			timeInStage++;
