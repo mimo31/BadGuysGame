@@ -18,12 +18,6 @@ public final class Painting {
 	public static void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException{
 		if (Main.inStartScreen) {
 			playButton = new Rectangle(contentSize.width / 4, contentSize.height / 4, contentSize.width / 2, contentSize.height / 2);
-			if (mousePosition == null) {
-				System.out.println("");
-			}
-			else if (playButton == null) {
-				System.out.println("");
-			}
 			drawChangingRect(g, playButton, Color.black, Color.MAGENTA, mousePosition);
 			g.setColor(Color.white);
 			StringDraw.drawMaxString(g, contentSize.height / 16, "Play", TextAlign.MIDDLE, playButton, Font.ITALIC);
@@ -70,9 +64,6 @@ public final class Painting {
 	}
 	
 	private static void drawStage(Graphics2D g, Dimension contentSize, int alpha) {
-		if (alpha < 0 || alpha > 255) {
-			System.out.println("");
-		}
 		g.setColor(new Color(0, 0, 0, alpha));
 		g.fillRect(0, 0, contentSize.width, contentSize.height);
 		g.setColor(new Color(255, 255, 255, alpha));
