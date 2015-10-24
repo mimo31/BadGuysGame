@@ -19,12 +19,12 @@ public final class Painting {
 
 	public static void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
 		if (Main.inStartScreen) {
-			playButton = new Rectangle(contentSize.width / 4, contentSize.height / 4, contentSize.width / 2,
-					contentSize.height / 2);
+			playButton = new Rectangle(contentSize.width / 4, contentSize.height / 4, contentSize.width / 2, contentSize.height / 2);
 			drawChangingRect(g, playButton, Color.black, Color.MAGENTA, mousePosition);
 			g.setColor(Color.white);
 			StringDraw.drawMaxString(g, contentSize.height / 16, "Play", TextAlign.MIDDLE, playButton, Font.ITALIC);
-		} else {
+		}
+		else {
 			for (int i = 0; i < Main.badGuys.size(); i++) {
 				drawBadGuy(g, Main.badGuys.get(i), contentSize);
 			}
@@ -35,14 +35,14 @@ public final class Painting {
 			g.setColor(TRANSPARENT_GREEN);
 			g.fillRect(baseScreenX, baseScreenY, greenWidth, contentSize.width / 16);
 			g.setColor(TRANSPARENT_RED);
-			g.fillRect(baseScreenX + greenWidth, baseScreenY, contentSize.width / 8 - greenWidth,
-					contentSize.width / 16);
+			g.fillRect(baseScreenX + greenWidth, baseScreenY, contentSize.width / 8 - greenWidth, contentSize.width / 16);
 			Point barrelCenter = new Point(contentSize.width / 2, contentSize.height - contentSize.width / 16);
 			AffineTransform transform = AffineTransform.getTranslateInstance(barrelCenter.x, barrelCenter.y);
 			Point pointTo;
 			if (Main.showingStage) {
 				pointTo = Main.showingStageMousePos;
-			} else {
+			}
+			else {
 				pointTo = mousePosition;
 			}
 			double vecX = -barrelCenter.x + pointTo.x;
@@ -52,9 +52,7 @@ public final class Painting {
 			g.drawImage(IO.getTexture("Barrel.png", contentSize.width / 16), transform, null);
 			for (int i = 0; i < Main.projectiles.size(); i++) {
 				Projectile currentBullet = Main.projectiles.get(i);
-				g.drawImage(IO.getTexture("Bullet.png", contentSize.width / 64),
-						(int) (currentBullet.x * contentSize.width - contentSize.width / (float) 128),
-						(int) (currentBullet.y * contentSize.height - contentSize.width / (float) 128), null);
+				g.drawImage(IO.getTexture("Bullet.png", contentSize.width / 64), (int) (currentBullet.x * contentSize.width - contentSize.width / (float) 128), (int) (currentBullet.y * contentSize.height - contentSize.width / (float) 128), null);
 			}
 		}
 		if (Main.showingStage) {
@@ -62,9 +60,11 @@ public final class Painting {
 			String text;
 			if (Main.noMoreStages) {
 				text = "No more stages :{";
-			} else if (Main.gameOver) {
+			}
+			else if (Main.gameOver) {
 				text = "Game Over";
-			} else {
+			}
+			else {
 				text = "Stage " + Main.currentStage;
 				drawStage(g, contentSize, "Stage " + Main.currentStage, alpha);
 			}
@@ -72,21 +72,20 @@ public final class Painting {
 		}
 	}
 
-	private static void drawBadGuy(Graphics2D g, BadGuy badGuy, Dimension contentSize) throws IOException{
-		int screenX = (int) ((badGuy.x / (float) 4 + 1 / (float) 8 - 1 / (float) 32)
-				* contentSize.width);
+	private static void drawBadGuy(Graphics2D g, BadGuy badGuy, Dimension contentSize) throws IOException {
+		int screenX = (int) ((badGuy.x / (float) 4 + 1 / (float) 8 - 1 / (float) 32) * contentSize.width);
 		int screenY = (int) (badGuy.y * contentSize.height - contentSize.width / 16);
 		g.drawImage(IO.getTexture(badGuy.textureName, contentSize.width / 16), screenX, screenY, null);
 		g.setColor(TRANSPARENT_GREEN);
 		int filledSize = (int) (badGuy.getShownLive() * contentSize.width / 16);
 		g.fillRect(screenX, screenY + contentSize.width / 16 - filledSize, contentSize.width / 16, filledSize);
 	}
-	
-	private static void drawChangingRect(Graphics2D g, Rectangle rect, Color defaultColor, Color onMouseColor,
-			Point mousePosition) {
+
+	private static void drawChangingRect(Graphics2D g, Rectangle rect, Color defaultColor, Color onMouseColor, Point mousePosition) {
 		if (rect.contains(mousePosition)) {
 			g.setColor(onMouseColor);
-		} else {
+		}
+		else {
 			g.setColor(defaultColor);
 		}
 		g.fill(rect);
@@ -96,7 +95,6 @@ public final class Painting {
 		g.setColor(new Color(0, 0, 0, alpha));
 		g.fillRect(0, 0, contentSize.width, contentSize.height);
 		g.setColor(new Color(255, 255, 255, alpha));
-		StringDraw.drawMaxString(g, contentSize.height / 32, text, new Rectangle(0,
-				contentSize.height / 2 - contentSize.height / 16, contentSize.width, contentSize.height / 8));
+		StringDraw.drawMaxString(g, contentSize.height / 32, text, new Rectangle(0, contentSize.height / 2 - contentSize.height / 16, contentSize.width, contentSize.height / 8));
 	}
 }
