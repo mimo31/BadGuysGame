@@ -4,14 +4,30 @@ public class BadGuy {
 
 	public int x;
 	public float y;
-	public float totalLive = 1;
-	public float live = 1;
+	public float totalLive;
+	public float live;
+	public float speed;
+	public String textureName;
 	
 	public boolean isBeingHit;
 	public float hitBy;
 	public float hittingProgress;
 	
 	public boolean isDead;
+	
+	public BadGuy() {
+		this.totalLive = 1;
+		this.live = 1;
+		this.speed = 1;
+		this.textureName = "BasicBadGuy.png";
+	}
+	
+	public BadGuy(float totalLive, float speed, String textureName) {
+		this.totalLive = totalLive;
+		this.live = totalLive;
+		this.speed = speed;
+		this.textureName = textureName;
+	}
 	
 	public void hit(float hitPower) {
 		if (this.isBeingHit) {
@@ -45,6 +61,10 @@ public class BadGuy {
 		else {
 			return this.live / this.totalLive;
 		}
+	}
+	
+	public void move() {
+		this.y += this.speed / (float)512;
 	}
 	
 	private static float shiftedSine(float x) {

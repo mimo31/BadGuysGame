@@ -2,15 +2,15 @@ package game;
 
 public class Stage {
 	
-	public int[] spawnTimes;
+	public Spawner[] spawners;
 	
-	public Stage(int[] spawnTimes){
-		this.spawnTimes = spawnTimes;
+	public Stage(Spawner[] spawnTimes){
+		this.spawners = spawnTimes;
 	}
 	
 	public boolean allSpawned(int stageTime) {
-		for (int i = 0; i < spawnTimes.length; i++) {
-			if (spawnTimes[i] > stageTime) {
+		for (int i = 0; i < spawners.length; i++) {
+			if (spawners[i].getSpawnTime() > stageTime) {
 				return false;
 			}
 		}

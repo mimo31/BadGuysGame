@@ -11,7 +11,7 @@ import javax.swing.Timer;
 public class Main {
 
 	public static boolean inStartScreen;
-	public static Stage[] stages = new Stage[3];
+	public static Stage[] stages;
 	public static int currentStage = 0;
 	public static int timeInStage = 0;
 	public static ArrayList<BadGuy> badGuys = new ArrayList<BadGuy>();
@@ -52,9 +52,13 @@ public class Main {
 	}
 	
 	private static void initializeStages(){
-		stages[0] = new Stage(new int[]{10});
-		stages[1] = new Stage(new int[]{10, 100});
-		stages[2] = new Stage(new int[]{10, 75, 200});
+		stages = new Stage[6];
+		stages[0] = new Stage(new Spawner[]{new Spawner.BasicSpawner(10)});
+		stages[1] = new Stage(new Spawner[]{new Spawner.BasicSpawner(10), new Spawner.BasicSpawner(100)});
+		stages[2] = new Stage(new Spawner[]{new Spawner.BasicSpawner(10), new Spawner.BasicSpawner(75), new Spawner.BasicSpawner(200)});
+		stages[3] = new Stage(new Spawner[]{new Spawner.FastSpawner(50)});
+		stages[4] = new Stage(new Spawner[]{new Spawner.FastSpawner(20), new Spawner.BasicSpawner(100), new Spawner.BasicSpawner(100)});
+		stages[5] = new Stage(new Spawner[]{new Spawner.FastSpawner(20), new Spawner.FastSpawner(20)});
 	}
 	
 	public static void startPlaying() {
@@ -68,19 +72,21 @@ public class Main {
 		if (currentStage == stages.length - 1) {
 			noMoreStages = true;
 		}
-		currentStage++;
+		else {
+			currentStage++;
+			timeInStage = 0;
+		}
 		showingStage = true;
 		showingStageMousePos = Gui.getMousePanePosition();
 		showingStageState = 0;
-		timeInStage = 0;
-		loadState = 1;
 	}
 	
 	private static void update(Dimension contentSize){
 		if (!inStartScreen && !showingStage) {
-			for (int i = 0; i < stages[currentStage].spawnTimes.length; i++) {
-				if (stages[currentStage].spawnTimes[i] == timeInStage) {
-					badGuysBuffer.add(new BadGuy());
+			for (int i = 0; i < stages[currentStage].spawners.length; i++) {
+				Spawner currentSpawner = stages[currentStage].spawners[i];
+				if (currentSpawner.getSpawnTime() == timeInStage) {
+					badGuysBuffer.add(currentSpawner.getBadGuy());
 				}
 			}
 			boolean[] isColumnOccupied = new boolean[4];
@@ -102,9 +108,13 @@ public class Main {
 					}
 				}
 				if (!currentBadGuy.isDead) {
-					currentBadGuy.y += 1 / (float)512;
+					currentBadGuy.move();
 					if (currentBadGuy.y > 1) {
-						System.out.println("Game over!!!!");
+						//Game Over
+						showingStage = true;
+						gameOver = true;
+						showingStageState = 0;
+						showingStageMousePos = Gui.getMousePanePosition();
 					}
 					if (currentBadGuy.y < heightSizeOfABadGuy) {
 						isColumnOccupied[currentBadGuy.x] = true;
@@ -147,8 +157,25 @@ public class Main {
 		else {
 			showingStageState++;
 			if (showingStageState == 120) {
-				showingStageState = 0;
 				showingStage = false;
+				loadState = 1;
+			}
+			if (gameOver || noMoreStages) {
+				if (showingStageState == 60) {
+					loadState = 1;
+					badGuys.clear();
+					badGuysBuffer.clear();
+					projectiles.clear();
+					inStartScreen = true;
+					currentStage = 0;
+					timeInStage = 0;
+				}
+				else if (showingStageState == 120) {
+					showingStage = false;
+					gameOver = false;
+					noMoreStages = false;
+					showingStageState = 0;
+				}
 			}
 		}
 	}
