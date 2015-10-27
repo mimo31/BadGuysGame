@@ -18,7 +18,7 @@ public final class IO {
 
 	private static ArrayList<Texture> originalTextures = new ArrayList<Texture>();
 	private static ArrayList<Texture> scaledTextures = new ArrayList<Texture>();
-	public final static String rootDirectory = "D:\\Viktor\\Programming\\BGG";
+	public final static String rootDirectory = /*System.getProperty("user.dir");*/"D:\\Viktor\\Programming\\BGG";
 
 	/**
 	 * Returns a scaled image from the rootDirectory.

@@ -52,7 +52,7 @@ public final class Painting {
 			g.drawImage(IO.getTexture("Barrel.png", contentSize.width / 16), transform, null);
 			for (int i = 0; i < Main.projectiles.size(); i++) {
 				Projectile currentBullet = Main.projectiles.get(i);
-				g.drawImage(IO.getTexture("Bullet.png", contentSize.width / 64), (int) (currentBullet.x * contentSize.width - contentSize.width / (float) 128), (int) (currentBullet.y * contentSize.height - contentSize.width / (float) 128), null);
+				g.drawImage(IO.getTexture("Projectile.png", contentSize.width / 64), (int) (currentBullet.x * contentSize.width - contentSize.width / (float) 128), (int) (currentBullet.y * contentSize.height - contentSize.width / (float) 128), null);
 			}
 		}
 		if (Main.showingStage) {
