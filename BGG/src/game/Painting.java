@@ -18,9 +18,16 @@ public final class Painting {
 	public static final Color TRANSPARENT_RED = new Color(255, 0, 0, 127);
 
 	public static void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
+		Point usedMousePosition;
+		if (Main.showingStage) {
+			usedMousePosition = Main.showingStageMousePos;
+		}
+		else {
+			usedMousePosition = mousePosition;
+		}
 		if (Main.inStartScreen) {
 			playButton = new Rectangle(contentSize.width / 4, contentSize.height / 4, contentSize.width / 2, contentSize.height / 2);
-			drawChangingRect(g, playButton, Color.black, Color.MAGENTA, mousePosition);
+			drawChangingRect(g, playButton, Color.black, Color.MAGENTA, usedMousePosition);
 			g.setColor(Color.white);
 			StringDraw.drawMaxString(g, contentSize.height / 16, "Play", TextAlign.MIDDLE, playButton, Font.ITALIC);
 		}
@@ -38,21 +45,14 @@ public final class Painting {
 			g.fillRect(baseScreenX + greenWidth, baseScreenY, contentSize.width / 8 - greenWidth, contentSize.width / 16);
 			Point barrelCenter = new Point(contentSize.width / 2, contentSize.height - contentSize.width / 16);
 			AffineTransform transform = AffineTransform.getTranslateInstance(barrelCenter.x, barrelCenter.y);
-			Point pointTo;
-			if (Main.showingStage) {
-				pointTo = Main.showingStageMousePos;
-			}
-			else {
-				pointTo = mousePosition;
-			}
-			double vecX = -barrelCenter.x + pointTo.x;
-			double vecY = -pointTo.y + barrelCenter.y;
+			double vecX = -barrelCenter.x + usedMousePosition.x;
+			double vecY = -usedMousePosition.y + barrelCenter.y;
 			transform.rotate(vecY, vecX);
 			transform.translate(-contentSize.width / 32, -contentSize.width / 32);
-			g.drawImage(IO.getTexture("Barrel.png", contentSize.width / 16), transform, null);
+			g.drawImage(IO.getTexture(Main.getSelectedBarrel().textureName, contentSize.width / 16), transform, null);
 			for (int i = 0; i < Main.projectiles.size(); i++) {
-				Projectile currentBullet = Main.projectiles.get(i);
-				g.drawImage(IO.getTexture("Projectile.png", contentSize.width / 64), (int) (currentBullet.x * contentSize.width - contentSize.width / (float) 128), (int) (currentBullet.y * contentSize.height - contentSize.width / (float) 128), null);
+				Projectile currentProjectile = Main.projectiles.get(i);
+				g.drawImage(IO.getTexture(currentProjectile.textureName, contentSize.width / 64), (int) (currentProjectile.x * contentSize.width - contentSize.width / (float) 128), (int) (currentProjectile.y * contentSize.height - contentSize.width / (float) 128), null);
 			}
 		}
 		if (Main.showingStage) {

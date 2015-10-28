@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import game.Barrel.BarrelGameProperty;
 
 import javax.swing.Timer;
 
@@ -14,6 +15,8 @@ public class Main {
 	public static Stage[] stages;
 	public static int currentStage = 0;
 	public static int timeInStage = 0;
+	public static Barrel[] barrels;
+	public static int selectedBarrel;
 	public static ArrayList<BadGuy> badGuys = new ArrayList<BadGuy>();
 	public static ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private static ArrayList<BadGuy> badGuysBuffer = new ArrayList<BadGuy>();
@@ -46,6 +49,7 @@ public class Main {
 	public static void main(String[] arg0) {
 		Gui.intializeGraphics();
 		initializeStages();
+		initializeBarrels();
 		inStartScreen = true;
 		updateTimer.start();
 		repaintTimer.start();
@@ -56,15 +60,24 @@ public class Main {
 		Spawner fastSpw = new Spawner.FastSpawner();
 		Spawner armoredSpw = new Spawner.ArmoredSpawner();
 		stages = new Stage[9];
-		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[]{10});
-		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[]{10, 100});
-		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[]{10, 75, 200});
-		stages[3] = new Stage(new Spawner[] { fastSpw }, new int[]{50});
-		stages[4] = new Stage(new Spawner[] { fastSpw, basicSpw, basicSpw }, new int[]{20, 100, 100});
-		stages[5] = new Stage(new Spawner[] { fastSpw, fastSpw }, new int[]{20, 20});
-		stages[6] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, basicSpw }, new int[]{20, 20, 20, 20});
-		stages[7] = new Stage(new Spawner[] { armoredSpw }, new int[50]);
-		stages[8] = new Stage(new Spawner[] { basicSpw, basicSpw, armoredSpw, armoredSpw }, new int[]{20, 20, 80, 80});
+		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
+		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10 , 100 });
+		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
+		stages[3] = new Stage(new Spawner[] { fastSpw }, new int[] { 50 });
+		stages[4] = new Stage(new Spawner[] { fastSpw, basicSpw, basicSpw }, new int[] { 20, 100, 100 });
+		stages[5] = new Stage(new Spawner[] { fastSpw, fastSpw }, new int[] { 20, 20 });
+		stages[6] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20 });
+		stages[7] = new Stage(new Spawner[] { armoredSpw }, new int[] { 50 });
+		stages[8] = new Stage(new Spawner[] { basicSpw, basicSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 80, 80 });
+	}
+	
+	private static void initializeBarrels() {
+		barrels = new Barrel[1];
+		BarrelGameProperty loadingSpeed = new BarrelGameProperty(new int[] { 15 }, new float[] { -0.2f }, 1);
+		BarrelGameProperty projectilePower = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
+		BarrelGameProperty projectileSpeed = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
+		barrels[0] = new Barrel(new BarrelGameProperty[]{loadingSpeed, projectilePower, projectileSpeed}, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel");
+		selectedBarrel = 0;
 	}
 
 	public static void startPlaying() {
@@ -84,6 +97,10 @@ public class Main {
 		showingStage = true;
 		showingStageMousePos = Gui.getMousePanePosition();
 		showingStageState = 0;
+	}
+	
+	public static Barrel getSelectedBarrel() {
+		return barrels[selectedBarrel];
 	}
 
 	private static void update(Dimension contentSize) {

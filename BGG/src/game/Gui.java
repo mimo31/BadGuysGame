@@ -67,8 +67,14 @@ public final class Gui {
 						float vecY = event.getY() - barrelCenter.y;
 						float factor = (float) (contentSize.width / (float) 32 / Math.sqrt(Math.pow(vecX, 2) + Math.pow(vecY, 2)));
 						Point firePoint = new Point((int) (barrelCenter.x + vecX * factor), (int) (barrelCenter.y + vecY * factor));
-						Projectile bullet = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, vecX / (float) contentSize.width, vecY / (float) contentSize.height);
-						Main.projectiles.add(bullet);
+						Barrel selectedBarrel = Main.getSelectedBarrel();
+						float speed = selectedBarrel.getProjectileSpeed();
+						String textureName = selectedBarrel.projectileTextureName;
+						float hitPower = selectedBarrel.getProjectilePower();
+						float dirX = vecX / (float) contentSize.width;
+						float dirY =  vecY / (float) contentSize.height;
+						Projectile projectile = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, dirX, dirY, speed, textureName, hitPower);
+						Main.projectiles.add(projectile);
 						Main.loadState = 0;
 					}
 				}
