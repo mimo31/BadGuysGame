@@ -3,14 +3,16 @@ package game;
 public class Stage {
 
 	public Spawner[] spawners;
+	public int[] spawnTimes;
 
-	public Stage(Spawner[] spawnTimes) {
-		this.spawners = spawnTimes;
+	public Stage(Spawner[] spawners, int[] spawnTimes) {
+		this.spawners = spawners;
+		this.spawnTimes = spawnTimes;
 	}
 
 	public boolean allSpawned(int stageTime) {
 		for (int i = 0; i < spawners.length; i++) {
-			if (spawners[i].getSpawnTime() > stageTime) {
+			if (spawnTimes[i] > stageTime) {
 				return false;
 			}
 		}

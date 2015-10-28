@@ -2,21 +2,9 @@ package game;
 
 public interface Spawner {
 
-	public int getSpawnTime();
-
 	public BadGuy getBadGuy();
 
 	public class BasicSpawner implements Spawner {
-		public int spawnTime;
-
-		public BasicSpawner(int spawnTime) {
-			this.spawnTime = spawnTime;
-		}
-
-		@Override
-		public int getSpawnTime() {
-			return spawnTime;
-		}
 
 		@Override
 		public BadGuy getBadGuy() {
@@ -26,16 +14,6 @@ public interface Spawner {
 	}
 
 	public class FastSpawner implements Spawner {
-		public int spawnTime;
-
-		public FastSpawner(int spawnTime) {
-			this.spawnTime = spawnTime;
-		}
-
-		@Override
-		public int getSpawnTime() {
-			return spawnTime;
-		}
 
 		@Override
 		public BadGuy getBadGuy() {
@@ -45,16 +23,6 @@ public interface Spawner {
 	}
 
 	public class ArmoredSpawner implements Spawner {
-		public int spawnTime;
-
-		public ArmoredSpawner(int spawnTime) {
-			this.spawnTime = spawnTime;
-		}
-
-		@Override
-		public int getSpawnTime() {
-			return spawnTime;
-		}
 
 		@Override
 		public BadGuy getBadGuy() {

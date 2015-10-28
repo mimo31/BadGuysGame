@@ -52,16 +52,19 @@ public class Main {
 	}
 
 	private static void initializeStages() {
+		Spawner basicSpw = new Spawner.BasicSpawner();
+		Spawner fastSpw = new Spawner.FastSpawner();
+		Spawner armoredSpw = new Spawner.ArmoredSpawner();
 		stages = new Stage[9];
-		stages[0] = new Stage(new Spawner[] { new Spawner.BasicSpawner(10) });
-		stages[1] = new Stage(new Spawner[] { new Spawner.BasicSpawner(10), new Spawner.BasicSpawner(100) });
-		stages[2] = new Stage(new Spawner[] { new Spawner.BasicSpawner(10), new Spawner.BasicSpawner(75), new Spawner.BasicSpawner(200) });
-		stages[3] = new Stage(new Spawner[] { new Spawner.FastSpawner(50) });
-		stages[4] = new Stage(new Spawner[] { new Spawner.FastSpawner(20), new Spawner.BasicSpawner(100), new Spawner.BasicSpawner(100) });
-		stages[5] = new Stage(new Spawner[] { new Spawner.FastSpawner(20), new Spawner.FastSpawner(20) });
-		stages[6] = new Stage(new Spawner[] { new Spawner.BasicSpawner(20), new Spawner.BasicSpawner(20), new Spawner.BasicSpawner(20), new Spawner.BasicSpawner(20) });
-		stages[7] = new Stage(new Spawner[] { new Spawner.ArmoredSpawner(50) });
-		stages[8] = new Stage(new Spawner[] { new Spawner.BasicSpawner(20), new Spawner.BasicSpawner(20), new Spawner.ArmoredSpawner(80), new Spawner.ArmoredSpawner(80) });
+		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[]{10});
+		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[]{10, 100});
+		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[]{10, 75, 200});
+		stages[3] = new Stage(new Spawner[] { fastSpw }, new int[]{50});
+		stages[4] = new Stage(new Spawner[] { fastSpw, basicSpw, basicSpw }, new int[]{20, 100, 100});
+		stages[5] = new Stage(new Spawner[] { fastSpw, fastSpw }, new int[]{20, 20});
+		stages[6] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, basicSpw }, new int[]{20, 20, 20, 20});
+		stages[7] = new Stage(new Spawner[] { armoredSpw }, new int[50]);
+		stages[8] = new Stage(new Spawner[] { basicSpw, basicSpw, armoredSpw, armoredSpw }, new int[]{20, 20, 80, 80});
 	}
 
 	public static void startPlaying() {
@@ -86,9 +89,8 @@ public class Main {
 	private static void update(Dimension contentSize) {
 		if (!inStartScreen && !showingStage) {
 			for (int i = 0; i < stages[currentStage].spawners.length; i++) {
-				Spawner currentSpawner = stages[currentStage].spawners[i];
-				if (currentSpawner.getSpawnTime() == timeInStage) {
-					badGuysBuffer.add(currentSpawner.getBadGuy());
+				if (stages[currentStage].spawnTimes[i] == timeInStage) {
+					badGuysBuffer.add(stages[currentStage].spawners[i].getBadGuy());
 				}
 			}
 			boolean[] isColumnOccupied = new boolean[4];
