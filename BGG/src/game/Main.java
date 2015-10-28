@@ -11,7 +11,7 @@ import javax.swing.Timer;
 
 public class Main {
 
-	public static boolean inStartScreen;
+	public static Screen inScreen;
 	public static Stage[] stages;
 	public static int currentStage = 0;
 	public static int timeInStage = 0;
@@ -21,6 +21,7 @@ public class Main {
 	public static ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private static ArrayList<BadGuy> badGuysBuffer = new ArrayList<BadGuy>();
 	public static float loadState = 1;
+	public static int money = 0;
 
 	public static Point showingStageMousePos;
 	public static boolean showingStage;
@@ -50,7 +51,7 @@ public class Main {
 		Gui.intializeGraphics();
 		initializeStages();
 		initializeBarrels();
-		inStartScreen = true;
+		inScreen = Screen.START_SCREEN;
 		updateTimer.start();
 		repaintTimer.start();
 	}
@@ -77,6 +78,7 @@ public class Main {
 		BarrelGameProperty projectilePower = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
 		BarrelGameProperty projectileSpeed = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
 		barrels[0] = new Barrel(new BarrelGameProperty[]{loadingSpeed, projectilePower, projectileSpeed}, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel");
+		barrels[0].gameProperties[1].upgrade();
 		selectedBarrel = 0;
 	}
 
@@ -104,105 +106,111 @@ public class Main {
 	}
 
 	private static void update(Dimension contentSize) {
-		if (!inStartScreen && !showingStage) {
-			for (int i = 0; i < stages[currentStage].spawners.length; i++) {
-				if (stages[currentStage].spawnTimes[i] == timeInStage) {
-					badGuysBuffer.add(stages[currentStage].spawners[i].getBadGuy());
-				}
-			}
-			boolean[] isColumnOccupied = new boolean[4];
-			float heightSizeOfABadGuy = contentSize.width / (float) 16 / contentSize.height;
-			for (int i = 0; i < badGuys.size(); i++) {
-				BadGuy currentBadGuy = badGuys.get(i);
-				currentBadGuy.hittingProgress += 1 / (float) 32;
-				if (currentBadGuy.isBeingHit && currentBadGuy.hittingProgress >= 1) {
-					currentBadGuy.isBeingHit = false;
-					currentBadGuy.live -= currentBadGuy.hitBy;
-					if (currentBadGuy.isDead) {
-						badGuys.remove(i);
-						i--;
-						if (badGuys.isEmpty()) {
-							if (badGuysBuffer.isEmpty() && stages[currentStage].allSpawned(timeInStage)) {
-								startNewStage();
+		switch (inScreen) {
+			case GAME_SCREEN:
+				if (!showingStage) {
+					for (int i = 0; i < stages[currentStage].spawners.length; i++) {
+						if (stages[currentStage].spawnTimes[i] == timeInStage) {
+							badGuysBuffer.add(stages[currentStage].spawners[i].getBadGuy());
+						}
+					}
+					boolean[] isColumnOccupied = new boolean[4];
+					float heightSizeOfABadGuy = contentSize.width / (float) 16 / contentSize.height;
+					for (int i = 0; i < badGuys.size(); i++) {
+						BadGuy currentBadGuy = badGuys.get(i);
+						currentBadGuy.hittingProgress += 1 / (float) 32;
+						if (currentBadGuy.isBeingHit && currentBadGuy.hittingProgress >= 1) {
+							currentBadGuy.isBeingHit = false;
+							currentBadGuy.live -= currentBadGuy.hitBy;
+							if (currentBadGuy.isDead) {
+								badGuys.remove(i);
+								i--;
+								if (badGuys.isEmpty()) {
+									if (badGuysBuffer.isEmpty() && stages[currentStage].allSpawned(timeInStage)) {
+										startNewStage();
+									}
+								}
+							}
+						}
+						if (!currentBadGuy.isDead) {
+							currentBadGuy.move();
+							if (currentBadGuy.y > 1) {
+								// Game Over
+								showingStage = true;
+								gameOver = true;
+								showingStageState = 0;
+								showingStageMousePos = Gui.getMousePanePosition();
+							}
+							if (currentBadGuy.y < heightSizeOfABadGuy) {
+								isColumnOccupied[currentBadGuy.x] = true;
 							}
 						}
 					}
-				}
-				if (!currentBadGuy.isDead) {
-					currentBadGuy.move();
-					if (currentBadGuy.y > 1) {
-						// Game Over
-						showingStage = true;
-						gameOver = true;
-						showingStageState = 0;
-						showingStageMousePos = Gui.getMousePanePosition();
+					while (!isFull(isColumnOccupied) && !(badGuysBuffer.size() == 0)) {
+						badGuysBuffer.get(0).x = takeFree(isColumnOccupied);
+						badGuys.add(badGuysBuffer.get(0));
+						badGuysBuffer.remove(0);
 					}
-					if (currentBadGuy.y < heightSizeOfABadGuy) {
-						isColumnOccupied[currentBadGuy.x] = true;
+					float heightFraction = contentSize.width / (float) contentSize.height / (float) 128;
+					for (int i = 0; i < projectiles.size(); i++) {
+						Projectile currentProjectile = projectiles.get(i);
+						currentProjectile.x += currentProjectile.dirX / 128;
+						currentProjectile.y += currentProjectile.dirY / 128;
+						if (currentProjectile.x + 1 / (float) 128 < 0 || currentProjectile.x - 1 / (float) 128 >= 1 || currentProjectile.y + heightFraction < 0 || currentProjectile.y - heightFraction >= 1) {
+							projectiles.remove(i);
+							i--;
+						}
+						for (int j = 0; j < badGuys.size(); j++) {
+							BadGuy currentBadGuy = badGuys.get(j);
+							if (doesCollide(currentBadGuy.x / (float) 4 + 1 / (float) 8, currentBadGuy.y * contentSize.height / (float) contentSize.width - 1 / (float) 32, 1 / (float) 32, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
+								currentBadGuy.hit(currentProjectile.hitPower);
+								projectiles.remove(i);
+								i--;
+								break;
+							}
+						}
 					}
-				}
-			}
-			while (!isFull(isColumnOccupied) && !(badGuysBuffer.size() == 0)) {
-				badGuysBuffer.get(0).x = takeFree(isColumnOccupied);
-				badGuys.add(badGuysBuffer.get(0));
-				badGuysBuffer.remove(0);
-			}
-			float heightFraction = contentSize.width / (float) contentSize.height / (float) 128;
-			for (int i = 0; i < projectiles.size(); i++) {
-				Projectile currentProjectile = projectiles.get(i);
-				currentProjectile.x += currentProjectile.dirX / 128;
-				currentProjectile.y += currentProjectile.dirY / 128;
-				if (currentProjectile.x + 1 / (float) 128 < 0 || currentProjectile.x - 1 / (float) 128 >= 1 || currentProjectile.y + heightFraction < 0 || currentProjectile.y - heightFraction >= 1) {
-					projectiles.remove(i);
-					i--;
-				}
-				for (int j = 0; j < badGuys.size(); j++) {
-					BadGuy currentBadGuy = badGuys.get(j);
-					if (doesCollide(currentBadGuy.x / (float) 4 + 1 / (float) 8, currentBadGuy.y * contentSize.height / (float) contentSize.width - 1 / (float) 32, 1 / (float) 32, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
-						currentBadGuy.hit(currentProjectile.hitPower);
-						projectiles.remove(i);
-						i--;
-						break;
+					if (loadState != 1) {
+						loadState += 1 / (float) 32;
+						if (loadState > 1) {
+							loadState = 1;
+						}
 					}
+					timeInStage++;
 				}
-			}
-			if (loadState != 1) {
-				loadState += 1 / (float) 32;
-				if (loadState > 1) {
-					loadState = 1;
-				}
-			}
-			timeInStage++;
+				break;
+			default:
+				break;
 		}
-		else {
-			if (showingStage) {
-				showingStageState++;
-				if (currentStage == 0 && showingStageState == 60) {
-					inStartScreen = false;
-				}
-				if (showingStageState == 120) {
-					showingStage = false;
+		if (showingStage) {
+			showingStageState++;
+			if (currentStage == 0 && showingStageState == 60) {
+				inScreen = Screen.GAME_SCREEN;
+			}
+			if (showingStageState == 120) {
+				showingStage = false;
+				loadState = 1;
+			}
+			if (gameOver || noMoreStages) {
+				if (showingStageState == 60) {
 					loadState = 1;
+					badGuys.clear();
+					badGuysBuffer.clear();
+					projectiles.clear();
+					inScreen = Screen.START_SCREEN;
+					currentStage = 0;
+					timeInStage = 0;
 				}
-				if (gameOver || noMoreStages) {
-					if (showingStageState == 60) {
-						loadState = 1;
-						badGuys.clear();
-						badGuysBuffer.clear();
-						projectiles.clear();
-						inStartScreen = true;
-						currentStage = 0;
-						timeInStage = 0;
-					}
-					else if (showingStageState == 120) {
-						showingStage = false;
-						gameOver = false;
-						noMoreStages = false;
-						showingStageState = 0;
-					}
+				else if (showingStageState == 120) {
+					showingStage = false;
+					gameOver = false;
+					noMoreStages = false;
+					showingStageState = 0;
 				}
 			}
-
+		}
+		for (int i = 0; i < barrels.length; i++) {
+			barrels[i].update();
 		}
 	}
 

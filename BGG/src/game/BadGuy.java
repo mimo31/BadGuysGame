@@ -32,12 +32,12 @@ public class BadGuy {
 	public void hit(float hitPower) {
 		if (this.isBeingHit) {
 			if (this.hitBy + hitPower >= this.live) {
-				this.hittingProgress = shiftedArcsine(shiftedSine(this.hitBy) * this.hittingProgress / this.live);
+				this.hittingProgress = PaintUtil.shiftedArcsine(PaintUtil.shiftedSine(this.hitBy) * this.hittingProgress / this.live);
 				this.isDead = true;
 				this.hitBy = this.live;
 			}
 			else {
-				this.hittingProgress = shiftedArcsine(shiftedSine(this.hitBy) * this.hittingProgress / (this.hitBy + hitPower));
+				this.hittingProgress = PaintUtil.shiftedArcsine(PaintUtil.shiftedSine(this.hitBy) * this.hittingProgress / (this.hitBy + hitPower));
 				this.hitBy = this.hitBy + hitPower;
 			}
 		}
@@ -56,7 +56,7 @@ public class BadGuy {
 
 	public float getShownLive() {
 		if (this.isBeingHit) {
-			return (this.live - shiftedSine(hittingProgress) * hitBy) / this.totalLive;
+			return (this.live - PaintUtil.shiftedSine(hittingProgress) * hitBy) / this.totalLive;
 		}
 		else {
 			return this.live / this.totalLive;
@@ -66,13 +66,4 @@ public class BadGuy {
 	public void move() {
 		this.y += this.speed / (float) 512;
 	}
-
-	private static float shiftedSine(float x) {
-		return (float) (Math.sin(x * Math.PI - Math.PI / (double) 2) + 1) / (float) 2;
-	}
-
-	private static float shiftedArcsine(float x) {
-		return (float) (Math.asin(x * 2 - 1) / (Math.PI / 2) + 1) / (float) 2;
-	}
-
 }

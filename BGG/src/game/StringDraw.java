@@ -30,9 +30,9 @@ public class StringDraw {
 		if (bounds.width > 0 && bounds.height > 0) {
 			graph2.setFont(graph2.getFont().deriveFont(fontType, 101f));
 			Rectangle s1Size = getStringBounds(graph2, str, 0, 0);
-			final Double s1Per1Width = ((double) s1Size.width) / 101;
-			final Double s1Per1Height = ((double) s1Size.height) / 101;
-			if (s1Per1Width / s1Per1Height > bounds.width / bounds.height) {
+			final Double s1Per1Width = s1Size.width / (double)101;
+			final Double s1Per1Height = s1Size.height / (double)101;
+			if (s1Per1Width / s1Per1Height > bounds.width / (double)bounds.height) {
 				graph2.setFont(graph2.getFont().deriveFont(fontType, (float) (bounds.width / s1Per1Width)));
 			}
 			else {

@@ -29,6 +29,11 @@ public final class IO {
 	 *            The width of the returned image.
 	 */
 	public static BufferedImage getTexture(String name, int width) throws IOException {
+		if (width == 0) {
+			BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+			image.setRGB(0, 0, 0);
+			return new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		}
 		boolean found = false;
 		Texture originalTexture = null;
 		// Looks into originalTextures, sets originalTexture to one of the
