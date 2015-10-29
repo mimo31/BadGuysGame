@@ -36,7 +36,7 @@ public class Barrel {
 		}
 	}
 
-	static class BarrelGameProperty {
+	public static class BarrelGameProperty {
 		int[] upgradeCosts;
 		float[] upgradeValues;
 		float actualValue;
@@ -73,7 +73,7 @@ public class Barrel {
 			this.actualValue += this.getUpgradeValue();
 			this.upgradeLevel++;
 			if (this.isUpgrading) {
-				this.upgradingProgress = PaintUtil.shiftedArcsine(PaintUtil.shiftedSine(this.upgradingProgress) / 2);
+				this.upgradingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.upgradingProgress) / 2);
 			}
 			else {
 				this.isUpgrading = true;
@@ -82,7 +82,7 @@ public class Barrel {
 		}
 		
 		public float getUpgradedDrawnFraction() {
-			return (upgradeLevel + PaintUtil.shiftedSine(this.upgradingProgress) - 1) / (float) upgradeValues.length;
+			return (upgradeLevel + PaintUtils.shiftedSine(this.upgradingProgress) - 1) / (float) upgradeValues.length;
 		}
 		
 		public void update() {

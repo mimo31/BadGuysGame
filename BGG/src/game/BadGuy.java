@@ -32,12 +32,12 @@ public class BadGuy {
 	public void hit(float hitPower) {
 		if (this.isBeingHit) {
 			if (this.hitBy + hitPower >= this.live) {
-				this.hittingProgress = PaintUtil.shiftedArcsine(PaintUtil.shiftedSine(this.hitBy) * this.hittingProgress / this.live);
+				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hitBy) * this.hittingProgress / this.live);
 				this.isDead = true;
 				this.hitBy = this.live;
 			}
 			else {
-				this.hittingProgress = PaintUtil.shiftedArcsine(PaintUtil.shiftedSine(this.hitBy) * this.hittingProgress / (this.hitBy + hitPower));
+				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hitBy) * this.hittingProgress / (this.hitBy + hitPower));
 				this.hitBy = this.hitBy + hitPower;
 			}
 		}
@@ -56,7 +56,7 @@ public class BadGuy {
 
 	public float getShownLive() {
 		if (this.isBeingHit) {
-			return (this.live - PaintUtil.shiftedSine(hittingProgress) * hitBy) / this.totalLive;
+			return (this.live - PaintUtils.shiftedSine(hittingProgress) * hitBy) / this.totalLive;
 		}
 		else {
 			return this.live / this.totalLive;

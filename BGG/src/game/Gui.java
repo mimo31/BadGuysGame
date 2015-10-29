@@ -6,7 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -43,8 +42,9 @@ public final class Gui {
 		public void paint(Graphics graphics) {
 			Graphics2D g = (Graphics2D) graphics;
 			try {
-				Painting.paint(g, gui.getContentPane().getSize(), getMousePanePosition());
-			} catch (IOException e) {
+				Main.currentScreen.paint(g, gui.getContentPane().getSize(), getMousePanePosition());
+				//Painting.paint(g, gui.getContentPane().getSize(), getMousePanePosition());
+			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 		}
@@ -53,7 +53,8 @@ public final class Gui {
 	public static MouseInputAdapter mouseEventsHandler = new MouseInputAdapter() {
 
 		public void mousePressed(MouseEvent event) {
-			Dimension contentSize = getContentSize();
+			Main.currentScreen.mousePressed(event);
+			/*Dimension contentSize = getContentSize();
 			switch(Main.inScreen) {
 				case START_SCREEN:
 					if (Painting.playButton.contains(event.getPoint())) {
@@ -87,7 +88,7 @@ public final class Gui {
 					break;
 				case SHOP_SCREEN:
 					break;
-			}
+			}*/
 		}
 
 		public void mouseMoved(MouseEvent event) {

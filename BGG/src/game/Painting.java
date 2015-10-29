@@ -1,4 +1,4 @@
-package game;
+/*package game;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -140,26 +140,6 @@ public final class Painting {
 			drawStage(g, contentSize, text, alpha);
 		}
 	}
-
-	private static String getLastColumnText(BarrelGameProperty barrelProperties) {
-		if (barrelProperties.isFullyUpgraded()) {
-			return "maxed";
-		}
-		else {
-			float upgradeValue = barrelProperties.getUpgradeValue();
-			String valuePart;
-			if (upgradeValue > 0) {
-				valuePart = "+" + toString(upgradeValue);
-			}
-			else if (upgradeValue < 0) {
-				valuePart = toString(upgradeValue);
-			}
-			else {
-				valuePart = "±0";
-			}
-			return valuePart + "(" + String.valueOf(barrelProperties.getUpgradeCost()) + "c)";
-		}
-	}
 	
 	private static Rectangle getFirstAndSecondCols(int row, Dimension contentSize) {
 		return new Rectangle(0, row * contentSize.height / 8, contentSize.width / 2, contentSize.height / 8);
@@ -203,4 +183,4 @@ public final class Painting {
 		g.setColor(new Color(255, 255, 255, alpha));
 		StringDraw.drawMaxString(g, contentSize.height / 32, text, new Rectangle(0, contentSize.height / 2 - contentSize.height / 16, contentSize.width, contentSize.height / 8));
 	}
-}
+}*/

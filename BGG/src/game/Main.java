@@ -6,12 +6,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import game.Barrel.BarrelGameProperty;
+import game.screens.StartScreen;
 
 import javax.swing.Timer;
 
 public class Main {
 
-	public static Screen inScreen;
+	public static Screen currentScreen;
 	public static Stage[] stages;
 	public static int currentStage = 0;
 	public static int timeInStage = 0;
@@ -33,7 +34,7 @@ public class Main {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			update(Gui.getContentSize());
+			currentScreen.update();
 		}
 
 	});
@@ -51,7 +52,7 @@ public class Main {
 		Gui.intializeGraphics();
 		initializeStages();
 		initializeBarrels();
-		inScreen = Screen.START_SCREEN;
+		currentScreen = new StartScreen();
 		updateTimer.start();
 		repaintTimer.start();
 	}
@@ -87,7 +88,7 @@ public class Main {
 		showingStageMousePos = Gui.getMousePanePosition();
 	}
 
-	private static void startNewStage() {
+	public static void startNewStage() {
 		projectiles.clear();
 		if (currentStage == stages.length - 1) {
 			noMoreStages = true;
@@ -105,7 +106,37 @@ public class Main {
 		return barrels[selectedBarrel];
 	}
 
-	private static void update(Dimension contentSize) {
+	public static void addBadGuyToBuffer(BadGuy badGuy) {
+		badGuysBuffer.add(badGuy);
+	}
+	
+	public static void spawnBadGuysFromBuffer(Dimension contentSize) {
+		boolean[] isColumnOccupied = new boolean[4];
+		float heightSizeOfABadGuy = contentSize.width / (float) 16 / contentSize.height;
+		for (int i = 0; i < badGuys.size(); i++) {
+			BadGuy currentBadGuy = badGuys.get(i);
+			if (!currentBadGuy.isDead && currentBadGuy.y < heightSizeOfABadGuy) {
+				isColumnOccupied[currentBadGuy.x] = true;
+			}
+		}
+		while (!isFull(isColumnOccupied) && !(badGuysBuffer.size() == 0)) {
+			badGuysBuffer.get(0).x = takeFree(isColumnOccupied);
+			badGuys.add(badGuysBuffer.get(0));
+			badGuysBuffer.remove(0);
+		}
+	}
+	
+	public static boolean isStageCompleted() {
+		if (badGuys.isEmpty() && badGuysBuffer.isEmpty() && stages[currentStage].allSpawned(timeInStage)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	/*private static void update(Dimension contentSize) {
+		
 		switch (inScreen) {
 			case GAME_SCREEN:
 				if (!showingStage) {
@@ -212,29 +243,8 @@ public class Main {
 		for (int i = 0; i < barrels.length; i++) {
 			barrels[i].update();
 		}
-	}
-
-	private static boolean doesCollide(float squareCenterX, float squareCenterY, float squareSize, float circleCenterX, float circleCenterY, float circleRadius) {
-		float diffX = Math.abs(squareCenterX - circleCenterX);
-		float diffY = Math.abs(squareCenterY - circleCenterY);
-
-		if (diffX > squareSize + circleRadius) {
-			return false;
-		}
-		if (diffY > squareSize + circleRadius) {
-			return false;
-		}
-
-		if (diffX <= squareSize + circleRadius && diffY <= squareSize) {
-			return true;
-		}
-		if (diffY <= squareSize + circleRadius && diffX <= squareSize) {
-			return true;
-		}
-
-		float distToCornerSqr = (float) (Math.pow(diffX - squareSize, 2) + Math.pow(diffY - squareSize, 2));
-		return distToCornerSqr <= Math.pow(circleRadius, 2);
-	}
+		
+	}*/
 
 	private static boolean isFull(boolean[] array) {
 		for (int i = 0; i < array.length; i++) {
