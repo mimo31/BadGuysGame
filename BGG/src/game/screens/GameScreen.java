@@ -17,16 +17,16 @@ import game.PaintUtils;
 import game.Projectile;
 import game.Screen;
 
-public class GameScreen extends Screen{
-	
+public class GameScreen extends Screen {
+
 	public static final Color TRANSPARENT_GREEN = new Color(0, 255, 127, 127);
 	public static final Color TRANSPARENT_RED = new Color(255, 0, 0, 127);
 
-	//Components
+	// Components
 	private Point usedMousePosition;
 	private Graphics2D g;
 	private Dimension contentSize;
-	
+
 	private void updateComponents(Graphics2D g, Dimension contentSize, Point mousePosition) {
 		if (Main.showingStage) {
 			this.usedMousePosition = Main.showingStageMousePos;
@@ -34,9 +34,10 @@ public class GameScreen extends Screen{
 		else {
 			this.usedMousePosition = mousePosition;
 		}
+		this.contentSize = contentSize;
 		this.g = g;
 	}
-	
+
 	@Override
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
 		this.updateComponents(g, contentSize, mousePosition);
@@ -74,7 +75,7 @@ public class GameScreen extends Screen{
 			}
 		}
 	}
-		
+
 	private void drawBadGuy(BadGuy badGuy) throws IOException {
 		int screenX = (int) ((badGuy.x / (float) 4 + 1 / (float) 8 - 1 / (float) 32) * contentSize.width);
 		int screenY = (int) (badGuy.y * contentSize.height - contentSize.width / 16);
@@ -83,7 +84,7 @@ public class GameScreen extends Screen{
 		int filledSize = (int) (badGuy.getShownLive() * contentSize.width / 16);
 		this.g.fillRect(screenX, screenY + contentSize.width / 16 - filledSize, contentSize.width / 16, filledSize);
 	}
-	
+
 	@Override
 	public void mousePressed(MouseEvent event) {
 		if (!Main.showingStage) {
@@ -98,14 +99,14 @@ public class GameScreen extends Screen{
 				String textureName = selectedBarrel.projectileTextureName;
 				float hitPower = selectedBarrel.getProjectilePower();
 				float dirX = vecX / (float) contentSize.width;
-				float dirY =  vecY / (float) contentSize.height;
+				float dirY = vecY / (float) contentSize.height;
 				Projectile projectile = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, dirX, dirY, speed, textureName, hitPower);
 				Main.projectiles.add(projectile);
 				Main.loadState = 0;
 			}
 		}
 	}
-	
+
 	@Override
 	public void update() {
 		if (!Main.showingStage) {
@@ -172,6 +173,7 @@ public class GameScreen extends Screen{
 		else {
 			Main.showingStageState++;
 			if (Main.showingStageState == 60 && (Main.gameOver || Main.noMoreStages)) {
+				Main.resetTheGame();
 				Screen.startNew(new StartScreen());
 			}
 			else if (Main.showingStageState == 120) {

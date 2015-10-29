@@ -35,6 +35,12 @@ public class Barrel {
 			this.gameProperties[i].update();
 		}
 	}
+	
+	public void forceUpgrade() {
+		for (int i = 0; i < 3; i++) {
+			this.gameProperties[i].forceUpgrade();
+		}
+	}
 
 	public static class BarrelGameProperty {
 		int[] upgradeCosts;
@@ -82,7 +88,14 @@ public class Barrel {
 		}
 		
 		public float getUpgradedDrawnFraction() {
-			return (upgradeLevel + PaintUtils.shiftedSine(this.upgradingProgress) - 1) / (float) upgradeValues.length;
+			float upgradeState;
+			if (this.isUpgrading) {
+				upgradeState = this.upgradeLevel + PaintUtils.shiftedSine(this.upgradingProgress) - 1;
+			}
+			else {
+				upgradeState = this.upgradeLevel;
+			}
+			return upgradeState / (float) upgradeValues.length;
 		}
 		
 		public void update() {
@@ -92,6 +105,10 @@ public class Barrel {
 					this.isUpgrading = false;
 				}
 			}
+		}
+		
+		public void forceUpgrade() {
+			this.isUpgrading = false;
 		}
 	}
 }

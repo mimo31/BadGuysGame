@@ -15,12 +15,12 @@ import game.StringDraw;
 import game.StringDraw.TextAlign;
 
 public final class StartScreen extends Screen {
-	
-	//Components
+
+	// Components
 	private Rectangle playButton;
 	private Rectangle shopButton;
 	private Point usedMousePosition;
-	
+
 	private void updateComponenets(Dimension contentSize, Point mousePosition) {
 		this.playButton = new Rectangle(contentSize.width / 4, contentSize.height / 8, contentSize.width / 2, contentSize.height / 4);
 		this.shopButton = new Rectangle(contentSize.width / 4, contentSize.height / 2 + contentSize.height / 8, contentSize.width / 2, contentSize.height / 4);
@@ -31,7 +31,7 @@ public final class StartScreen extends Screen {
 			usedMousePosition = mousePosition;
 		}
 	}
-	
+
 	@Override
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) {
 		updateComponenets(contentSize, mousePosition);
@@ -52,7 +52,7 @@ public final class StartScreen extends Screen {
 			}
 		}
 	}
-	
+
 	@Override
 	public void mousePressed(MouseEvent event) {
 		if (!Main.showingStage) {
@@ -67,7 +67,7 @@ public final class StartScreen extends Screen {
 			}
 		}
 	}
-	
+
 	@Override
 	public void update() {
 		if (Main.showingStage) {
