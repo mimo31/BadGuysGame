@@ -110,5 +110,21 @@ public class Barrel {
 		public void forceUpgrade() {
 			this.isUpgrading = false;
 		}
+		
+		public float gatMaxValue() {
+			float sum = 0;
+			for (int i = 0; i < this.upgradeValues.length; i++) {
+				sum += this.upgradeValues[i];
+			}
+			return actualValue + sum;
+		}
+		
+		public int getMaxCost() {
+			int sum = 0;
+			for (int i = 0; i < this.upgradeCosts.length; i++) {
+				sum += this.upgradeCosts[i];
+			}
+			return sum;
+		}
 	}
 }

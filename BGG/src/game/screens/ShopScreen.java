@@ -7,6 +7,8 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Area;
 import java.io.IOException;
 
 import game.Barrel;
@@ -22,8 +24,13 @@ public final class ShopScreen extends Screen {
 
 	public static final Color GREEN = new Color(114, 241, 46);
 	public static final Color DARK_GREEN = GREEN.darker();
-	public static final Color DARK_GREEN2 = new Color(0, 127, 0);;
+	public static final Color DARK_GREEN2 = new Color(0, 127, 0);
+	public static final Color TRANSPARENT_GRAY = new Color(127, 127, 127, 63);
+	public static final Color CITRINE = new Color(228, 208, 10);
+	public static final Color DARK_RED = new Color(170, 56, 30);
+	public static final Color CHAMPAGNE = new Color(247, 231, 206);
 
+	private float barrelsListPosition = 0;
 
 	// Components
 	private Rectangle leftArrowButton;
@@ -40,7 +47,10 @@ public final class ShopScreen extends Screen {
 	private int coinIconSize;
 	private Rectangle moneySignBounds;
 	private Rectangle moneyAmountBounds;
+	private int barrelsSize;
+	private Rectangle buyButton;
 	private Dimension contentSize;
+	private Graphics2D g;
 
 	@Override
 	public void onStart() {
@@ -75,9 +85,11 @@ public final class ShopScreen extends Screen {
 
 		this.moneySignBounds = new Rectangle();
 		this.moneyAmountBounds = new Rectangle();
+		this.buyButton = new Rectangle();
 	}
 
 	private void updateComponents(Graphics2D g, Dimension contentSize) {
+		this.g = g;
 		if (!(contentSize.width == this.contentSize.width && contentSize.height == this.contentSize.height)) {
 			this.contentSize = contentSize;
 			this.leftArrowButton.setBounds(0, 0, contentSize.height / 16 - contentSize.height / 256, contentSize.height / 8 - contentSize.height / 256);
@@ -118,14 +130,23 @@ public final class ShopScreen extends Screen {
 
 			this.moneySignBounds.setBounds(0, contentSize.height * 7 / 8, contentSize.width / 2, (int) rowHeight);
 			this.moneyAmountBounds.setBounds(contentSize.width / 2, contentSize.height * 7 / 8, contentSize.width / 2 - this.coinIconSize * 2, (int) rowHeight);
+
+			this.barrelsSize = this.leftArrowButton.height;
+			this.buyButton.setBounds(0, (int) (rowHeight * 5), contentSize.width, (int) (rowHeight * 2));
 		}
 	}
 
 	@Override
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
 		this.updateComponents(g, contentSize);
+		int maxBarrelIndex = (int) Math.floor(this.barrelsListPosition + (contentSize.width - contentSize.height / 8) / (float) (contentSize.height / 8 - contentSize.height / 256));
+		for (int i = (int) Math.floor(this.barrelsListPosition); i < Main.barrels.length && i <= maxBarrelIndex; i++) {
+			this.drawBarrel(i);
+		}
 		g.setColor(Color.black);
 		g.fillRect(0, contentSize.height / 8 - contentSize.height / 256, contentSize.width, contentSize.height / 256);
+		g.fillRect(this.leftArrowButton.width, 0, contentSize.height / 256, this.leftArrowButton.height);
+		g.fillRect(this.rightArrowButton.x - contentSize.height / 256, 0, contentSize.height / 256, this.rightArrowButton.height);
 		PaintUtils.drawChangingRect(g, this.leftArrowButton, GREEN, DARK_GREEN, mousePosition);
 		if (leftArrowButton.contains(mousePosition)) {
 			g.setColor(Color.yellow);
@@ -158,13 +179,54 @@ public final class ShopScreen extends Screen {
 		StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedBarrel.getLoadingSpeed()), this.propertyValueBounds[0]);
 		StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedBarrel.getProjectilePower()), this.propertyValueBounds[1]);
 		StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedBarrel.getProjectileSpeed()), this.propertyValueBounds[2]);
-		for (int i = 0; i < 3; i++) {
-			StringDraw.drawMaxString(g, this.tableBordersSize, getLastColumnText(selectedBarrel.gameProperties[i]), this.propertyUpgradeBounds[i]);
+		if (selectedBarrel.bought) {
+			for (int i = 0; i < 3; i++) {
+				if (!selectedBarrel.gameProperties[i].isFullyUpgraded()) {
+					PaintUtils.drawChangingRect(g, this.propertyUpgradeBounds[i], Color.cyan, Color.red, mousePosition);
+				}
+			}
+			g.setColor(Color.black);
+			for (int i = 0; i < 3; i++) {
+				StringDraw.drawMaxString(g, this.tableBordersSize, getLastColumnTextBought(selectedBarrel.gameProperties[i]), this.propertyUpgradeBounds[i]);
+			}
 		}
+		else {
+			g.setColor(Color.black);
+			for (int i = 0; i < 3; i++) {
+				StringDraw.drawMaxString(g, this.tableBordersSize, getLastColumnTextNotBought(selectedBarrel.gameProperties[i]), this.propertyUpgradeBounds[i]);
+			}
+			PaintUtils.drawChangingRect(g, this.buyButton, DARK_RED, CHAMPAGNE, mousePosition);
+			Color textColor;
+			if (this.buyButton.contains(mousePosition)) {
+				textColor = Color.black;
+			}
+			else {
+				textColor = Color.white;
+			}
+			g.setColor(textColor);
+			StringDraw.drawMaxString(g, this.buyButton.height / 4, "Buy - " + String.valueOf(selectedBarrel.cost) + " coins", this.buyButton);
+		}
+		g.setColor(Color.black);
 		g.drawImage(IO.getTexture("BasicCoin.png", this.coinIconSize), this.coinIconX, this.coinIconY, null);
 		StringDraw.drawMaxString(g, this.tableBordersSize, "Total money", TextAlign.LEFT, this.moneySignBounds);
 		g.setColor(DARK_GREEN2);
 		StringDraw.drawMaxString(g, this.tableBordersSize, String.valueOf(Main.money), TextAlign.RIGHT, this.moneyAmountBounds);
+	}
+
+	private void drawBarrel(int index) throws IOException {
+		int x = (int) ((this.barrelsSize) * (index - this.barrelsListPosition)) + this.contentSize.height / 16;
+		this.g.drawImage(IO.getTexture(Main.barrels[index].textureName, (int) this.barrelsSize), x, 0, null);
+		if (!Main.barrels[index].bought) {
+			this.g.setColor(TRANSPARENT_GRAY);
+			this.g.fillRect(x, 0, this.barrelsSize, this.barrelsSize);
+		}
+		if (index == Main.selectedBarrel) {
+			float cornerSize = this.barrelsSize / (float) 16;
+			Area wholeBarrel = new Area(new Rectangle(x, 0, this.barrelsSize, this.barrelsSize));
+			wholeBarrel.subtract(new Area(new Rectangle((int) (x + cornerSize), (int) cornerSize, (int) (this.barrelsSize - cornerSize * 2), (int) (this.barrelsSize - cornerSize * 2))));
+			this.g.setColor(CITRINE);
+			g.fill(wholeBarrel);
+		}
 	}
 
 	private static String toString(float f) {
@@ -176,7 +238,11 @@ public final class ShopScreen extends Screen {
 		}
 	}
 
-	private static String getLastColumnText(BarrelGameProperty barrelProperties) {
+	private static String getLastColumnTextNotBought(BarrelGameProperty barrelProperties) {
+		return "best " + toString(barrelProperties.gatMaxValue()) + "(" + String.valueOf(barrelProperties.getMaxCost()) + "c)";
+	}
+
+	private static String getLastColumnTextBought(BarrelGameProperty barrelProperties) {
 		if (barrelProperties.isFullyUpgraded()) {
 			return "maxed";
 		}
@@ -195,14 +261,14 @@ public final class ShopScreen extends Screen {
 			return valuePart + "(" + String.valueOf(barrelProperties.getUpgradeCost()) + "c)";
 		}
 	}
-	
+
 	@Override
 	public void update() {
 		for (int i = 0; i < Main.barrels.length; i++) {
 			Main.barrels[i].update();
 		}
 	}
-	
+
 	@Override
 	public void keyPressed(KeyEvent event) {
 		if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -210,6 +276,47 @@ public final class ShopScreen extends Screen {
 				Main.barrels[i].forceUpgrade();
 			}
 			Screen.startNew(new StartScreen());
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent event) {
+		if (event.getX() >= this.contentSize.height / 16 && event.getX() < this.contentSize.width - this.contentSize.height / 16 && event.getY() < this.barrelsSize) {
+			float relListClickPosition = this.barrelsListPosition + (event.getX() - this.contentSize.height / 16) / (float) this.barrelsSize;
+			int clickedBarrelIndex = (int) Math.floor(relListClickPosition);
+			if (clickedBarrelIndex < Main.barrels.length) {
+				Main.selectedBarrel = clickedBarrelIndex;
+			}
+		}
+		else if (event.getX() >= this.propertyUpgradeBounds[0].x && event.getY() >= this.propertyUpgradeBounds[0].y && event.getY() < this.propertyUpgradeBounds[2].y + this.propertyUpgradeBounds[2].height) {
+			Barrel selectedBarrel = Main.getSelectedBarrel();
+			if (selectedBarrel.bought) {
+				int clickedProperty;
+				if (event.getY() < this.propertyUpgradeBounds[1].y) {
+					clickedProperty = 0;
+				}
+				else if (event.getY() < this.propertyUpgradeBounds[2].y) {
+					clickedProperty = 1;
+				}
+				else {
+					clickedProperty = 2;
+				}
+				BarrelGameProperty gameProperty = selectedBarrel.gameProperties[clickedProperty];
+				if (!gameProperty.isFullyUpgraded()) {
+					int upgradeCost = gameProperty.getUpgradeCost();
+					if (Main.money >= upgradeCost) {
+						Main.money -= upgradeCost;
+						gameProperty.upgrade();
+					}
+				}
+			}
+		}
+		else if (this.buyButton.contains(event.getPoint()) && !Main.getSelectedBarrel().bought) {
+			Barrel selectedBarrel = Main.getSelectedBarrel();
+			if (selectedBarrel.cost <= Main.money) {
+				Main.money -= selectedBarrel.cost;
+				selectedBarrel.bought = true;
+			}
 		}
 	}
 }
