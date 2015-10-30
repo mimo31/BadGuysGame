@@ -12,7 +12,7 @@ import game.Main;
 import game.PaintUtils;
 import game.Screen;
 import game.StringDraw;
-import game.StringDraw.TextAlign;
+import game.StringDraw.StringDrawAttributes;
 
 public final class StartScreen extends Screen {
 
@@ -20,10 +20,29 @@ public final class StartScreen extends Screen {
 	private Rectangle playButton;
 	private Rectangle shopButton;
 	private Point usedMousePosition;
+	private StringDrawAttributes playTextAttributes;
+	private StringDrawAttributes shopTextAttributes;
+	private Dimension contentSize;
 
-	private void updateComponenets(Dimension contentSize, Point mousePosition) {
-		this.playButton = new Rectangle(contentSize.width / 4, contentSize.height / 8, contentSize.width / 2, contentSize.height / 4);
-		this.shopButton = new Rectangle(contentSize.width / 4, contentSize.height / 2 + contentSize.height / 8, contentSize.width / 2, contentSize.height / 4);
+	@Override
+	public void onStart() {
+		this.initializeComponents();
+	}
+	
+	private void initializeComponents() {
+		this.playButton = new Rectangle();
+		this.shopButton = new Rectangle();
+		this.contentSize = new Dimension();
+	}
+	
+	private void updateComponents(Graphics2D g, Dimension contentSize, Point mousePosition) {
+		if (this.contentSize.width != contentSize.width || this.contentSize.height != contentSize.height) {
+			this.contentSize = contentSize;
+			this.playButton.setBounds(contentSize.width / 4, contentSize.height / 8, contentSize.width / 2, contentSize.height / 4);
+			this.shopButton.setBounds(contentSize.width / 4, contentSize.height / 2 + contentSize.height / 8, contentSize.width / 2, contentSize.height / 4);
+			this.playTextAttributes = StringDraw.getAttributes(g, contentSize.height / 16, "Play", playButton);
+			this.shopTextAttributes = StringDraw.getAttributes(g, contentSize.height / 16, "Shop", shopButton);
+		}
 		if (Main.showingStage) {
 			usedMousePosition = Main.showingStageMousePos;
 		}
@@ -34,12 +53,12 @@ public final class StartScreen extends Screen {
 
 	@Override
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) {
-		updateComponenets(contentSize, mousePosition);
+		updateComponents(g, contentSize, mousePosition);
 		PaintUtils.drawChangingRect(g, playButton, Color.black, Color.MAGENTA, usedMousePosition);
 		PaintUtils.drawChangingRect(g, shopButton, Color.black, Color.MAGENTA, usedMousePosition);
 		g.setColor(Color.white);
-		StringDraw.drawMaxString(g, contentSize.height / 16, "Play", TextAlign.MIDDLE, playButton);
-		StringDraw.drawMaxString(g, contentSize.height / 16, "Shop", TextAlign.MIDDLE, shopButton);
+		StringDraw.drawStringByAttributes(g, "Play", playTextAttributes);
+		StringDraw.drawStringByAttributes(g, "Shop", shopTextAttributes);
 		if (Main.showingStage) {
 			if (Main.gameOver) {
 				PaintUtils.drawStage(g, contentSize, "Game Over");

@@ -30,9 +30,9 @@ public class StringDraw {
 		if (bounds.width > 0 && bounds.height > 0) {
 			graph2.setFont(graph2.getFont().deriveFont(fontType, 101f));
 			Rectangle s1Size = getStringBounds(graph2, str, 0, 0);
-			final Double s1Per1Width = s1Size.width / (double)101;
-			final Double s1Per1Height = s1Size.height / (double)101;
-			if (s1Per1Width / s1Per1Height > bounds.width / (double)bounds.height) {
+			final Double s1Per1Width = s1Size.width / (double) 101;
+			final Double s1Per1Height = s1Size.height / (double) 101;
+			if (s1Per1Width / s1Per1Height > bounds.width / (double) bounds.height) {
 				graph2.setFont(graph2.getFont().deriveFont(fontType, (float) (bounds.width / s1Per1Width)));
 			}
 			else {
@@ -130,4 +130,116 @@ public class StringDraw {
 		}
 	}
 
+	public static StringDrawAttributes getAttributes(final Graphics2D graph2, final int borderSize, final String str, final TextAlign align, final Rectangle textBounds, final int fontType) {
+		final Rectangle bounds = new Rectangle(textBounds.x + borderSize, textBounds.y + borderSize, textBounds.width - 2 * borderSize, textBounds.height - 2 * borderSize);
+		if (bounds.width > 0 && bounds.height > 0) {
+			graph2.setFont(graph2.getFont().deriveFont(fontType, 101f));
+			Rectangle s1Size = getStringBounds(graph2, str, 0, 0);
+			final Double s1Per1Width = s1Size.width / (double) 101;
+			final Double s1Per1Height = s1Size.height / (double) 101;
+			final float fontSize;
+			if (s1Per1Width / s1Per1Height > bounds.width / (double) bounds.height) {
+				fontSize = (float) (bounds.width / s1Per1Width);
+			}
+			else {
+				fontSize = (float) (bounds.height / s1Per1Height);
+			}
+			graph2.setFont(graph2.getFont().deriveFont(fontSize));
+			s1Size = getStringBounds(graph2, str, 0, 0);
+			final int up = bounds.y - s1Size.y;
+			final int down = bounds.y + bounds.height - s1Size.height - s1Size.y;
+			final int left = bounds.x;
+			final int right = bounds.x + bounds.width - s1Size.width;
+			final int xMiddle = bounds.x + bounds.width / 2 - s1Size.width / 2;
+			final int yMiddle = bounds.y + bounds.height / 2 + s1Size.height / 2 - (s1Size.height + s1Size.y);
+			final int x;
+			final int y;
+			switch (align) {
+				case UP:
+					x = xMiddle;
+					y = up;
+					break;
+				case UPRIGHT:
+					x = right;
+					y = up;
+					break;
+				case RIGHT:
+					x = right;
+					y = yMiddle;
+					break;
+				case DOWNRIGHT:
+					x = right;
+					y = down;
+					break;
+				case DOWN:
+					x = xMiddle;
+					y = down;
+					break;
+				case DOWNLEFT:
+					x = left;
+					y = down;
+					break;
+				case LEFT:
+					x = left;
+					y = yMiddle;
+					break;
+				case UPLEFT:
+					x = left;
+					y = up;
+					break;
+				default:
+					x = xMiddle;
+					y = yMiddle;
+			}
+			return new StringDrawAttributes(x, y, fontSize);
+		}
+		else {
+			return new StringDrawAttributes(true);
+		}
+	}
+
+	public static StringDrawAttributes getAttributes(final Graphics2D graph2, final int borderSize, final String str, final TextAlign align, Rectangle bounds) {
+		return getAttributes(graph2, borderSize, str, align, bounds, Font.PLAIN);
+	}
+
+	public static StringDrawAttributes getAttributes(final Graphics2D graph2, final String str, final TextAlign align, Rectangle bounds) {
+		return getAttributes(graph2, 0, str, align, bounds, Font.PLAIN);
+	}
+
+	public static StringDrawAttributes getAttributes(final Graphics2D graph2, final int borderSize, final String str, Rectangle bounds) {
+		return getAttributes(graph2, borderSize, str, TextAlign.MIDDLE, bounds, Font.PLAIN);
+	}
+
+	public static StringDrawAttributes getAttributes(final Graphics2D graph2, final String str, Rectangle bounds) {
+		return getAttributes(graph2, 0, str, TextAlign.MIDDLE, bounds, Font.PLAIN);
+	}
+
+	public static StringDrawAttributes getAttributes(final Graphics2D graph2, final String str, Rectangle bounds, final int fontType) {
+		return getAttributes(graph2, 0, str, TextAlign.MIDDLE, bounds, fontType);
+	}
+	
+	public static void drawStringByAttributes(final Graphics2D g, String str, StringDrawAttributes attributes) {
+		if (!attributes.doNotDraw) {
+			g.setFont(g.getFont().deriveFont(attributes.fontSize));
+			g.drawString(str, attributes.x, attributes.y);
+		}
+	}
+	
+	public static class StringDrawAttributes {
+		private boolean doNotDraw;
+		private int x;
+		private int y;
+		private float fontSize;
+
+		private StringDrawAttributes(int x, int y, float fontSize) {
+			this.x = x;
+			this.y = y;
+			this.fontSize = fontSize;
+			this.doNotDraw = false;
+		}
+
+		private StringDrawAttributes(boolean doNotDraw) {
+			this.doNotDraw = doNotDraw;
+		}
+	}
 }
