@@ -91,10 +91,10 @@ public final class StartScreen extends Screen {
 	public void update() {
 		if (Main.showingStage) {
 			Main.showingStageState++;
-			if (Main.showingStageState == 60) {
+			if (Main.showingStageState == Main.stageShowTime / 2) {
 				Screen.startNew(new GameScreen());
 			}
-			else if (Main.showingStageState == 120) {
+			else if (Main.showingStageState == Main.stageShowTime) {
 				Main.gameOver = false;
 				Main.noMoreStages = false;
 				Main.showingStage = false;

@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import game.BadGuy;
 import game.Barrel;
+import game.Coin;
 import game.Gui;
 import game.IO;
 import game.Main;
@@ -43,6 +44,10 @@ public class GameScreen extends Screen {
 		this.updateComponents(g, contentSize, mousePosition);
 		for (int i = 0; i < Main.badGuys.size(); i++) {
 			this.drawBadGuy(Main.badGuys.get(i));
+		}
+		for (int i = 0; i < Main.coins.size(); i++) {
+			Coin currentCoin = Main.coins.get(i);
+			g.drawImage(IO.getTexture(currentCoin.textureName, contentSize.width / 64), (int) (contentSize.width * (currentCoin.x - 1 / (float) 128)), (int) (contentSize.height * currentCoin.y - contentSize.width / 128), null);
 		}
 		int baseScreenX = contentSize.width / 2 - contentSize.width / 16;
 		int baseScreenY = contentSize.height - contentSize.width / 16;
@@ -152,10 +157,31 @@ public class GameScreen extends Screen {
 					Main.projectiles.remove(i);
 					i--;
 				}
+				for (int j = 0; j < Main.coins.size(); j++) {
+					Coin currentCoin = Main.coins.get(j);
+					if (circleCircleCollistion(currentCoin.x, currentCoin.y * this.contentSize.height / this.contentSize.width, currentProjectile.x, currentProjectile.y * this.contentSize.height / this.contentSize.width, 1 / (float) 64, 1 / (float) 64)) {
+						Main.money += currentCoin.value;
+						Main.coins.remove(j);
+						j--;
+					}
+				}
 				for (int j = 0; j < Main.badGuys.size(); j++) {
 					BadGuy currentBadGuy = Main.badGuys.get(j);
 					if (doesCollide(currentBadGuy.x / (float) 4 + 1 / (float) 8, currentBadGuy.y * contentSize.height / (float) contentSize.width - 1 / (float) 32, 1 / (float) 32, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
-						currentBadGuy.hit(currentProjectile.hitPower);
+						if (!currentBadGuy.isDead) {
+							currentBadGuy.hit(currentProjectile.hitPower);
+							if (currentBadGuy.isDead) {
+								Coin addedCoin = currentBadGuy.getCoin();
+								addedCoin.x = 1 / (float) 8 + currentBadGuy.x / (float) 4;
+								if (this.contentSize.width / 32 + this.contentSize.width / 128 >= currentBadGuy.y * this.contentSize.height) {
+									addedCoin.y = this.contentSize.width / (float) 128 / this.contentSize.height;
+								}
+								else {
+									addedCoin.y = currentBadGuy.y - this.contentSize.width / (float) 32 / this.contentSize.height;
+								}
+								Main.coins.add(addedCoin);
+							}
+						}
 						Main.projectiles.remove(i);
 						i--;
 						break;
@@ -163,7 +189,7 @@ public class GameScreen extends Screen {
 				}
 			}
 			if (Main.loadState != 1) {
-				Main.loadState += 1 / (float) 32;
+				Main.loadState += 1 / (float) (32 * Main.getSelectedBarrel().getLoadingTime());
 				if (Main.loadState > 1) {
 					Main.loadState = 1;
 				}
@@ -172,14 +198,24 @@ public class GameScreen extends Screen {
 		}
 		else {
 			Main.showingStageState++;
-			if (Main.showingStageState == 60 && (Main.gameOver || Main.noMoreStages)) {
-				Main.resetTheGame();
-				Screen.startNew(new StartScreen());
+			if (Main.showingStageState == Main.stageShowTime / 2) {
+				if (Main.gameOver || Main.noMoreStages) {
+					Main.resetTheGame();
+					Screen.startNew(new StartScreen());
+				}
+				else {
+					Main.loadState = 1;
+				}
 			}
-			else if (Main.showingStageState == 120) {
+			else if (Main.showingStageState == Main.stageShowTime) {
 				Main.showingStage = false;
 			}
 		}
+	}
+
+	private static boolean circleCircleCollistion(float center1X, float center1Y, float center2X, float center2Y, float radius1, float radius2) {
+		float centerDistanceSqr = (float) (Math.pow(center1X - center2X, 2) + Math.pow(center1Y - center2Y, 2));
+		return centerDistanceSqr < Math.pow(radius1 + radius2, 2);
 	}
 
 	private static boolean doesCollide(float squareCenterX, float squareCenterY, float squareSize, float circleCenterX, float circleCenterY, float circleRadius) {

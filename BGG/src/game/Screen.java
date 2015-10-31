@@ -20,6 +20,15 @@ public class Screen {
 
 	public void mousePressed(MouseEvent event) {
 	}
+	
+	public void mouseReleased(MouseEvent event) {
+	}
+	
+	public void mouseMoved(MouseEvent event) {	
+	}
+	
+	public void mouseDragged(MouseEvent event) {
+	}
 
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws Throwable {
 	}

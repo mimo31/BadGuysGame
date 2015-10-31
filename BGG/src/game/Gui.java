@@ -61,12 +61,19 @@ public final class Gui {
 		}
 
 		@Override
+		public void mouseReleased(MouseEvent event) {
+			Main.currentScreen.mouseReleased(event);
+		}
+		
+		@Override
 		public void mouseMoved(MouseEvent event) {
+			Main.currentScreen.mouseMoved(event);
 			gui.repaint();
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent event) {
+			Main.currentScreen.mouseDragged(event);
 			gui.repaint();
 		}
 	};

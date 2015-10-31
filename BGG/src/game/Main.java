@@ -21,6 +21,7 @@ public class Main {
 	public static ArrayList<BadGuy> badGuys = new ArrayList<BadGuy>();
 	public static ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private static ArrayList<BadGuy> badGuysBuffer = new ArrayList<BadGuy>();
+	public static ArrayList<Coin> coins = new ArrayList<Coin>();
 	public static float loadState = 1;
 	public static int money = 200;
 
@@ -29,6 +30,8 @@ public class Main {
 	public static int showingStageState = 0;
 	public static boolean gameOver = false;
 	public static boolean noMoreStages = false;
+	
+	public static final int stageShowTime = 60;
 
 	public static Timer updateTimer = new Timer(40, new ActionListener() {
 
@@ -75,19 +78,18 @@ public class Main {
 
 	private static void initializeBarrels() {
 		barrels = new Barrel[2];
-		BarrelGameProperty loadingSpeed = new BarrelGameProperty(new int[] { 15 }, new float[] { -0.2f }, 1);
+		BarrelGameProperty loadingTime = new BarrelGameProperty(new int[] { 15 }, new float[] { -0.2f }, 1);
 		BarrelGameProperty projectilePower = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
 		BarrelGameProperty projectileSpeed = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
-		barrels[0] = new Barrel(new BarrelGameProperty[] { loadingSpeed, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel");
-		loadingSpeed = new BarrelGameProperty(new int[] { 20, 30 }, new float[] { -0.13f, -0.05f },  0.8f);
+		barrels[0] = new Barrel(new BarrelGameProperty[] { loadingTime, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel");
+		loadingTime = new BarrelGameProperty(new int[] { 20, 30 }, new float[] { -0.13f, -0.05f },  0.8f);
 		projectilePower = new BarrelGameProperty(new int[] { 50 }, new float[] { 1 }, 1);
 		projectileSpeed = new BarrelGameProperty(new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f } , 1.75f);
-		barrels[1] = new Barrel(new BarrelGameProperty[] { loadingSpeed, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel");
+		barrels[1] = new Barrel(new BarrelGameProperty[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel");
 		selectedBarrel = 0;
 	}
 
 	public static void startNewStage() {
-		projectiles.clear();
 		if (currentStage == stages.length - 1) {
 			noMoreStages = true;
 		}

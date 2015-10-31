@@ -8,7 +8,14 @@ public interface Spawner {
 
 		@Override
 		public BadGuy getBadGuy() {
-			return new BadGuy();
+			return new BadGuy(){
+				
+				@Override
+				public Coin getCoin() {
+					return Coin.basicCoin();
+				}
+				
+			};
 		}
 
 	}
@@ -17,7 +24,14 @@ public interface Spawner {
 
 		@Override
 		public BadGuy getBadGuy() {
-			return new BadGuy(1, 2, "FastBadGuy.png");
+			return new BadGuy(1, 2, "FastBadGuy.png") {
+
+				@Override
+				public Coin getCoin() {
+					return Coin.coin2();
+				}
+				
+			};
 		}
 
 	}
@@ -26,7 +40,14 @@ public interface Spawner {
 
 		@Override
 		public BadGuy getBadGuy() {
-			return new BadGuy(4, 1, "ArmoredBadGuy.png");
+			return new BadGuy(4, 1, "ArmoredBadGuy.png"){
+				
+				@Override
+				public Coin getCoin() {
+					return Coin.coin2();
+				}
+				
+			};
 		}
 
 	}

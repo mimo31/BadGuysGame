@@ -49,6 +49,8 @@ public final class ShopScreen extends Screen {
 	private Rectangle moneyAmountBounds;
 	private int barrelsSize;
 	private Rectangle buyButton;
+	private boolean onLeftButton;
+	private boolean onRightButton;
 	private Dimension contentSize;
 	private Graphics2D g;
 
@@ -148,16 +150,26 @@ public final class ShopScreen extends Screen {
 		g.fillRect(this.leftArrowButton.width, 0, contentSize.height / 256, this.leftArrowButton.height);
 		g.fillRect(this.rightArrowButton.x - contentSize.height / 256, 0, contentSize.height / 256, this.rightArrowButton.height);
 		PaintUtils.drawChangingRect(g, this.leftArrowButton, GREEN, DARK_GREEN, mousePosition);
-		if (leftArrowButton.contains(mousePosition)) {
-			g.setColor(Color.yellow);
+		if (this.leftArrowButton.contains(mousePosition)) {
+			if (this.onLeftButton) {
+				g.setColor(Color.red);
+			}
+			else {
+				g.setColor(Color.yellow);
+			}
 		}
 		else {
 			g.setColor(Color.white);
 		}
 		g.fillPolygon(this.leftArrowTriangle);
 		PaintUtils.drawChangingRect(g, this.rightArrowButton, GREEN, DARK_GREEN, mousePosition);
-		if (rightArrowButton.contains(mousePosition)) {
-			g.setColor(Color.yellow);
+		if (this.rightArrowButton.contains(mousePosition)) {
+			if (this.onRightButton) {
+				g.setColor(Color.red);
+			}
+			else {
+				g.setColor(Color.yellow);
+			}
 		}
 		else {
 			g.setColor(Color.white);
@@ -176,7 +188,7 @@ public final class ShopScreen extends Screen {
 		StringDraw.drawMaxString(g, this.tableBordersSize, "Loading time", TextAlign.LEFT, this.propertyNameBounds[0]);
 		StringDraw.drawMaxString(g, this.tableBordersSize, "Projectile power", TextAlign.LEFT, this.propertyNameBounds[1]);
 		StringDraw.drawMaxString(g, this.tableBordersSize, "Projectile speed", TextAlign.LEFT, this.propertyNameBounds[2]);
-		StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedBarrel.getLoadingSpeed()), this.propertyValueBounds[0]);
+		StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedBarrel.getLoadingTime()), this.propertyValueBounds[0]);
 		StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedBarrel.getProjectilePower()), this.propertyValueBounds[1]);
 		StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedBarrel.getProjectileSpeed()), this.propertyValueBounds[2]);
 		if (selectedBarrel.bought) {
@@ -267,6 +279,18 @@ public final class ShopScreen extends Screen {
 		for (int i = 0; i < Main.barrels.length; i++) {
 			Main.barrels[i].update();
 		}
+		if (this.onLeftButton) {
+			this.barrelsListPosition += 1 / (float) 16;
+			if (this.barrelsListPosition > Main.barrels.length - 1) {
+				this.barrelsListPosition = Main.barrels.length - 1;
+			}
+		}
+		else if (this.onRightButton) {
+			this.barrelsListPosition -= 1 / (float) 16;
+			if (this.barrelsListPosition < 0) {
+				this.barrelsListPosition = 0;
+			}
+		}
 	}
 
 	@Override
@@ -316,6 +340,32 @@ public final class ShopScreen extends Screen {
 			if (selectedBarrel.cost <= Main.money) {
 				Main.money -= selectedBarrel.cost;
 				selectedBarrel.bought = true;
+			}
+		}
+		else if (this.leftArrowButton.contains(event.getPoint())) {
+			this.onLeftButton = true;
+		}
+		else if (this.rightArrowButton.contains(event.getPoint())) {
+			this.onRightButton = true;
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent event) {
+		this.onLeftButton = false;
+		this.onRightButton = false;
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent event) {
+		if (this.onLeftButton) {
+			if (!this.leftArrowButton.contains(event.getPoint())) {
+				this.onLeftButton = false;
+			}
+		}
+		if (this.onRightButton) {
+			if (!this.rightArrowButton.contains(event.getPoint())) {
+				this.onRightButton = false;
 			}
 		}
 	}

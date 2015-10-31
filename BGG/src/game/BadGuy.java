@@ -1,6 +1,6 @@
 package game;
 
-public class BadGuy {
+public abstract class BadGuy {
 
 	public int x;
 	public float y;
@@ -66,4 +66,6 @@ public class BadGuy {
 	public void move() {
 		this.y += this.speed / (float) 512;
 	}
+
+	public abstract Coin getCoin();
 }

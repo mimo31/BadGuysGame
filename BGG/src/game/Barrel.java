@@ -26,7 +26,7 @@ public class Barrel {
 		return this.gameProperties[1].actualValue;
 	}
 
-	public float getLoadingSpeed() {
+	public float getLoadingTime() {
 		return this.gameProperties[0].actualValue;
 	}
 	
