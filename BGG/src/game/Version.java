@@ -3,12 +3,12 @@ package game;
 public class Version {
 
 	public enum ReleaseType {
-		 ALPHA(0), BETA(1), FINAL(2);
-		
+		ALPHA(0), BETA(1), FINAL(2);
+
 		private ReleaseType(int degree) {
 			this.degree = degree;
 		}
-		
+
 		private int degree;
 	}
 
@@ -21,7 +21,7 @@ public class Version {
 		this.major = 1;
 		this.minor = 0;
 		this.build = 0;
-		this.type = ReleaseType.BETA;
+		this.type = ReleaseType.FINAL;
 	}
 
 	public boolean isNewer(Version anotherVersion) {
@@ -35,7 +35,7 @@ public class Version {
 			if (this.minor > anotherVersion.minor) {
 				return true;
 			}
-			else if(this.minor < anotherVersion.minor) {
+			else if (this.minor < anotherVersion.minor) {
 				return false;
 			}
 			else {
@@ -56,11 +56,11 @@ public class Version {
 			}
 		}
 	}
-	
+
 	private static boolean isTypeNewer(ReleaseType type1, ReleaseType type2) {
 		return type1.degree > type2.degree;
 	}
-	
+
 	public Version(String versionString) throws VersionStringFormatException {
 		if (checkVersionString(versionString)) {
 			versionString = versionString.toLowerCase();

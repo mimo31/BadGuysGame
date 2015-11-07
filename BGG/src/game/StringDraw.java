@@ -217,14 +217,14 @@ public class StringDraw {
 	public static StringDrawAttributes getAttributes(final Graphics2D graph2, final String str, Rectangle bounds, final int fontType) {
 		return getAttributes(graph2, 0, str, TextAlign.MIDDLE, bounds, fontType);
 	}
-	
+
 	public static void drawStringByAttributes(final Graphics2D g, String str, StringDrawAttributes attributes) {
 		if (!attributes.doNotDraw) {
 			g.setFont(g.getFont().deriveFont(attributes.fontSize));
 			g.drawString(str, attributes.x, attributes.y);
 		}
 	}
-	
+
 	public static class StringDrawAttributes {
 		private boolean doNotDraw;
 		private int x;
