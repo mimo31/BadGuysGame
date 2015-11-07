@@ -160,7 +160,7 @@ public class GameScreen extends Screen {
 				}
 				for (int j = 0; j < Main.coins.size(); j++) {
 					Coin currentCoin = Main.coins.get(j);
-					if (circleCircleCollistion(currentCoin.x, currentCoin.y * this.contentSize.height / this.contentSize.width, currentProjectile.x, currentProjectile.y * this.contentSize.height / this.contentSize.width, 1 / (float) 64, 1 / (float) 64)) {
+					if (circleCircleCollistion(currentCoin.x, currentCoin.y * this.contentSize.height / this.contentSize.width, currentProjectile.x, currentProjectile.y * this.contentSize.height / this.contentSize.width, 1 / (float) 128, 1 / (float) 128)) {
 						Main.money += currentCoin.value;
 						Main.coins.remove(j);
 						j--;
