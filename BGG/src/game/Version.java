@@ -20,7 +20,7 @@ public class Version {
 	public Version() {
 		this.major = 1;
 		this.minor = 0;
-		this.build = 0;
+		this.build = 1;
 		this.type = ReleaseType.FINAL;
 	}
 

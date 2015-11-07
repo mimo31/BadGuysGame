@@ -30,6 +30,8 @@ public final class ShopScreen extends Screen {
 	public static final Color CHAMPAGNE = new Color(247, 231, 206);
 
 	private float barrelsListPosition = 0;
+	private boolean notBoughtWarning = false;
+	private int notBoughtStage = 0;
 
 	// Components
 	private Rectangle leftArrowButton;
@@ -237,6 +239,10 @@ public final class ShopScreen extends Screen {
 			wholeBarrel.subtract(new Area(new Rectangle((int) (x + cornerSize), (int) cornerSize, (int) (this.barrelsSize - cornerSize * 2), (int) (this.barrelsSize - cornerSize * 2))));
 			this.g.setColor(CITRINE);
 			g.fill(wholeBarrel);
+			if (this.notBoughtWarning) {
+				this.g.setColor(new Color(255, 0, 0, (int)(this.notBoughtStage / (float) 30 * 255)));
+				this.g.fillRect(x, 0, this.barrelsSize, this.barrelsSize);
+			}
 		}
 	}
 
@@ -278,6 +284,12 @@ public final class ShopScreen extends Screen {
 		for (int i = 0; i < Main.barrels.length; i++) {
 			Main.barrels[i].update();
 		}
+		if (this.notBoughtWarning) {
+			this.notBoughtStage--;
+			if (this.notBoughtStage == 0) {
+				this.notBoughtWarning = false;
+			}
+		}
 		if (this.onLeftButton) {
 			this.barrelsListPosition += 1 / (float) 16;
 			if (this.barrelsListPosition > Main.barrels.length - 1) {
@@ -295,10 +307,16 @@ public final class ShopScreen extends Screen {
 	@Override
 	public void keyPressed(KeyEvent event) {
 		if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			for (int i = 0; i < Main.barrels.length; i++) {
+			if (Main.getSelectedBarrel().bought) {
+				for (int i = 0; i < Main.barrels.length; i++) {
 				Main.barrels[i].forceUpgrade();
 			}
 			Screen.startNew(new StartScreen());
+			}
+			else {
+				this.notBoughtWarning = true;
+				this.notBoughtStage = 30;
+			}
 		}
 	}
 
@@ -309,6 +327,7 @@ public final class ShopScreen extends Screen {
 			int clickedBarrelIndex = (int) Math.floor(relListClickPosition);
 			if (clickedBarrelIndex < Main.barrels.length) {
 				Main.selectedBarrel = clickedBarrelIndex;
+				this.notBoughtWarning = false;
 			}
 		}
 		else if (event.getX() >= this.propertyUpgradeBounds[0].x && event.getY() >= this.propertyUpgradeBounds[0].y && event.getY() < this.propertyUpgradeBounds[2].y + this.propertyUpgradeBounds[2].height) {
