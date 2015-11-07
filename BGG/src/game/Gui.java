@@ -28,6 +28,8 @@ public final class Gui {
 	}
 
 	public static void intializeGraphics() {
+		IO.logStartSectionTag("GUI");
+		IO.log("Initializing GUI");
 		gui = new JFrame("The Bad Guys Game");
 		gui.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		gui.setVisible(true);
@@ -37,6 +39,8 @@ public final class Gui {
 		gui.getContentPane().addMouseMotionListener(mouseEventsHandler);
 		gui.addKeyListener(keysEventsHandler);
 		gui.repaint();
+		IO.log("GUI initialized");
+		IO.logEndSectionTag("GUI");
 	}
 
 	@SuppressWarnings("serial")

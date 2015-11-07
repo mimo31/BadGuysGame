@@ -5,8 +5,13 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.IOException;
+
+import game.StringDraw.TextAlign;
 
 public class PaintUtils {
+	
+	public static final Color DARK_GREEN2 = new Color(0, 127, 0);
 	
 	public static float shiftedSine(float x) {
 		return (float) (Math.sin(x * Math.PI - Math.PI / (double) 2) + 1) / (float) 2;
@@ -32,5 +37,11 @@ public class PaintUtils {
 		g.fillRect(0, 0, contentSize.width, contentSize.height);
 		g.setColor(new Color(255, 255, 255, alpha));
 		StringDraw.drawMaxString(g, contentSize.height / 32, text, new Rectangle(0, contentSize.height / 2 - contentSize.height / 16, contentSize.width, contentSize.height / 8));
+	}
+	
+	public static void drawCurrentMoney(Graphics2D g, Dimension contentSize) throws IOException {
+		g.drawImage(IO.getTexture("BasicCoin.png", contentSize.height / 32), contentSize.width - contentSize.height / 32 - contentSize.height / 64, contentSize.height / 64, null);
+		g.setColor(DARK_GREEN2);
+		StringDraw.drawMaxString(g, contentSize.height / 64, String.valueOf(Main.money), TextAlign.RIGHT, new Rectangle(0, 0, contentSize.width - contentSize.height / 16, contentSize.height / 16));
 	}
 }

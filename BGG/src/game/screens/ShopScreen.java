@@ -24,7 +24,6 @@ public final class ShopScreen extends Screen {
 
 	public static final Color GREEN = new Color(114, 241, 46);
 	public static final Color DARK_GREEN = GREEN.darker();
-	public static final Color DARK_GREEN2 = new Color(0, 127, 0);
 	public static final Color TRANSPARENT_GRAY = new Color(127, 127, 127, 63);
 	public static final Color CITRINE = new Color(228, 208, 10);
 	public static final Color DARK_RED = new Color(170, 56, 30);
@@ -221,7 +220,7 @@ public final class ShopScreen extends Screen {
 		g.setColor(Color.black);
 		g.drawImage(IO.getTexture("BasicCoin.png", this.coinIconSize), this.coinIconX, this.coinIconY, null);
 		StringDraw.drawMaxString(g, this.tableBordersSize, "Total money", TextAlign.LEFT, this.moneySignBounds);
-		g.setColor(DARK_GREEN2);
+		g.setColor(PaintUtils.DARK_GREEN2);
 		StringDraw.drawMaxString(g, this.tableBordersSize, String.valueOf(Main.money), TextAlign.RIGHT, this.moneyAmountBounds);
 	}
 

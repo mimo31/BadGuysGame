@@ -4,8 +4,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import game.Barrel.BarrelGameProperty;
+import game.Version.VersionStringFormatException;
 import game.screens.StartScreen;
 
 import javax.swing.Timer;
@@ -23,14 +25,14 @@ public class Main {
 	private static ArrayList<BadGuy> badGuysBuffer = new ArrayList<BadGuy>();
 	public static ArrayList<Coin> coins = new ArrayList<Coin>();
 	public static float loadState = 1;
-	public static int money = 200;
+	public static int money = 0;
 
 	public static Point showingStageMousePos;
 	public static boolean showingStage;
 	public static int showingStageState = 0;
 	public static boolean gameOver = false;
 	public static boolean noMoreStages = false;
-	
+
 	public static final int stageShowTime = 60;
 
 	public static Timer updateTimer = new Timer(40, new ActionListener() {
@@ -52,12 +54,22 @@ public class Main {
 	});
 
 	public static void main(String[] arg0) {
+		IO.log("Hello!");
+		IO.logStartSectionTag("INIT");
+		IO.log("Initializing");
+		try {
+			IO.initializeIO();
+		} catch (IOException | VersionStringFormatException e) {
+			e.printStackTrace();
+		}
 		Gui.intializeGraphics();
 		initializeStages();
 		initializeBarrels();
 		currentScreen = new StartScreen();
 		updateTimer.start();
 		repaintTimer.start();
+		IO.log("Initialization complete!");
+		IO.logEndSectionTag("INIT");
 	}
 
 	private static void initializeStages() {
@@ -82,9 +94,9 @@ public class Main {
 		BarrelGameProperty projectilePower = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
 		BarrelGameProperty projectileSpeed = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
 		barrels[0] = new Barrel(new BarrelGameProperty[] { loadingTime, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel");
-		loadingTime = new BarrelGameProperty(new int[] { 20, 30 }, new float[] { -0.13f, -0.05f },  0.8f);
+		loadingTime = new BarrelGameProperty(new int[] { 20, 30 }, new float[] { -0.13f, -0.05f }, 0.8f);
 		projectilePower = new BarrelGameProperty(new int[] { 50 }, new float[] { 1 }, 1);
-		projectileSpeed = new BarrelGameProperty(new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f } , 1.75f);
+		projectileSpeed = new BarrelGameProperty(new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f }, 1.75f);
 		barrels[1] = new Barrel(new BarrelGameProperty[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel");
 		selectedBarrel = 0;
 	}
@@ -165,8 +177,8 @@ public class Main {
 	}
 
 	/**
-	 * Reset all the in-game variables to their default values. Should be called
-	 * when the game ends.
+	 * Resets all the in-game variables to their default values. Should be
+	 * called when the game ends.
 	 */
 	public static void resetTheGame() {
 		badGuys.clear();

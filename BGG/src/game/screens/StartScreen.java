@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 
 import game.Gui;
 import game.Main;
@@ -52,13 +53,14 @@ public final class StartScreen extends Screen {
 	}
 
 	@Override
-	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) {
+	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
 		updateComponents(g, contentSize, mousePosition);
 		PaintUtils.drawChangingRect(g, playButton, Color.black, Color.MAGENTA, usedMousePosition);
 		PaintUtils.drawChangingRect(g, shopButton, Color.black, Color.MAGENTA, usedMousePosition);
 		g.setColor(Color.white);
 		StringDraw.drawStringByAttributes(g, "Play", playTextAttributes);
 		StringDraw.drawStringByAttributes(g, "Shop", shopTextAttributes);
+		PaintUtils.drawCurrentMoney(g, contentSize);
 		if (Main.showingStage) {
 			if (Main.gameOver) {
 				PaintUtils.drawStage(g, contentSize, "Game Over");

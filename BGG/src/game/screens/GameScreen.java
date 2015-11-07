@@ -68,6 +68,7 @@ public class GameScreen extends Screen {
 			Projectile currentProjectile = Main.projectiles.get(i);
 			g.drawImage(IO.getTexture(currentProjectile.textureName, contentSize.width / 64), (int) (currentProjectile.x * contentSize.width - contentSize.width / (float) 128), (int) (currentProjectile.y * contentSize.height - contentSize.width / (float) 128), null);
 		}
+		PaintUtils.drawCurrentMoney(g, contentSize);
 		if (Main.showingStage) {
 			if (Main.gameOver) {
 				PaintUtils.drawStage(g, contentSize, "Game Over");
