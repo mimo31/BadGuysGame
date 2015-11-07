@@ -4,10 +4,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import game.Barrel.BarrelGameProperty;
-import game.Version.VersionStringFormatException;
+import game.io.IOInitialization;
+import game.io.Logging;
 import game.screens.ConnectionProblemScreen;
 import game.screens.StartScreen;
 
@@ -55,13 +55,13 @@ public class Main {
 	});
 
 	public static void main(String[] arg0) {
-		IO.log("Hello!");
-		IO.logStartSectionTag("INIT");
-		IO.log("Initializing");
+		Logging.log("Hello!");
+		Logging.logStartSectionTag("INIT");
+		Logging.log("Initializing");
 		boolean IOsuccessfull = false;
 		try {
-			IOsuccessfull = IO.initializeIO();
-		} catch (IOException | VersionStringFormatException e) {
+			IOsuccessfull = IOInitialization.initialize();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		Gui.intializeGraphics();
@@ -76,12 +76,12 @@ public class Main {
 		updateTimer.start();
 		repaintTimer.start();
 		if (IOsuccessfull) {
-			IO.log("Initialization complete!");
+			Logging.log("Initialization complete!");
 		}
 		else {
-			IO.log("Initialization complete! (unsuccessfully)");
+			Logging.log("Initialization complete! (unsuccessfully)");
 		}
-		IO.logEndSectionTag("INIT");
+		Logging.logEndSectionTag("INIT");
 	}
 
 	private static void initializeStages() {

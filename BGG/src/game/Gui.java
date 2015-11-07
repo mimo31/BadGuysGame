@@ -13,6 +13,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.event.MouseInputAdapter;
 
+import game.io.Logging;
+
 public final class Gui {
 
 	public static JFrame gui;
@@ -28,8 +30,8 @@ public final class Gui {
 	}
 
 	public static void intializeGraphics() {
-		IO.logStartSectionTag("GUI");
-		IO.log("Initializing GUI");
+		Logging.logStartSectionTag("GUI");
+		Logging.log("Initializing GUI");
 		gui = new JFrame("The Bad Guys Game");
 		gui.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		gui.setVisible(true);
@@ -39,8 +41,8 @@ public final class Gui {
 		gui.getContentPane().addMouseMotionListener(mouseEventsHandler);
 		gui.addKeyListener(keysEventsHandler);
 		gui.repaint();
-		IO.log("GUI initialized");
-		IO.logEndSectionTag("GUI");
+		Logging.log("GUI initialized");
+		Logging.logEndSectionTag("GUI");
 	}
 
 	@SuppressWarnings("serial")

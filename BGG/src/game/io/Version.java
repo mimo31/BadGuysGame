@@ -1,6 +1,6 @@
-package game;
+package game.io;
 
-public class Version {
+class Version {
 
 	public enum ReleaseType {
 		ALPHA(0), BETA(1), FINAL(2);

@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.io.IOException;
 
 import game.StringDraw.TextAlign;
+import game.io.ResourceHandler;
 
 public class PaintUtils {
 	
@@ -40,7 +41,7 @@ public class PaintUtils {
 	}
 	
 	public static void drawCurrentMoney(Graphics2D g, Dimension contentSize) throws IOException {
-		g.drawImage(IO.getTexture("BasicCoin.png", contentSize.height / 32), contentSize.width - contentSize.height / 32 - contentSize.height / 64, contentSize.height / 64, null);
+		g.drawImage(ResourceHandler.getTexture("BasicCoin.png", contentSize.height / 32), contentSize.width - contentSize.height / 32 - contentSize.height / 64, contentSize.height / 64, null);
 		g.setColor(DARK_GREEN2);
 		StringDraw.drawMaxString(g, contentSize.height / 64, String.valueOf(Main.money), TextAlign.RIGHT, new Rectangle(0, 0, contentSize.width - contentSize.height / 16, contentSize.height / 16));
 	}

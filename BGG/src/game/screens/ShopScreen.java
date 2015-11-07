@@ -12,13 +12,13 @@ import java.awt.geom.Area;
 import java.io.IOException;
 
 import game.Barrel;
-import game.IO;
 import game.Main;
 import game.PaintUtils;
 import game.Screen;
 import game.StringDraw;
 import game.Barrel.BarrelGameProperty;
 import game.StringDraw.TextAlign;
+import game.io.ResourceHandler;
 
 public final class ShopScreen extends Screen {
 
@@ -220,7 +220,7 @@ public final class ShopScreen extends Screen {
 			StringDraw.drawMaxString(g, this.buyButton.height / 4, "Buy - " + String.valueOf(selectedBarrel.cost) + " coins", this.buyButton);
 		}
 		g.setColor(Color.black);
-		g.drawImage(IO.getTexture("BasicCoin.png", this.coinIconSize), this.coinIconX, this.coinIconY, null);
+		g.drawImage(ResourceHandler.getTexture("BasicCoin.png", this.coinIconSize), this.coinIconX, this.coinIconY, null);
 		StringDraw.drawMaxString(g, this.tableBordersSize, "Total money", TextAlign.LEFT, this.moneySignBounds);
 		g.setColor(PaintUtils.DARK_GREEN2);
 		StringDraw.drawMaxString(g, this.tableBordersSize, String.valueOf(Main.money), TextAlign.RIGHT, this.moneyAmountBounds);
@@ -228,7 +228,7 @@ public final class ShopScreen extends Screen {
 
 	private void drawBarrel(int index) throws IOException {
 		int x = (int) ((this.barrelsSize) * (index - this.barrelsListPosition)) + this.contentSize.height / 16;
-		this.g.drawImage(IO.getTexture(Main.barrels[index].textureName, (int) this.barrelsSize), x, 0, null);
+		this.g.drawImage(ResourceHandler.getTexture(Main.barrels[index].textureName, (int) this.barrelsSize), x, 0, null);
 		if (!Main.barrels[index].bought) {
 			this.g.setColor(TRANSPARENT_GRAY);
 			this.g.fillRect(x, 0, this.barrelsSize, this.barrelsSize);

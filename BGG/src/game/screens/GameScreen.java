@@ -11,12 +11,11 @@ import java.io.IOException;
 import game.BadGuy;
 import game.Barrel;
 import game.Coin;
-import game.Gui;
-import game.IO;
 import game.Main;
 import game.PaintUtils;
 import game.Projectile;
 import game.Screen;
+import game.io.ResourceHandler;
 
 public class GameScreen extends Screen {
 
@@ -47,11 +46,11 @@ public class GameScreen extends Screen {
 		}
 		for (int i = 0; i < Main.coins.size(); i++) {
 			Coin currentCoin = Main.coins.get(i);
-			g.drawImage(IO.getTexture(currentCoin.textureName, contentSize.width / 64), (int) (contentSize.width * (currentCoin.x - 1 / (float) 128)), (int) (contentSize.height * currentCoin.y - contentSize.width / 128), null);
+			g.drawImage(ResourceHandler.getTexture(currentCoin.textureName, contentSize.width / 64), (int) (contentSize.width * (currentCoin.x - 1 / (float) 128)), (int) (contentSize.height * currentCoin.y - contentSize.width / 128), null);
 		}
 		int baseScreenX = contentSize.width / 2 - contentSize.width / 16;
 		int baseScreenY = contentSize.height - contentSize.width / 16;
-		g.drawImage(IO.getTexture("Base.png", contentSize.width / 8), baseScreenX, baseScreenY, null);
+		g.drawImage(ResourceHandler.getTexture("Base.png", contentSize.width / 8), baseScreenX, baseScreenY, null);
 		int greenWidth = (int) (contentSize.width / 8 * Main.loadState);
 		g.setColor(TRANSPARENT_GREEN);
 		g.fillRect(baseScreenX, baseScreenY, greenWidth, contentSize.width / 16);
@@ -63,10 +62,10 @@ public class GameScreen extends Screen {
 		double vecY = -this.usedMousePosition.y + barrelCenter.y;
 		transform.rotate(vecY, vecX);
 		transform.translate(-contentSize.width / 32, -contentSize.width / 32);
-		g.drawImage(IO.getTexture(Main.getSelectedBarrel().textureName, contentSize.width / 16), transform, null);
+		g.drawImage(ResourceHandler.getTexture(Main.getSelectedBarrel().textureName, contentSize.width / 16), transform, null);
 		for (int i = 0; i < Main.projectiles.size(); i++) {
 			Projectile currentProjectile = Main.projectiles.get(i);
-			g.drawImage(IO.getTexture(currentProjectile.textureName, contentSize.width / 64), (int) (currentProjectile.x * contentSize.width - contentSize.width / (float) 128), (int) (currentProjectile.y * contentSize.height - contentSize.width / (float) 128), null);
+			g.drawImage(ResourceHandler.getTexture(currentProjectile.textureName, contentSize.width / 64), (int) (currentProjectile.x * contentSize.width - contentSize.width / (float) 128), (int) (currentProjectile.y * contentSize.height - contentSize.width / (float) 128), null);
 		}
 		PaintUtils.drawCurrentMoney(g, contentSize);
 		if (Main.showingStage) {
@@ -85,7 +84,7 @@ public class GameScreen extends Screen {
 	private void drawBadGuy(BadGuy badGuy) throws IOException {
 		int screenX = (int) ((badGuy.x / (float) 4 + 1 / (float) 8 - 1 / (float) 32) * contentSize.width);
 		int screenY = (int) (badGuy.y * contentSize.height - contentSize.width / 16);
-		this.g.drawImage(IO.getTexture(badGuy.textureName, contentSize.width / 16), screenX, screenY, null);
+		this.g.drawImage(ResourceHandler.getTexture(badGuy.textureName, contentSize.width / 16), screenX, screenY, null);
 		this.g.setColor(TRANSPARENT_GREEN);
 		int filledSize = (int) (badGuy.getShownLive() * contentSize.width / 16);
 		this.g.fillRect(screenX, screenY + contentSize.width / 16 - filledSize, contentSize.width / 16, filledSize);
@@ -145,7 +144,7 @@ public class GameScreen extends Screen {
 						Main.showingStage = true;
 						Main.gameOver = true;
 						Main.showingStageState = 0;
-						Main.showingStageMousePos = Gui.getMousePanePosition();
+						Main.showingStageMousePos = usedMousePosition;
 					}
 				}
 			}
