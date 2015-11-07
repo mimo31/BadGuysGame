@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import game.Barrel.BarrelGameProperty;
 import game.Version.VersionStringFormatException;
+import game.screens.ConnectionProblemScreen;
 import game.screens.StartScreen;
 
 import javax.swing.Timer;
@@ -57,18 +58,29 @@ public class Main {
 		IO.log("Hello!");
 		IO.logStartSectionTag("INIT");
 		IO.log("Initializing");
+		boolean IOsuccessfull = false;
 		try {
-			IO.initializeIO();
+			IOsuccessfull = IO.initializeIO();
 		} catch (IOException | VersionStringFormatException e) {
 			e.printStackTrace();
 		}
 		Gui.intializeGraphics();
-		initializeStages();
-		initializeBarrels();
-		currentScreen = new StartScreen();
+		if (IOsuccessfull) {
+			initializeStages();
+			initializeBarrels();
+			currentScreen = new StartScreen();
+		}
+		else {
+			currentScreen = new ConnectionProblemScreen();
+		}
 		updateTimer.start();
 		repaintTimer.start();
-		IO.log("Initialization complete!");
+		if (IOsuccessfull) {
+			IO.log("Initialization complete!");
+		}
+		else {
+			IO.log("Initialization complete! (unsuccessfully)");
+		}
 		IO.logEndSectionTag("INIT");
 	}
 

@@ -9,8 +9,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ public final class IO {
 	public final static String rootDirectory = System.getProperty("user.dir") + "\\BadGuysGame";
 	public final static String resourcesDirectory = rootDirectory + "\\Resources";
 	public final static String serverRootDirectory = "http://178.248.252.60/~xfukv01/BGG";
+	private final static byte[] serverIP = new byte[] { (byte) 178, (byte) 248, (byte) 252, 60 };
 	public static final Version version = new Version();
 
 	/**
@@ -121,7 +124,7 @@ public final class IO {
 		}
 	}
 
-	public static void initializeIO() throws IOException, VersionStringFormatException {
+	public static boolean initializeIO() throws IOException, VersionStringFormatException {
 		logStartSectionTag("IO");
 		log("Initializing IO");
 		log("Looking for the root game directory.");
@@ -155,58 +158,76 @@ public final class IO {
 			someResourcesAlready = false;
 		}
 		if (someResourcesAlready) {
-			log("Downloading the resource meta file.");
-			ResourceMeta[] serverMetas = ResourceMeta.getServerMetas();
-			log("Reading the client resource meta file.");
-			List<ResourceMeta> clientMetas = ResourceMeta.getClientMetas();
-			List<ResourceMeta> neededResourcesMetas = new ArrayList<ResourceMeta>();
-			for (int i = 0; i < serverMetas.length; i++) {
-				if (!serverMetas[i].sinceVersion.isNewer(version)) {
-					neededResourcesMetas.add(serverMetas[i]);
-				}
-			}
-			log("Updating the local resources.");
-			for (ResourceMeta neededMeta : neededResourcesMetas) {
-				ResourceMeta correspondingClientMeta = null;
-				for (int i = 0; i < clientMetas.size(); i++) {
-					if (clientMetas.get(i).name.equals(neededMeta.name)) {
-						correspondingClientMeta = clientMetas.get(i);
+			if (isServerReachable()) {
+				log("Downloading the resource meta file.");
+				ResourceMeta[] serverMetas = ResourceMeta.getServerMetas();
+				log("Reading the client resource meta file.");
+				List<ResourceMeta> clientMetas = ResourceMeta.getClientMetas();
+				List<ResourceMeta> neededResourcesMetas = new ArrayList<ResourceMeta>();
+				for (int i = 0; i < serverMetas.length; i++) {
+					if (!serverMetas[i].sinceVersion.isNewer(version)) {
+						neededResourcesMetas.add(serverMetas[i]);
 					}
 				}
-				if (correspondingClientMeta == null) {
-					addResource(neededMeta.name);
-					clientMetas.add(neededMeta);
-					log("Added resource - " + neededMeta.name);
-				}
-				else {
-					if (correspondingClientMeta.resourceVersion != -1 && correspondingClientMeta.resourceVersion < neededMeta.resourceVersion) {
-						correspondingClientMeta.resourceVersion = neededMeta.resourceVersion;
+				log("Updating the local resources.");
+				for (ResourceMeta neededMeta : neededResourcesMetas) {
+					ResourceMeta correspondingClientMeta = null;
+					for (int i = 0; i < clientMetas.size(); i++) {
+						if (clientMetas.get(i).name.equals(neededMeta.name)) {
+							correspondingClientMeta = clientMetas.get(i);
+						}
+					}
+					if (correspondingClientMeta == null) {
 						addResource(neededMeta.name);
-						log("Updated resource - " + neededMeta.name);
+						clientMetas.add(neededMeta);
+						log("Added resource - " + neededMeta.name);
+					}
+					else {
+						if (correspondingClientMeta.resourceVersion != -1 && correspondingClientMeta.resourceVersion < neededMeta.resourceVersion) {
+							correspondingClientMeta.resourceVersion = neededMeta.resourceVersion;
+							addResource(neededMeta.name);
+							log("Updated resource - " + neededMeta.name);
+						}
 					}
 				}
+				ResourceMeta.writeClientMeta(clientMetas);
 			}
-			ResourceMeta.writeClientMeta(clientMetas);
+			else {
+				log("Server is unreachable! - Skiping the resources update.", "WARNING");
+			}
 		}
 		else {
-			log("Downloading the resource meta file.");
-			ResourceMeta[] serverMetas = ResourceMeta.getServerMetas();
-			List<ResourceMeta> futureClientMetas = new ArrayList<ResourceMeta>();
-			for (int i = 0; i < serverMetas.length; i++) {
-				if (!serverMetas[i].sinceVersion.isNewer(version)) {
-					futureClientMetas.add(serverMetas[i]);
+			if (isServerReachable()) {
+				log("Downloading the resource meta file.");
+				ResourceMeta[] serverMetas = ResourceMeta.getServerMetas();
+				List<ResourceMeta> futureClientMetas = new ArrayList<ResourceMeta>();
+				for (int i = 0; i < serverMetas.length; i++) {
+					if (!serverMetas[i].sinceVersion.isNewer(version)) {
+						futureClientMetas.add(serverMetas[i]);
+					}
 				}
+				log("Downloading resources.");
+				for (ResourceMeta meta : futureClientMetas) {
+					log("Added resource - " + meta.name);
+					addResource(meta.name);
+				}
+				log("Creating the local meta file.");
+				ResourceMeta.writeClientMeta(futureClientMetas);
 			}
-			log("Downloading resources.");
-			for (ResourceMeta meta : futureClientMetas) {
-				log("Added resource - " + meta.name);
-				addResource(meta.name);
+			else {
+				log("Server is unreachable! - Failed to download resources.", "WARNING");
+				log("IO initialized (unsuccessfully)");
+				logEndSectionTag("IO");
+				return false;
 			}
-			log("Creating the local meta file.");
-			ResourceMeta.writeClientMeta(futureClientMetas);
 		}
 		log("IO initialized");
 		logEndSectionTag("IO");
+		return true;
+	}
+
+	public static boolean isServerReachable() throws UnknownHostException, IOException {
+		return InetAddress.getByAddress(serverIP).isReachable(5000);
 	}
 
 	private static void addResource(String resourceName) throws MalformedURLException, IOException {
