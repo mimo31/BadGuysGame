@@ -64,7 +64,7 @@ public abstract class BadGuy {
 	}
 
 	public void move() {
-		this.y += this.speed / (float) 512;
+		this.y += this.speed / (float) 384;
 	}
 
 	public abstract Coin getCoin();

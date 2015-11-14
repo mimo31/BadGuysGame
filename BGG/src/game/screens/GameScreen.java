@@ -151,8 +151,8 @@ public class GameScreen extends Screen {
 			float heightFraction = contentSize.width / (float) contentSize.height / (float) 128;
 			for (int i = 0; i < Main.projectiles.size(); i++) {
 				Projectile currentProjectile = Main.projectiles.get(i);
-				currentProjectile.x += currentProjectile.dirX / 128;
-				currentProjectile.y += currentProjectile.dirY / 128;
+				currentProjectile.x += currentProjectile.dirX / 96;
+				currentProjectile.y += currentProjectile.dirY / 96;
 				if (currentProjectile.x + 1 / (float) 128 < 0 || currentProjectile.x - 1 / (float) 128 >= 1 || currentProjectile.y + heightFraction < 0 || currentProjectile.y - heightFraction >= 1) {
 					Main.projectiles.remove(i);
 					i--;
