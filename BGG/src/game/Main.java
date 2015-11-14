@@ -4,8 +4,10 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import game.Barrel.BarrelGameProperty;
+import game.io.IOBase;
 import game.io.IOInitialization;
 import game.io.Logging;
 import game.screens.ConnectionProblemScreen;
@@ -68,6 +70,11 @@ public class Main {
 		if (IOsuccessfull) {
 			initializeStages();
 			initializeBarrels();
+			try {
+				IOBase.loadSaveIfPresent();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			currentScreen = new StartScreen();
 		}
 		else {

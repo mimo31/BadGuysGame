@@ -46,7 +46,7 @@ public class Barrel {
 		int[] upgradeCosts;
 		float[] upgradeValues;
 		float actualValue;
-		int upgradeLevel;
+		public int upgradeLevel;
 		boolean isUpgrading;
 		float upgradingProgress = 0;
 
@@ -73,6 +73,13 @@ public class Barrel {
 		
 		public int getUpgradeCost() {
 			return upgradeCosts[upgradeLevel];
+		}
+		
+		public void fastUpgrade(int numberOfTimes) {
+			for (int i = 0; i < numberOfTimes; i++) {
+				this.actualValue += this.upgradeValues[upgradeLevel + i];
+			}
+			this.upgradeLevel += numberOfTimes;
 		}
 		
 		public void upgrade() {
