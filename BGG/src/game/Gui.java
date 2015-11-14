@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -44,6 +45,7 @@ public final class Gui {
 		gui.add(paintComponent);
 		gui.getContentPane().addMouseListener(mouseEventsHandler);
 		gui.getContentPane().addMouseMotionListener(mouseEventsHandler);
+		gui.getContentPane().addMouseWheelListener(mouseEventsHandler);
 		gui.addKeyListener(keysEventsHandler);
 		gui.repaint();
 		Logging.log("GUI initialized");
@@ -69,6 +71,7 @@ public final class Gui {
 		@Override
 		public void windowClosing(WindowEvent event) {
 			try {
+				Main.currentScreen.getCloseReady();
 				IOBase.save();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -98,6 +101,12 @@ public final class Gui {
 		@Override
 		public void mouseDragged(MouseEvent event) {
 			Main.currentScreen.mouseDragged(event);
+			gui.repaint();
+		}
+		
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent event) {
+			Main.currentScreen.mouseWheelMoved(event);
 			gui.repaint();
 		}
 	};

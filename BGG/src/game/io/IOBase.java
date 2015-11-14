@@ -28,8 +28,9 @@ public class IOBase {
 			byte[] data = Files.readAllBytes(Paths.get(rootDirectory + "\\Save.dat"));
 			ByteBuffer buffer = ByteBuffer.wrap(data);
 			Main.money = buffer.getInt();
+			Main.maxReachedStage = buffer.getInt();
 			int index = 0;
-			while (0 != buffer.remaining() && index < Main.barrels.length) {
+			while (12 <= buffer.remaining() && index < Main.barrels.length) {
 				Barrel currentBarrel = Main.barrels[index];
 				currentBarrel.gameProperties[0].fastUpgrade(buffer.getInt());
 				currentBarrel.gameProperties[1].fastUpgrade(buffer.getInt());
@@ -43,8 +44,9 @@ public class IOBase {
 
 	public static void save() throws IOException {
 		Logging.logStartSectionTag("GAMESAVE");
-		ByteBuffer buffer = ByteBuffer.allocate(4 + 12 * Main.barrels.length);
+		ByteBuffer buffer = ByteBuffer.allocate(8 + 12 * Main.barrels.length);
 		buffer.putInt(Main.money);
+		buffer.putInt(Main.maxReachedStage);
 		for (int i = 0; i < Main.barrels.length; i++) {
 			for (int j = 0; j < 3; j++) {
 				buffer.putInt(Main.barrels[i].gameProperties[j].upgradeLevel);

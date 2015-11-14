@@ -5,11 +5,12 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 public class Screen {
 
 	public Screen() {
-		onStart();
+		this.onStart();
 	}
 
 	public void onStart() {
@@ -20,13 +21,13 @@ public class Screen {
 
 	public void mousePressed(MouseEvent event) {
 	}
-	
+
 	public void mouseReleased(MouseEvent event) {
 	}
-	
-	public void mouseMoved(MouseEvent event) {	
+
+	public void mouseMoved(MouseEvent event) {
 	}
-	
+
 	public void mouseDragged(MouseEvent event) {
 	}
 
@@ -34,6 +35,12 @@ public class Screen {
 	}
 
 	public void keyPressed(KeyEvent event) {
+	}
+
+	public void mouseWheelMoved(MouseWheelEvent event) {
+	}
+	
+	public void getCloseReady() {
 	}
 
 	protected static void startNew(Screen screen) {

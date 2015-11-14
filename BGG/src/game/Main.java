@@ -31,6 +31,10 @@ public class Main {
 	public static float loadState = 1;
 	public static int money = 0;
 	public static String initText;
+	/**
+	 * Describes the most difficult stage achieved divided by 5.
+	 */
+	public static int maxReachedStage;
 
 	public static Point showingStageMousePos;
 	public static boolean showingStage;
@@ -93,12 +97,12 @@ public class Main {
 		}
 		Logging.logEndSectionTag("INIT");
 	}
-
+	
 	private static void initializeStages() {
 		Spawner basicSpw = new Spawner.BasicSpawner();
 		Spawner fastSpw = new Spawner.FastSpawner();
 		Spawner armoredSpw = new Spawner.ArmoredSpawner();
-		stages = new Stage[9];
+		stages = new Stage[11];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -108,6 +112,8 @@ public class Main {
 		stages[6] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20 });
 		stages[7] = new Stage(new Spawner[] { armoredSpw }, new int[] { 50 });
 		stages[8] = new Stage(new Spawner[] { basicSpw, basicSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 80, 80 });
+		stages[9] = new Stage(new Spawner[] { armoredSpw, armoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 80, 80 });
+		stages[10] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
 	}
 
 	private static void initializeBarrels() {
@@ -126,6 +132,7 @@ public class Main {
 	public static void startNewStage() {
 		if (currentStage == stages.length - 1) {
 			noMoreStages = true;
+			updateMaxStage();
 		}
 		else {
 			currentStage++;
@@ -205,9 +212,17 @@ public class Main {
 	public static void resetTheGame() {
 		badGuys.clear();
 		badGuysBuffer.clear();
+		coins.clear();
 		currentStage = 0;
 		projectiles.clear();
 		timeInStage = 0;
 		loadState = 1;
+	}
+
+	public static void updateMaxStage() {
+		int reachedBy5 = (int)Math.floor(Main.currentStage / 5);
+		if (reachedBy5 > maxReachedStage) {
+			maxReachedStage = reachedBy5;
+		}
 	}
 }

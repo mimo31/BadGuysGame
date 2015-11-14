@@ -8,7 +8,6 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
-import game.Gui;
 import game.Main;
 import game.PaintUtils;
 import game.Screen;
@@ -29,13 +28,13 @@ public final class StartScreen extends Screen {
 	public void onStart() {
 		this.initializeComponents();
 	}
-	
+
 	private void initializeComponents() {
 		this.playButton = new Rectangle();
 		this.shopButton = new Rectangle();
 		this.contentSize = new Dimension();
 	}
-	
+
 	private void updateComponents(Graphics2D g, Dimension contentSize, Point mousePosition) {
 		if (this.contentSize.width != contentSize.width || this.contentSize.height != contentSize.height) {
 			this.contentSize = contentSize;
@@ -68,8 +67,17 @@ public final class StartScreen extends Screen {
 			else if (Main.noMoreStages) {
 				PaintUtils.drawStage(g, contentSize, "No more stages :{");
 			}
-			else {
-				PaintUtils.drawStage(g, contentSize, "Stage " + String.valueOf(Main.currentStage));
+		}
+	}
+
+	@Override
+	public void update() {
+		if (Main.showingStage) {
+			Main.showingStageState++;
+			if (Main.showingStageState == Main.stageShowTime) {
+				Main.gameOver = false;
+				Main.noMoreStages = false;
+				Main.showingStage = false;
 			}
 		}
 	}
@@ -78,28 +86,10 @@ public final class StartScreen extends Screen {
 	public void mousePressed(MouseEvent event) {
 		if (!Main.showingStage) {
 			if (this.playButton.contains(event.getPoint())) {
-				Main.showingStage = true;
-				Main.showingStageMousePos = Gui.getMousePanePosition();
-				Main.showingStageState = 0;
-				Main.timeInStage = 0;
+				Screen.startNew(new ChooseStageScreen());
 			}
 			else if (this.shopButton.contains(event.getPoint())) {
 				Screen.startNew(new ShopScreen());
-			}
-		}
-	}
-
-	@Override
-	public void update() {
-		if (Main.showingStage) {
-			Main.showingStageState++;
-			if (Main.showingStageState == Main.stageShowTime / 2) {
-				Screen.startNew(new GameScreen());
-			}
-			else if (Main.showingStageState == Main.stageShowTime) {
-				Main.gameOver = false;
-				Main.noMoreStages = false;
-				Main.showingStage = false;
 			}
 		}
 	}
