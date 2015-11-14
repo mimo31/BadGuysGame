@@ -13,6 +13,7 @@ import game.io.ResourceHandler;
 public class PaintUtils {
 	
 	public static final Color DARK_GREEN2 = new Color(0, 127, 0);
+	public static final Color TRANSPARENT_GRAY = new Color(127, 127, 127, 63);
 	
 	public static float shiftedSine(float x) {
 		return (float) (Math.sin(x * Math.PI - Math.PI / (double) 2) + 1) / (float) 2;

@@ -11,6 +11,7 @@ import game.io.IOBase;
 import game.io.IOInitialization;
 import game.io.Logging;
 import game.screens.ConnectionProblemScreen;
+import game.screens.InitializationScreen;
 import game.screens.StartScreen;
 
 import javax.swing.Timer;
@@ -29,6 +30,7 @@ public class Main {
 	public static ArrayList<Coin> coins = new ArrayList<Coin>();
 	public static float loadState = 1;
 	public static int money = 0;
+	public static String initText;
 
 	public static Point showingStageMousePos;
 	public static boolean showingStage;
@@ -60,13 +62,16 @@ public class Main {
 		Logging.log("Hello!");
 		Logging.logStartSectionTag("INIT");
 		Logging.log("Initializing");
+		Gui.intializeGraphics();
+		updateTimer.start();
+		repaintTimer.start();
+		currentScreen = new InitializationScreen();
 		boolean IOsuccessfull = false;
 		try {
 			IOsuccessfull = IOInitialization.initialize();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		Gui.intializeGraphics();
 		if (IOsuccessfull) {
 			initializeStages();
 			initializeBarrels();
@@ -80,8 +85,6 @@ public class Main {
 		else {
 			currentScreen = new ConnectionProblemScreen();
 		}
-		updateTimer.start();
-		repaintTimer.start();
 		if (IOsuccessfull) {
 			Logging.log("Initialization complete!");
 		}

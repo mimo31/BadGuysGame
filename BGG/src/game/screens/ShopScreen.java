@@ -24,7 +24,6 @@ public final class ShopScreen extends Screen {
 
 	public static final Color GREEN = new Color(114, 241, 46);
 	public static final Color DARK_GREEN = GREEN.darker();
-	public static final Color TRANSPARENT_GRAY = new Color(127, 127, 127, 63);
 	public static final Color CITRINE = new Color(228, 208, 10);
 	public static final Color DARK_RED = new Color(170, 56, 30);
 	public static final Color CHAMPAGNE = new Color(247, 231, 206);
@@ -230,7 +229,7 @@ public final class ShopScreen extends Screen {
 		int x = (int) ((this.barrelsSize) * (index - this.barrelsListPosition)) + this.contentSize.height / 16;
 		this.g.drawImage(ResourceHandler.getTexture(Main.barrels[index].textureName, (int) this.barrelsSize), x, 0, null);
 		if (!Main.barrels[index].bought) {
-			this.g.setColor(TRANSPARENT_GRAY);
+			this.g.setColor(PaintUtils.TRANSPARENT_GRAY);
 			this.g.fillRect(x, 0, this.barrelsSize, this.barrelsSize);
 		}
 		if (index == Main.selectedBarrel) {
