@@ -19,8 +19,8 @@ import game.io.ResourceHandler;
 
 public class GameScreen extends Screen {
 
-	public static final Color TRANSPARENT_GREEN = new Color(0, 255, 127, 127);
-	public static final Color TRANSPARENT_RED = new Color(255, 0, 0, 127);
+	public static final Color TRANSPARENT_GREEN = new Color(0, 255, 127, 31);
+	public static final Color TRANSPARENT_RED = new Color(255, 0, 0, 31);
 
 	// Components
 	private Point usedMousePosition;

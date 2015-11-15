@@ -32,12 +32,12 @@ public abstract class BadGuy {
 	public void hit(float hitPower) {
 		if (this.isBeingHit) {
 			if (this.hitBy + hitPower >= this.live) {
-				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hitBy) * this.hittingProgress / this.live);
+				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hittingProgress) * this.hitBy / this.live);
 				this.isDead = true;
 				this.hitBy = this.live;
 			}
 			else {
-				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hitBy) * this.hittingProgress / (this.hitBy + hitPower));
+				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hittingProgress) * this.hitBy / (this.hitBy + hitPower));
 				this.hitBy = this.hitBy + hitPower;
 			}
 		}

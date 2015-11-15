@@ -102,7 +102,8 @@ public class Main {
 		Spawner basicSpw = new Spawner.BasicSpawner();
 		Spawner fastSpw = new Spawner.FastSpawner();
 		Spawner armoredSpw = new Spawner.ArmoredSpawner();
-		stages = new Stage[11];
+		Spawner heavyArmoredSpw = new Spawner.HeavyArmoredSpawner();
+		stages = new Stage[17];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -114,6 +115,12 @@ public class Main {
 		stages[8] = new Stage(new Spawner[] { basicSpw, basicSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 80, 80 });
 		stages[9] = new Stage(new Spawner[] { armoredSpw, armoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 80, 80 });
 		stages[10] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
+		stages[11] = new Stage(new Spawner[] { armoredSpw, armoredSpw, armoredSpw, fastSpw }, new int[] { 20, 20, 20, 100 });
+		stages[12] = new Stage(new Spawner[] { fastSpw, fastSpw, fastSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 20, 60, 60 });
+		stages[13] = new Stage(new Spawner[] { heavyArmoredSpw }, new int[] { 20 });
+		stages[14] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw,  fastSpw }, new int[] { 20, 40, 60 });
+		stages[15] = new Stage(new Spawner[] { heavyArmoredSpw, basicSpw,  fastSpw, heavyArmoredSpw, basicSpw,  fastSpw }, new int[] { 20, 20, 20, 80, 80, 80 });
+		stages[16] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw,  armoredSpw, armoredSpw, armoredSpw,  armoredSpw }, new int[] { 20, 20, 100, 100, 100, 100 });
 	}
 
 	private static void initializeBarrels() {

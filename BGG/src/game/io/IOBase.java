@@ -29,9 +29,11 @@ public class IOBase {
 			ByteBuffer buffer = ByteBuffer.wrap(data);
 			Main.money = buffer.getInt();
 			Main.maxReachedStage = buffer.getInt();
+			Main.selectedBarrel = buffer.getInt();
 			int index = 0;
-			while (12 <= buffer.remaining() && index < Main.barrels.length) {
+			while (13 <= buffer.remaining() && index < Main.barrels.length) {
 				Barrel currentBarrel = Main.barrels[index];
+				currentBarrel.bought = byteToBoolean(buffer.get());
 				currentBarrel.gameProperties[0].fastUpgrade(buffer.getInt());
 				currentBarrel.gameProperties[1].fastUpgrade(buffer.getInt());
 				currentBarrel.gameProperties[2].fastUpgrade(buffer.getInt());
@@ -44,10 +46,12 @@ public class IOBase {
 
 	public static void save() throws IOException {
 		Logging.logStartSectionTag("GAMESAVE");
-		ByteBuffer buffer = ByteBuffer.allocate(8 + 12 * Main.barrels.length);
+		ByteBuffer buffer = ByteBuffer.allocate(12 + 13 * Main.barrels.length);
 		buffer.putInt(Main.money);
 		buffer.putInt(Main.maxReachedStage);
+		buffer.putInt(Main.selectedBarrel);
 		for (int i = 0; i < Main.barrels.length; i++) {
+			buffer.put(booleanToByte(Main.barrels[i].bought));
 			for (int j = 0; j < 3; j++) {
 				buffer.putInt(Main.barrels[i].gameProperties[j].upgradeLevel);
 			}
@@ -55,5 +59,23 @@ public class IOBase {
 		Files.write(Paths.get(rootDirectory + "\\Save.dat"), buffer.array());
 		Logging.log("The Game was saved.");
 		Logging.logEndSectionTag("GAMESAVE");
+	}
+
+	private static byte booleanToByte(boolean b) {
+		if (b) {
+			return 127;
+		}
+		else {
+			return -128;
+		}
+	}
+
+	private static boolean byteToBoolean(byte b) {
+		if (b == 127) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 }

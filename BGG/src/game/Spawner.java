@@ -4,7 +4,7 @@ public interface Spawner {
 
 	public BadGuy getBadGuy();
 
-	public class BasicSpawner implements Spawner {
+	public static class BasicSpawner implements Spawner {
 
 		@Override
 		public BadGuy getBadGuy() {
@@ -20,7 +20,7 @@ public interface Spawner {
 
 	}
 
-	public class FastSpawner implements Spawner {
+	public static class FastSpawner implements Spawner {
 
 		@Override
 		public BadGuy getBadGuy() {
@@ -36,7 +36,7 @@ public interface Spawner {
 
 	}
 
-	public class ArmoredSpawner implements Spawner {
+	public static class ArmoredSpawner implements Spawner {
 
 		@Override
 		public BadGuy getBadGuy() {
@@ -45,6 +45,22 @@ public interface Spawner {
 				@Override
 				public Coin getCoin() {
 					return Coin.coin2();
+				}
+				
+			};
+		}
+
+	}
+	
+	public static class HeavyArmoredSpawner implements Spawner {
+
+		@Override
+		public BadGuy getBadGuy() {
+			return new BadGuy(8, 1, "HeavyArmoredBadGuy.png"){
+				
+				@Override
+				public Coin getCoin() {
+					return Coin.coin5();
 				}
 				
 			};
