@@ -9,12 +9,12 @@ import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
 import game.BadGuy;
-import game.Barrel;
 import game.Coin;
 import game.Main;
 import game.PaintUtils;
 import game.Projectile;
 import game.Screen;
+import game.barrels.Barrel;
 import game.io.ResourceHandler;
 
 public class GameScreen extends Screen {
@@ -100,9 +100,9 @@ public class GameScreen extends Screen {
 				float factor = (float) (contentSize.width / (float) 32 / Math.sqrt(Math.pow(vecX, 2) + Math.pow(vecY, 2)));
 				Point firePoint = new Point((int) (barrelCenter.x + vecX * factor), (int) (barrelCenter.y + vecY * factor));
 				Barrel selectedBarrel = Main.getSelectedBarrel();
-				float speed = selectedBarrel.getProjectileSpeed();
+				float speed = selectedBarrel.getProperty(Barrel.projectileSpeedID);
 				String textureName = selectedBarrel.projectileTextureName;
-				float hitPower = selectedBarrel.getProjectilePower();
+				float hitPower = selectedBarrel.getProperty(Barrel.projectilePowerID);
 				float dirX = vecX / (float) contentSize.width;
 				float dirY = vecY / (float) contentSize.height;
 				Projectile projectile = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, dirX, dirY, speed, textureName, hitPower);
@@ -190,7 +190,7 @@ public class GameScreen extends Screen {
 				}
 			}
 			if (Main.loadState != 1) {
-				Main.loadState += 1 / (float) (32 * Main.getSelectedBarrel().getLoadingTime());
+				Main.loadState += 1 / (float) (32 * Main.getSelectedBarrel().getProperty(Barrel.loadingTimeID));
 				if (Main.loadState > 1) {
 					Main.loadState = 1;
 				}

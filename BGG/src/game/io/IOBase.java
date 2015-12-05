@@ -1,14 +1,18 @@
 package game.io;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import game.Barrel;
 import game.Main;
+import game.barrels.Barrel;
 
 public class IOBase {
 	public static final Version version = new Version();
@@ -25,20 +29,24 @@ public class IOBase {
 		Logging.logStartSectionTag("GAMELOAD");
 		Logging.log("Looking for a save.");
 		if (Files.exists(Paths.get(rootDirectory + "\\Save.dat"))) {
-			byte[] data = Files.readAllBytes(Paths.get(rootDirectory + "\\Save.dat"));
-			ByteBuffer buffer = ByteBuffer.wrap(data);
-			Main.money = buffer.getInt();
-			Main.maxReachedStage = buffer.getInt();
-			Main.selectedBarrel = buffer.getInt();
+			FileInputStream fileIn = new FileInputStream(new File(rootDirectory + "\\Save.dat"));
+			DataInputStream dataIn = new DataInputStream(fileIn);
+			Main.money = dataIn.readInt();
+			Main.maxReachedStage = dataIn.readInt();
+			Main.selectedBarrel = dataIn.readInt();
 			int index = 0;
-			while (13 <= buffer.remaining() && index < Main.barrels.length) {
+			while (dataIn.available() != 0 && index < Main.barrels.length) {
 				Barrel currentBarrel = Main.barrels[index];
-				currentBarrel.bought = byteToBoolean(buffer.get());
-				currentBarrel.gameProperties[0].fastUpgrade(buffer.getInt());
-				currentBarrel.gameProperties[1].fastUpgrade(buffer.getInt());
-				currentBarrel.gameProperties[2].fastUpgrade(buffer.getInt());
+				currentBarrel.bought = dataIn.readBoolean();
+				for (int i = 0; i < currentBarrel.gameProperties.length; i++) {
+					byte[] data = new byte[dataIn.readInt()];
+					dataIn.read(data, 0, data.length);
+					currentBarrel.gameProperties[i].loadFromBytes(data);
+				}
 				index++;
 			}
+			fileIn.close();
+			dataIn.close();
 			Logging.log("The save was loaded.");
 		}
 		Logging.logEndSectionTag("GAMELOAD");
@@ -46,36 +54,22 @@ public class IOBase {
 
 	public static void save() throws IOException {
 		Logging.logStartSectionTag("GAMESAVE");
-		ByteBuffer buffer = ByteBuffer.allocate(12 + 13 * Main.barrels.length);
-		buffer.putInt(Main.money);
-		buffer.putInt(Main.maxReachedStage);
-		buffer.putInt(Main.selectedBarrel);
+		FileOutputStream fileOut = new FileOutputStream(new File(rootDirectory + "\\Save.dat"));
+		DataOutputStream dataOut = new DataOutputStream(fileOut);
+		dataOut.writeInt(Main.money);
+		dataOut.writeInt(Main.maxReachedStage);
+		dataOut.writeInt(Main.selectedBarrel);
 		for (int i = 0; i < Main.barrels.length; i++) {
-			buffer.put(booleanToByte(Main.barrels[i].bought));
-			for (int j = 0; j < 3; j++) {
-				buffer.putInt(Main.barrels[i].gameProperties[j].upgradeLevel);
+			dataOut.writeBoolean(Main.barrels[i].bought);
+			for (int j = 0; j < Main.barrels[i].gameProperties.length; j++) {
+				byte[] propData = Main.barrels[i].gameProperties[j].getBytes();
+				dataOut.writeInt(propData.length);
+				dataOut.write(propData);
 			}
 		}
-		Files.write(Paths.get(rootDirectory + "\\Save.dat"), buffer.array());
+		fileOut.close();
+		dataOut.close();
 		Logging.log("The Game was saved.");
 		Logging.logEndSectionTag("GAMESAVE");
-	}
-
-	private static byte booleanToByte(boolean b) {
-		if (b) {
-			return 127;
-		}
-		else {
-			return -128;
-		}
-	}
-
-	private static boolean byteToBoolean(byte b) {
-		if (b == 127) {
-			return true;
-		}
-		else {
-			return false;
-		}
 	}
 }

@@ -19,9 +19,9 @@ class Version {
 
 	public Version() {
 		this.major = 1;
-		this.minor = 1;
+		this.minor = 2;
 		this.build = 0;
-		this.type = ReleaseType.FINAL;
+		this.type = ReleaseType.BETA;
 	}
 
 	public boolean isNewer(Version anotherVersion) {

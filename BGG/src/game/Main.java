@@ -6,7 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import game.Barrel.BarrelGameProperty;
+
+import game.barrels.Barrel;
+import game.barrels.BarrelPropertyImplementation;
+import game.barrels.BarrelUpgradablePropertyImplementation;
 import game.io.IOBase;
 import game.io.IOInitialization;
 import game.io.Logging;
@@ -125,14 +128,15 @@ public class Main {
 
 	private static void initializeBarrels() {
 		barrels = new Barrel[2];
-		BarrelGameProperty loadingTime = new BarrelGameProperty(new int[] { 15 }, new float[] { -0.2f }, 1);
-		BarrelGameProperty projectilePower = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
-		BarrelGameProperty projectileSpeed = new BarrelGameProperty(new int[] { 20 }, new float[] { 0.5f }, 1);
-		barrels[0] = new Barrel(new BarrelGameProperty[] { loadingTime, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel");
-		loadingTime = new BarrelGameProperty(new int[] { 20, 30 }, new float[] { -0.13f, -0.05f }, 0.8f);
-		projectilePower = new BarrelGameProperty(new int[] { 50 }, new float[] { 1 }, 1);
-		projectileSpeed = new BarrelGameProperty(new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f }, 1.75f);
-		barrels[1] = new Barrel(new BarrelGameProperty[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel");
+		BarrelPropertyImplementation loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1);
+		BarrelPropertyImplementation projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 1);
+		BarrelPropertyImplementation projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 1);
+		barrels[0] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel");
+		
+		loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 20, 30 }, new float[] { -0.13f, -0.05f }, 0.8f);
+		projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 50 }, new float[] { 1 }, 1);
+		projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f }, 1.75f);
+		barrels[1] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel");
 		selectedBarrel = 0;
 	}
 
