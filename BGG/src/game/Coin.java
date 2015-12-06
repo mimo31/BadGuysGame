@@ -1,5 +1,7 @@
 package game;
 
+import java.awt.Dimension;
+
 public class Coin {
 	
 	/**
@@ -22,6 +24,46 @@ public class Coin {
 		this.textureName = textureName;
 		this.x = 0;
 		this.y = 0;
+	}
+	
+	/**
+	 * @return Whether the coin is certainly collected by the source of the magnetic force.
+	 */
+	public boolean attractTo(float x, float y, float strength) {
+		double distInX = x - this.x;
+		double distInY = y - this.y;
+		double totalMove = (strength / (Math.pow(distInX, 2) + Math.pow(distInY, 2))) / (double) 65536;
+		if (totalMove > Math.sqrt(Math.pow(distInX, 2) + Math.pow(distInY, 2))) {
+			return true;
+		}
+		else if (totalMove < 1 / (float) 4096) {
+			return false;
+		}
+		else {
+			double yXratio = distInY / distInX;
+			double xAdded = totalMove / Math.sqrt(1 + Math.pow(yXratio, 2)) * Math.signum(distInX);
+			double yAdded = totalMove * yXratio / Math.sqrt(1 + Math.pow(yXratio, 2)) * Math.signum(distInX);
+			this.x += xAdded;
+			this.y += yAdded;
+			return false;
+		}
+	}
+	
+	public void resolveEdgeCollisions(Dimension contentSize) {
+		if (this.x < 1 / (float) 128) {
+			this.x = 1 / (float) 64 - this.x;
+		} 
+		else if (this.x > 127 / (float) 128) {
+			this.x = 127 / (float) 64 - this.x;
+		}
+		float upEdge = contentSize.width / (float) 128 / (float) contentSize.height;
+		float downEdge = 127 / (float) 128 * contentSize.width / contentSize.height;
+		if (this.y < upEdge) {
+			this.y = upEdge * 2 - this.y;
+		}
+		else if (this.y > downEdge){
+			this.y = downEdge * 2 - this.y;
+		}
 	}
 	
 	public static Coin basicCoin() {

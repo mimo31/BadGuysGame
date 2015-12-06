@@ -65,7 +65,10 @@ public class GameScreen extends Screen {
 		g.drawImage(ResourceHandler.getTexture(Main.getSelectedBarrel().textureName, contentSize.width / 16), transform, null);
 		for (int i = 0; i < Main.projectiles.size(); i++) {
 			Projectile currentProjectile = Main.projectiles.get(i);
-			g.drawImage(ResourceHandler.getTexture(currentProjectile.textureName, contentSize.width / 64), (int) (currentProjectile.x * contentSize.width - contentSize.width / (float) 128), (int) (currentProjectile.y * contentSize.height - contentSize.width / (float) 128), null);
+			AffineTransform projectileTransform = AffineTransform.getTranslateInstance(currentProjectile.x * contentSize.width, currentProjectile.y * contentSize.height);
+			projectileTransform.rotate(-currentProjectile.dirY * contentSize.height, currentProjectile.dirX * contentSize.width);
+			projectileTransform.translate(-contentSize.width / (float) 128, -contentSize.width / (float) 128);
+			g.drawImage(ResourceHandler.getTexture(currentProjectile.textureName, contentSize.width / 64), projectileTransform, null);
 		}
 		PaintUtils.drawCurrentMoney(g, contentSize);
 		if (Main.showingStage) {
@@ -105,7 +108,8 @@ public class GameScreen extends Screen {
 				float hitPower = selectedBarrel.getProperty(Barrel.projectilePowerID);
 				float dirX = vecX / (float) contentSize.width;
 				float dirY = vecY / (float) contentSize.height;
-				Projectile projectile = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, dirX, dirY, speed, textureName, hitPower);
+				float coinMagnet = selectedBarrel.getProperty(Barrel.coinMagnetID);
+				Projectile projectile = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, dirX, dirY, speed, textureName, hitPower, coinMagnet);
 				Main.projectiles.add(projectile);
 				Main.loadState = 0;
 			}
@@ -149,6 +153,7 @@ public class GameScreen extends Screen {
 					}
 				}
 			}
+			Main.updateCoins(contentSize);
 			float heightFraction = contentSize.width / (float) contentSize.height / (float) 128;
 			for (int i = 0; i < Main.projectiles.size(); i++) {
 				Projectile currentProjectile = Main.projectiles.get(i);
@@ -157,6 +162,7 @@ public class GameScreen extends Screen {
 				if (currentProjectile.x + 1 / (float) 128 < 0 || currentProjectile.x - 1 / (float) 128 >= 1 || currentProjectile.y + heightFraction < 0 || currentProjectile.y - heightFraction >= 1) {
 					Main.projectiles.remove(i);
 					i--;
+					continue;
 				}
 				for (int j = 0; j < Main.coins.size(); j++) {
 					Coin currentCoin = Main.coins.get(j);

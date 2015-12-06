@@ -127,7 +127,7 @@ public class Main {
 	}
 
 	private static void initializeBarrels() {
-		barrels = new Barrel[2];
+		barrels = new Barrel[3];
 		BarrelPropertyImplementation loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1);
 		BarrelPropertyImplementation projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 1);
 		BarrelPropertyImplementation projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 1);
@@ -137,6 +137,12 @@ public class Main {
 		projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 50 }, new float[] { 1 }, 1);
 		projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f }, 1.75f);
 		barrels[1] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel");
+		
+		loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 10, 30 }, new float[] { -0.5f, -0.2f }, 1.5f);
+		projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 25, 45 }, new float[] { 1, 0.5f }, 2);
+		projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.5f, 0.5f, 0.3f }, 0.7f);
+		BarrelPropertyImplementation coinMagnet = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.coinMagnetID], new int[] { 50 }, new float[] { 1 }, 1);
+		barrels[2] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, coinMagnet }, 75, "MagneticBarrel.png", "MagneticProjectile.png", false, "Magnetic Barrel");
 		selectedBarrel = 0;
 	}
 
@@ -160,6 +166,28 @@ public class Main {
 
 	public static void addBadGuyToBuffer(BadGuy badGuy) {
 		badGuysBuffer.add(badGuy);
+	}
+	
+	public static void updateCoins(Dimension contentSize) {
+		for (int i = 0; i < coins.size(); i++) {
+			boolean collected = false;
+			for (Projectile projectile : projectiles) {
+				if (projectile.coinMagnet != 0) {
+					if (coins.get(i).attractTo(projectile.x, projectile.y, projectile.coinMagnet)) {
+						collected = true;
+						break;
+					}
+				}
+			}
+			if (collected) {
+				money += coins.get(i).value;
+				coins.remove(i);
+				i--;
+			}
+			else {
+				coins.get(i).resolveEdgeCollisions(contentSize);
+			}
+		}
 	}
 
 	public static void spawnBadGuysFromBuffer(Dimension contentSize) {

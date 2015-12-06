@@ -2,10 +2,11 @@ package game.barrels;
 
 public class Barrel {
 
-	public static final BarrelGameProperty[] propertiesIndex = new BarrelGameProperty[] { new BarrelGameProperty("Loading time", 1), new BarrelGameProperty("Projectile power", 1), new BarrelGameProperty("Projectile speed", 1) };
+	public static final BarrelGameProperty[] propertiesIndex = new BarrelGameProperty[] { new BarrelGameProperty("Loading time", 1), new BarrelGameProperty("Projectile power", 1), new BarrelGameProperty("Projectile speed", 1), new BarrelGameProperty("Coin magnet", 0) };
 	public static final int loadingTimeID = getPropertyID("Loading time");
 	public static final int projectilePowerID = getPropertyID("Projectile power");
 	public static final int projectileSpeedID = getPropertyID("Projectile speed");
+	public static final int coinMagnetID = getPropertyID("Coin magnet");
 	
 	public BarrelPropertyImplementation[] gameProperties;
 	public int cost;
