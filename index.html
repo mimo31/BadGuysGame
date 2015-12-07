@@ -1,8 +1,27 @@
 <html>
 <head>
-<title>Test title</title>
+<title>Bad Guys Game</title>
+<style>
+h1 {
+font-family: sans-serif;
+}
+
+p {
+font-family: sans-serif;
+}
+</style>
 </head>
 <body>
-<p>This is just a test page.</p>
+<h1 id="mainHeadline">Bad Guys Game</h1>
+<p>This webpage is a about a game called Bad Guys Game.</p>
+<p>Here is a link to its GitHub repository: <a href="https://github.com/mimo31/BadGuysGame">click</a></p>
+<p>You can download it there. (in the <a href="https://github.com/mimo31/BadGuysGame/releases">releases tab</a>)</p>
+<script>
+var suitableColors = ["black", "gray", "red", "green", "violet", "yellow", "brown", "pink", "blue"];
+function changeColor() {
+	document.getElementById("mainHeadline").style.color = suitableColors[Math.floor(Math.random() * suitableColors.length)];
+}
+window.setInterval(changeColor, 1000);
+</script>
 </body>
 </html>
