@@ -1,0 +1,13 @@
+2Coin.png 0.9 1
+5Coin.png 1.2beta 1
+ArmoredBadGuy.png 0.9 1
+Base.png 0.9 1
+BasicBadGuy.png 0.9 1
+BasicBarrel.png 0.9 1
+BasicCoin.png 0.9 1
+BasicProjectile.png 0.9 1
+FastBadGuy.png 0.9 1
+FastBarrel.png 0.9 1
+HeavyArmoredBadGuy.png 1.2beta 1
+MagneticBarrel.png 1.2beta 1
+MagneticProjectile.png 1.2beta 1
