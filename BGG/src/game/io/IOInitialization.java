@@ -15,7 +15,7 @@ import game.io.Version.VersionStringFormatException;
 
 public class IOInitialization {
 
-	public static boolean initialize() throws IOException, VersionStringFormatException {
+	public static boolean initialize() throws IOException, VersionStringFormatException, InterruptedException {
 		Logging.logStartSectionTag("IO");
 		Logging.log("Initializing IO");
 		Logging.log("Looking for the root game directory.");
@@ -49,7 +49,7 @@ public class IOInitialization {
 			someResourcesAlready = false;
 		}
 		if (someResourcesAlready) {
-			if (IOBase.isServerReachable()) {
+			try {
 				Logging.log("Downloading the resource meta file.");
 				ResourceMeta[] serverMetas = ResourceMeta.getServerMetas();
 				Logging.log("Reading the client resource meta file.");
@@ -82,13 +82,12 @@ public class IOInitialization {
 					}
 				}
 				ResourceMeta.writeClientMeta(clientMetas);
-			}
-			else {
+			} catch (Exception e) {
 				Logging.log("Server is unreachable! - Skiping the resources update.", "WARNING");
 			}
 		}
 		else {
-			if (IOBase.isServerReachable()) {
+			try {
 				Logging.log("Downloading the resource meta file.");
 				ResourceMeta[] serverMetas = ResourceMeta.getServerMetas();
 				List<ResourceMeta> futureClientMetas = new ArrayList<ResourceMeta>();
@@ -104,8 +103,7 @@ public class IOInitialization {
 				}
 				Logging.log("Creating the local meta file.");
 				ResourceMeta.writeClientMeta(futureClientMetas);
-			}
-			else {
+			} catch (Exception e){
 				Logging.log("Server is unreachable! - Failed to download resources.", "WARNING");
 				Logging.log("IO initialized (unsuccessfully)");
 				Logging.logEndSectionTag("IO");
