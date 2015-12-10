@@ -171,6 +171,8 @@ public final class ShopScreen extends Screen {
 		if (selectedBarrel.bought) {
 			g.fillRect(0, contentSize.height * 7 / 8, contentSize.width, contentSize.height / 8);
 		}
+		g.setColor(Color.black);
+		StringDraw.drawMaxString(g, this.tableBordersSize, selectedBarrel.name, this.barrelNameBounds);
 
 		int maxBarrelIndex = (int) Math.floor(this.barrelsListPosition + (contentSize.width - contentSize.height / 8) / (float) (contentSize.height / 8 - contentSize.height / 256));
 		for (int i = (int) Math.floor(this.barrelsListPosition); i < Main.barrels.length && i <= maxBarrelIndex; i++) {
