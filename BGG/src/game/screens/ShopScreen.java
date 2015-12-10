@@ -425,4 +425,11 @@ public final class ShopScreen extends Screen {
 			}
 		}
 	}
+	
+	@Override
+	public void getCloseReady() {
+		if (!Main.getSelectedBarrel().bought) {
+			Main.selectedBarrel = 0;
+		}
+	}
 }
