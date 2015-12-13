@@ -18,8 +18,8 @@ import game.PaintUtils;
 import game.Screen;
 import game.StringDraw;
 import game.StringDraw.TextAlign;
-import game.barrels.Barrel;
-import game.barrels.BarrelUpgradablePropertyImplementation;
+import game.mechanics.barrels.Barrel;
+import game.mechanics.barrels.BarrelUpgradablePropertyImplementation;
 import game.io.ResourceHandler;
 
 public final class ShopScreen extends Screen {
@@ -32,7 +32,7 @@ public final class ShopScreen extends Screen {
 
 	private float barrelsListPosition = 0;
 	private boolean notBoughtWarning = false;
-	private int notBoughtStage = 0;
+	private float notBoughtStage = 0;
 	private float[] listsPosition = new float[Main.barrels.length];
 
 	// Components
@@ -305,24 +305,24 @@ public final class ShopScreen extends Screen {
 	};
 
 	@Override
-	public void update() {
+	public void update(int time) {
 		for (int i = 0; i < Main.barrels.length; i++) {
-			Main.barrels[i].update();
+			Main.barrels[i].update(time);
 		}
 		if (this.notBoughtWarning) {
-			this.notBoughtStage--;
-			if (this.notBoughtStage == 0) {
+			this.notBoughtStage -= time / (float) 40;
+			if (this.notBoughtStage <= 0) {
 				this.notBoughtWarning = false;
 			}
 		}
 		if (this.onLeftButton) {
-			this.barrelsListPosition += 1 / (float) 16;
+			this.barrelsListPosition += time / (float) 16 / (float) 40;
 			if (this.barrelsListPosition > Main.barrels.length - 1) {
 				this.barrelsListPosition = Main.barrels.length - 1;
 			}
 		}
 		else if (this.onRightButton) {
-			this.barrelsListPosition -= 1 / (float) 16;
+			this.barrelsListPosition -= time / (float) 16 / (float) 40;
 			if (this.barrelsListPosition < 0) {
 				this.barrelsListPosition = 0;
 			}

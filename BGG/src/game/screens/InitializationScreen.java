@@ -20,7 +20,7 @@ public class InitializationScreen extends Screen {
 	private StringDrawAttributes textAttributes;
 	private Dimension contentSize;
 
-	private int state = 0;
+	private float state = 0;
 
 	private void initializeComponents() {
 		this.firstRect = new Rectangle();
@@ -64,9 +64,9 @@ public class InitializationScreen extends Screen {
 	}
 
 	@Override
-	public void update() {
-		this.state++;
-		if (this.state == 75) {
+	public void update(int time) {
+		this.state += time / (float) 40;
+		if (this.state >= 75) {
 			this.state = 0;
 		}
 	}

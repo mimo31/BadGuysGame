@@ -1,4 +1,4 @@
-package game.barrels;
+package game.mechanics.barrels;
 
 import java.nio.ByteBuffer;
 
@@ -66,9 +66,9 @@ public class BarrelUpgradablePropertyImplementation extends BarrelPropertyImplem
 	}
 	
 	@Override
-	public void update() {
+	public void update(int time) {
 		if (this.isUpgrading) {
-			this.upgradingProgress += 1 / (float) 25;
+			this.upgradingProgress += time / (float) 25 / (float) 40;
 			if (upgradingProgress >= 1) {
 				this.isUpgrading = false;
 				this.upgradingBy = 0;

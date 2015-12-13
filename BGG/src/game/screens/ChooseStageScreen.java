@@ -10,13 +10,16 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.IOException;
 
-import game.Gui;
 import game.Main;
 import game.PaintUtils;
 import game.Screen;
 import game.StringDraw;
 
 public class ChooseStageScreen extends Screen {
+
+	private float showingStageState = 0;
+	private boolean showingStage = false;
+	private int selectedStage;
 
 	// Components
 	private Dimension contentSize;
@@ -26,7 +29,7 @@ public class ChooseStageScreen extends Screen {
 
 	private void updateComponents(Dimension contentSize, Point mousePosition) {
 		this.contentSize = contentSize;
-		if (!Main.showingStage) {
+		if (!this.showingStage) {
 			this.usedMousePosition = mousePosition;
 		}
 	}
@@ -57,56 +60,58 @@ public class ChooseStageScreen extends Screen {
 			StringDraw.drawMaxString(g, contentSize.height / 32, text, bounds);
 		}
 		PaintUtils.drawCurrentMoney(g, contentSize);
-		if (Main.showingStage) {
-			PaintUtils.drawStage(g, contentSize, "Stage " + String.valueOf(Main.currentStage));
+		if (this.showingStage) {
+			PaintUtils.drawStage(g, contentSize, "Stage " + String.valueOf(this.selectedStage), showingStageState);
 		}
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent event) {
-		if (event.getWheelRotation() > 0) {
-			if (this.listPosition != Main.maxReachedStage - 2) {
-				this.listPosition += event.getWheelRotation() / (float) 8;
-				if (this.listPosition > Main.maxReachedStage - 2) {
-					this.listPosition = Main.maxReachedStage - 2;
+		if (!this.showingStage) {
+			if (event.getWheelRotation() > 0) {
+				if (this.listPosition != Main.maxReachedStage - 2) {
+					this.listPosition += event.getWheelRotation() / (float) 8;
+					if (this.listPosition > Main.maxReachedStage - 2) {
+						this.listPosition = Main.maxReachedStage - 2;
+					}
+					if (this.listPosition < 0) {
+						this.listPosition = 0;
+					}
 				}
-				if (this.listPosition < 0) {
-					this.listPosition = 0;
+			}
+			else {
+				if (this.listPosition != 0) {
+					this.listPosition += event.getWheelRotation() / (float) 8;
+					if (this.listPosition < 0) {
+						this.listPosition = 0;
+					}
 				}
 			}
 		}
-		else {
-			if (this.listPosition != 0) {
-				this.listPosition += event.getWheelRotation() / (float) 8;
-				if (this.listPosition < 0) {
-					this.listPosition = 0;
-				}
-			}
-		}
+
 	}
 
 	@Override
 	public void mousePressed(MouseEvent event) {
-		if (!Main.showingStage) {
+		if (!this.showingStage) {
 			if (event.getX() >= contentSize.width / 4 && event.getX() < contentSize.width * 3 / 4) {
 				float relListClickPosition = this.listPosition + event.getY() / (float) this.contentSize.height * 4;
 				if (Math.floor(relListClickPosition) + 1 / (float) 4 <= relListClickPosition && Math.floor(relListClickPosition + 1) - 1 / (float) 4 > relListClickPosition && Math.floor(relListClickPosition) <= Main.maxReachedStage) {
-					Main.currentStage = (int) Math.floor(relListClickPosition) * 5;
-					Main.showingStage = true;
-					Main.showingStageMousePos = Gui.getMousePanePosition();
-					Main.showingStageState = 0;
-					Main.timeInStage = 0;
+					this.selectedStage = (int) Math.floor(relListClickPosition) * 5;
+					this.showingStage = true;
+					this.usedMousePosition = event.getPoint();
+					this.showingStageState = 0;
 				}
 			}
 		}
 	}
 
 	@Override
-	public void update() {
-		if (Main.showingStage) {
-			Main.showingStageState++;
-			if (Main.showingStageState == Main.stageShowTime / 2) {
-				Screen.startNew(new GameScreen());
+	public void update(int time) {
+		if (this.showingStage) {
+			this.showingStageState += time / (float) 40;
+			if (this.showingStageState >= Main.stageShowTime / 2) {
+				Screen.startNew(new GameScreen(this.selectedStage, this.usedMousePosition));
 			}
 		}
 	}
@@ -114,8 +119,8 @@ public class ChooseStageScreen extends Screen {
 	@Override
 	public void keyPressed(KeyEvent event) {
 		if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			if (Main.showingStage) {
-				Main.showingStage = false;
+			if (this.showingStage) {
+				this.showingStage = false;
 			}
 			else {
 				Screen.startNew(new StartScreen());

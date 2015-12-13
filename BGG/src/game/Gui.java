@@ -1,8 +1,10 @@
 package game;
 
 import java.awt.Dimension;
+import java.awt.DisplayMode;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.KeyAdapter;
@@ -23,6 +25,8 @@ import game.io.Logging;
 public final class Gui {
 
 	public static JFrame gui;
+	public static int maxScreenRefreshRate;
+	public static int refreshRate;
 
 	public static Dimension getContentSize() {
 		return gui.getContentPane().getSize();
@@ -37,6 +41,13 @@ public final class Gui {
 	public static void intializeGraphics() {
 		Logging.logStartSectionTag("GUI");
 		Logging.log("Initializing GUI");
+		int refreshRate = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getRefreshRate();
+		if (refreshRate == DisplayMode.REFRESH_RATE_UNKNOWN) {
+			maxScreenRefreshRate = 60;
+		}
+		else {
+			maxScreenRefreshRate = refreshRate;
+		}
 		gui = new JFrame("The Bad Guys Game");
 		gui.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		gui.setVisible(true);
@@ -71,9 +82,12 @@ public final class Gui {
 		@Override
 		public void windowClosing(WindowEvent event) {
 			try {
+				Main.running = false;
+				Main.updateThread.join();
 				Main.currentScreen.getCloseReady();
 				IOBase.save();
-			} catch (IOException e) {
+				Logging.log("Exiting");
+			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
@@ -95,19 +109,19 @@ public final class Gui {
 		@Override
 		public void mouseMoved(MouseEvent event) {
 			Main.currentScreen.mouseMoved(event);
-			gui.repaint();
+			//gui.repaint();
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent event) {
 			Main.currentScreen.mouseDragged(event);
-			gui.repaint();
+			//gui.repaint();
 		}
 		
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent event) {
 			Main.currentScreen.mouseWheelMoved(event);
-			gui.repaint();
+			//gui.repaint();
 		}
 	};
 

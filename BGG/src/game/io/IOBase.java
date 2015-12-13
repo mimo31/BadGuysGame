@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import game.Main;
-import game.barrels.Barrel;
+import game.mechanics.barrels.Barrel;
 
 public class IOBase {
 	public static final Version version = new Version();

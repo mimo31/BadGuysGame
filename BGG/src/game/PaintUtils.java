@@ -33,8 +33,8 @@ public class PaintUtils {
 		g.fill(rect);
 	}
 
-	public static void drawStage(Graphics2D g, Dimension contentSize, String text) {
-		int alpha = (int) (255 - Math.abs(Main.showingStageState - Main.stageShowTime / 2) / (float) (Main.stageShowTime / 2) * (float) 255);
+	public static void drawStage(Graphics2D g, Dimension contentSize, String text, float state) {
+		int alpha = (int) (255 - Math.abs(state - Main.stageShowTime / 2) / (float) (Main.stageShowTime / 2) * (float) 255);
 		g.setColor(new Color(0, 0, 0, alpha));
 		g.fillRect(0, 0, contentSize.width, contentSize.height);
 		g.setColor(new Color(255, 255, 255, alpha));

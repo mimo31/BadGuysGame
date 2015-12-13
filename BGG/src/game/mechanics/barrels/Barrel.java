@@ -1,4 +1,4 @@
-package game.barrels;
+package game.mechanics.barrels;
 
 public class Barrel {
 
@@ -70,9 +70,9 @@ public class Barrel {
 		}
 	}
 
-	public void update() {
+	public void update(int time) {
 		for (int i = 0; i < this.gameProperties.length; i++) {
-			this.gameProperties[i].update();
+			this.gameProperties[i].update(time);
 		}
 	}
 

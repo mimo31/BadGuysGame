@@ -1,4 +1,4 @@
-package game;
+package game.mechanics;
 
 public class Projectile {
 	public float x;

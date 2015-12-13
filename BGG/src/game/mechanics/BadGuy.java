@@ -1,4 +1,6 @@
-package game;
+package game.mechanics;
+
+import game.PaintUtils;
 
 public abstract class BadGuy {
 
@@ -63,8 +65,8 @@ public abstract class BadGuy {
 		}
 	}
 
-	public void move() {
-		this.y += this.speed / (float) 384;
+	public void move(int time) {
+		this.y += this.speed * time / (float) 384 / (float) 40;
 	}
 
 	public abstract Coin getCoin();

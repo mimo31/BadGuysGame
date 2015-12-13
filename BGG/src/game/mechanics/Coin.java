@@ -1,4 +1,4 @@
-package game;
+package game.mechanics;
 
 import java.awt.Dimension;
 
@@ -29,10 +29,10 @@ public class Coin {
 	/**
 	 * @return Whether the coin is certainly collected by the source of the magnetic force.
 	 */
-	public boolean attractTo(float x, float y, float strength) {
+	public boolean attractTo(float x, float y, float strength, int time) {
 		double distInX = x - this.x;
 		double distInY = y - this.y;
-		double totalMove = (strength / (Math.pow(distInX, 2) + Math.pow(distInY, 2))) / (double) 65536;
+		double totalMove = (strength / (Math.pow(distInX, 2) + Math.pow(distInY, 2))) * time / (double) 65536 / (float) 40;
 		if (totalMove > Math.sqrt(Math.pow(distInX, 2) + Math.pow(distInY, 2))) {
 			return true;
 		}

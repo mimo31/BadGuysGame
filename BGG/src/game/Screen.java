@@ -16,7 +16,7 @@ public class Screen {
 	public void onStart() {
 	}
 
-	public void update() {
+	public void update(int time) {
 	}
 
 	public void mousePressed(MouseEvent event) {

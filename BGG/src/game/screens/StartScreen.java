@@ -19,11 +19,25 @@ public final class StartScreen extends Screen {
 	// Components
 	private Rectangle playButton;
 	private Rectangle shopButton;
+	private boolean showingStage;
+	private boolean noMoreStages;
+	private float showingStageState;
 	private Point usedMousePosition;
 	private StringDrawAttributes playTextAttributes;
 	private StringDrawAttributes shopTextAttributes;
 	private Dimension contentSize;
-
+	
+	public StartScreen() {
+		
+	}
+	
+	public StartScreen(boolean noMoreStages, Point showingStageMousePos) {
+		this.usedMousePosition = showingStageMousePos;
+		this.showingStage = true;
+		this.noMoreStages = noMoreStages;
+		this.showingStageState = Main.stageShowTime / 2;
+	}
+	
 	@Override
 	public void onStart() {
 		this.initializeComponents();
@@ -43,48 +57,43 @@ public final class StartScreen extends Screen {
 			this.playTextAttributes = StringDraw.getAttributes(g, contentSize.height / 16, "Play", playButton);
 			this.shopTextAttributes = StringDraw.getAttributes(g, contentSize.height / 16, "Shop", shopButton);
 		}
-		if (Main.showingStage) {
-			usedMousePosition = Main.showingStageMousePos;
-		}
-		else {
-			usedMousePosition = mousePosition;
+		if (!this.showingStage) {
+			this.usedMousePosition = mousePosition;
 		}
 	}
 
 	@Override
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
 		updateComponents(g, contentSize, mousePosition);
-		PaintUtils.drawChangingRect(g, playButton, Color.black, Color.MAGENTA, usedMousePosition);
-		PaintUtils.drawChangingRect(g, shopButton, Color.black, Color.MAGENTA, usedMousePosition);
+		PaintUtils.drawChangingRect(g, playButton, Color.black, Color.MAGENTA, this.usedMousePosition);
+		PaintUtils.drawChangingRect(g, shopButton, Color.black, Color.MAGENTA, this.usedMousePosition);
 		g.setColor(Color.white);
 		StringDraw.drawStringByAttributes(g, "Play", playTextAttributes);
 		StringDraw.drawStringByAttributes(g, "Shop", shopTextAttributes);
 		PaintUtils.drawCurrentMoney(g, contentSize);
-		if (Main.showingStage) {
-			if (Main.gameOver) {
-				PaintUtils.drawStage(g, contentSize, "Game Over");
+		if (this.showingStage) {
+			if (this.noMoreStages) {
+				PaintUtils.drawStage(g, contentSize, "No more stages :{", this.showingStageState);
 			}
-			else if (Main.noMoreStages) {
-				PaintUtils.drawStage(g, contentSize, "No more stages :{");
+			else {
+				PaintUtils.drawStage(g, contentSize, "Game Over", this.showingStageState);
 			}
 		}
 	}
 
 	@Override
-	public void update() {
-		if (Main.showingStage) {
-			Main.showingStageState++;
-			if (Main.showingStageState == Main.stageShowTime) {
-				Main.gameOver = false;
-				Main.noMoreStages = false;
-				Main.showingStage = false;
+	public void update(int time) {
+		if (this.showingStage) {
+			this.showingStageState += time / (float) 40;
+			if (this.showingStageState >= Main.stageShowTime) {
+				this.showingStage = false;
 			}
 		}
 	}
 
 	@Override
 	public void mousePressed(MouseEvent event) {
-		if (!Main.showingStage) {
+		if (!this.showingStage) {
 			if (this.playButton.contains(event.getPoint())) {
 				Screen.startNew(new ChooseStageScreen());
 			}

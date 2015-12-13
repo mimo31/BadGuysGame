@@ -1,4 +1,4 @@
-package game.barrels;
+package game.mechanics.barrels;
 
 public abstract class BarrelPropertyImplementation {
 	
@@ -16,7 +16,7 @@ public abstract class BarrelPropertyImplementation {
 		return new byte[0];
 	}
 	
-	public void update() {
+	public void update(int time) {
 	}
 	
 	public void endAll() {

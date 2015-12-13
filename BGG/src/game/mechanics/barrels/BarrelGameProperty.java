@@ -1,4 +1,4 @@
-package game.barrels;
+package game.mechanics.barrels;
 
 public class BarrelGameProperty {
 	
