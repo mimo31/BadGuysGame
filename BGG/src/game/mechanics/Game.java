@@ -153,7 +153,6 @@ public class Game {
 								this.timeInStage = 0;
 								this.currentStage++;
 								nextStage = true;
-								this.loadState = 1;
 							}
 						}
 					}
@@ -229,6 +228,10 @@ public class Game {
 		}
 	}
 
+	public void onMiddleChangingStage() {
+		this.loadState = 1;
+	}
+	
 	private static boolean circleCircleCollistion(float center1X, float center1Y, float center2X, float center2Y, float radius1, float radius2) {
 		float centerDistanceSqr = (float) (Math.pow(center1X - center2X, 2) + Math.pow(center1Y - center2Y, 2));
 		return centerDistanceSqr < Math.pow(radius1 + radius2, 2);

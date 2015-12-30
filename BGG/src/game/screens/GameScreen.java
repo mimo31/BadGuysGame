@@ -87,6 +87,12 @@ public class GameScreen extends Screen {
 					default:
 						break;
 				}
+				if (returnData.actionType != GameReturnData.GameActionType.NEXT_STAGE) {
+					int checkPointReached = returnData.stage / 5;
+					if (checkPointReached > Main.maxReachedStage) {
+						Main.maxReachedStage = checkPointReached;
+					}
+				}
 				this.showingStage = true;
 				this.showingStageState = 0;
 			}
@@ -99,6 +105,9 @@ public class GameScreen extends Screen {
 			else if (this.showingStageState >= Main.stageShowTime / 2) {
 				if (this.gameOver || this.noMoreStages) {
 					Screen.startNew(new StartScreen(this.noMoreStages, this.usedMousePosition));
+				}
+				else {
+					this.game.onMiddleChangingStage();
 				}
 			}
 		}
