@@ -10,7 +10,6 @@ import java.io.IOException;
 
 import game.Main;
 import game.PaintUtils;
-import game.Screen;
 import game.StringDraw;
 import game.StringDraw.StringDrawAttributes;
 

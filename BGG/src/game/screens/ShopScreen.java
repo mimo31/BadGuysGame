@@ -15,7 +15,6 @@ import java.io.IOException;
 import game.Gui;
 import game.Main;
 import game.PaintUtils;
-import game.Screen;
 import game.StringDraw;
 import game.StringDraw.TextAlign;
 import game.mechanics.barrels.Barrel;

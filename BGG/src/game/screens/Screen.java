@@ -1,4 +1,4 @@
-package game;
+package game.screens;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -7,7 +7,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
-public class Screen {
+import game.Gui;
+import game.Main;
+
+public abstract class Screen {
 
 	public Screen() {
 		this.onStart();

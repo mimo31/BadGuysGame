@@ -1,5 +1,6 @@
 package game;
 
+import java.awt.Color;
 import java.io.IOException;
 
 import game.mechanics.Spawner;
@@ -12,6 +13,8 @@ import game.io.IOInitialization;
 import game.io.Logging;
 import game.screens.ConnectionProblemScreen;
 import game.screens.InitializationScreen;
+import game.screens.ListScreen;
+import game.screens.Screen;
 import game.screens.StartScreen;
 
 public class Main {
@@ -66,15 +69,13 @@ public class Main {
 		}
 		Logging.logEndSectionTag("INIT");
 	}
-
-	
 	
 	private static void initializeStages() {
 		Spawner basicSpw = new Spawner.BasicSpawner();
 		Spawner fastSpw = new Spawner.FastSpawner();
 		Spawner armoredSpw = new Spawner.ArmoredSpawner();
 		Spawner heavyArmoredSpw = new Spawner.HeavyArmoredSpawner();
-		stages = new Stage[17];
+		stages = new Stage[20];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -92,6 +93,9 @@ public class Main {
 		stages[14] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, fastSpw }, new int[] { 20, 40, 60 });
 		stages[15] = new Stage(new Spawner[] { heavyArmoredSpw, basicSpw, fastSpw, heavyArmoredSpw, basicSpw, fastSpw }, new int[] { 20, 20, 20, 80, 80, 80 });
 		stages[16] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, armoredSpw, armoredSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 100, 100, 100, 100 });
+		stages[17] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw }, new int[] { 20, 20, 20, 20 });
+		stages[18] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 60, 60 });
+		stages[19] = new Stage(new Spawner[] { fastSpw, fastSpw, fastSpw, fastSpw, heavyArmoredSpw, heavyArmoredSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
 	}
 
 	private static void initializeBarrels() {

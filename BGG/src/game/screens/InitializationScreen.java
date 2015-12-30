@@ -7,7 +7,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 
 import game.PaintUtils;
-import game.Screen;
 import game.StringDraw;
 import game.StringDraw.StringDrawAttributes;
 

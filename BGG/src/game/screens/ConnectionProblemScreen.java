@@ -8,7 +8,6 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 import game.PaintUtils;
-import game.Screen;
 import game.StringDraw;
 
 public class ConnectionProblemScreen extends Screen {

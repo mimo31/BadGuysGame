@@ -9,7 +9,6 @@ import java.io.IOException;
 
 import game.Main;
 import game.PaintUtils;
-import game.Screen;
 import game.mechanics.Game;
 import game.mechanics.GameReturnData;
 
