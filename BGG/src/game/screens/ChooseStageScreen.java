@@ -16,7 +16,7 @@ public class ChooseStageScreen extends ListScreen {
 	public ChooseStageScreen() {
 		super(getButtonTextes(), Color.BLUE, Color.RED, Color.WHITE);
 	}
-	
+
 	private static String[] getButtonTextes() {
 		String[] textArray = new String[Main.maxReachedStage + 1];
 		textArray[0] = "The very beginning";
@@ -62,7 +62,7 @@ public class ChooseStageScreen extends ListScreen {
 			}
 		}
 	}
-	
+
 	@Override
 	protected boolean acceptInputs() {
 		return !this.showingStage;

@@ -1,6 +1,5 @@
 package game;
 
-import java.awt.Color;
 import java.io.IOException;
 
 import game.mechanics.Spawner;
@@ -13,7 +12,6 @@ import game.io.IOInitialization;
 import game.io.Logging;
 import game.screens.ConnectionProblemScreen;
 import game.screens.InitializationScreen;
-import game.screens.ListScreen;
 import game.screens.Screen;
 import game.screens.StartScreen;
 
@@ -69,7 +67,7 @@ public class Main {
 		}
 		Logging.logEndSectionTag("INIT");
 	}
-	
+
 	private static void initializeStages() {
 		Spawner basicSpw = new Spawner.BasicSpawner();
 		Spawner fastSpw = new Spawner.FastSpawner();
@@ -161,6 +159,6 @@ public class Main {
 			}
 			Logging.log("Game loop has been broken.");
 		}
-		
+
 	}
 }
