@@ -8,6 +8,9 @@ BasicCoin.png 0.9 1
 BasicProjectile.png 0.9 1
 FastBadGuy.png 0.9 1
 FastBarrel.png 0.9 1
+FirstBoss.png 1.4beta 1
+GreatBarrel.png 1.4beta 1
 HeavyArmoredBadGuy.png 1.2beta 1
 MagneticBarrel.png 1.2beta 1
 MagneticProjectile.png 1.2beta 1
+Upgrade.png 1.4beta 1
