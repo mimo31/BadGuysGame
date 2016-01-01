@@ -104,18 +104,18 @@ public class Main {
 		BarrelPropertyImplementation loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1);
 		BarrelPropertyImplementation projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 1);
 		BarrelPropertyImplementation projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 1);
-		barrels[0] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel");
+		barrels[0] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel", -1);
 
 		loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 20, 30 }, new float[] { -0.13f, -0.05f }, 0.8f);
 		projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 50 }, new float[] { 1 }, 1);
 		projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f }, 1.75f);
-		barrels[1] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel");
+		barrels[1] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel", 0);
 
 		loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 10, 30 }, new float[] { -0.5f, -0.2f }, 1.5f);
 		projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 25, 45 }, new float[] { 1, 0.5f }, 2);
 		projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.5f, 0.5f, 0.3f }, 0.7f);
 		BarrelPropertyImplementation coinMagnet = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.coinMagnetID], new int[] { 50 }, new float[] { 1 }, 1);
-		barrels[2] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, coinMagnet }, 75, "MagneticBarrel.png", "MagneticProjectile.png", false, "Magnetic Barrel");
+		barrels[2] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, coinMagnet }, 75, "MagneticBarrel.png", "MagneticProjectile.png", false, "Magnetic Barrel", 4);
 		selectedBarrel = 0;
 	}
 

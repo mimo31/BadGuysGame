@@ -2,6 +2,7 @@ package game;
 
 import java.util.List;
 
+import game.StringDraw.TextAlign;
 import game.io.ResourceHandler;
 
 import java.awt.Color;
@@ -57,14 +58,14 @@ public class Achievement {
 	}
 
 	public static void initializeAchievements() {
-		achievements[0] = new Achievement("That was easy", "Shoot down the first Bad Guy", "BasicBadGuy.png", new String[] { "Fast Projectile Barrel" }, false, 0, 0, new int[0], new int[0]);
-		achievements[1] = new Achievement("Money is useful", "Earn a coin", "BasicCoin.png", new String[0], false, 768, 256, new int[] { 0 }, new int[0]);
-		achievements[2] = new Achievement("Quick shot", "Shoot down the first Fast Bad Guy", "FastBadGuy.png", new String[0], false, 768, -128, new int[] { 0 }, new int[0]);
-		achievements[3] = new Achievement("BOSS", "Defeat a Boss", "FirstBoss.png", new String[0], true, 1536, -128, new int[] { 2 }, new int[] { 0 });
-		achievements[4] = new Achievement("Getting rich", "Earn 50 coins", "2Coin.png", new String[] { "Magnetic Barrel" }, false, 1536, 128, new int[] { 1 }, new int[] { 0 });
-		achievements[5] = new Achievement("A lot of money", "Earn 200 coins", "5Coin.png", new String[0], false, 2304, 128, new int[] { 4 }, new int[] { 4 });
-		achievements[6] = new Achievement("Power up", "Upgrade a barrel", "Upgrade.png", new String[0], false, 1536, 384, new int[] { 1 }, new int[] { 0 });
-		achievements[7] = new Achievement("A great gun", "Max all properties in one barrel", "GreatBarrel.png", new String[0], false, 2304, 384, new int[] { 6 }, new int[] { 6 });
+		achievements[0] = new Achievement("That was easy", "Shoot down the first Bad Guy.", "BasicBadGuy.png", new String[] { "Fast Projectile Barrel" }, false, 0, 0, new int[0], new int[0]);
+		achievements[1] = new Achievement("Money is useful", "Earn a coin.", "BasicCoin.png", new String[0], false, 768, 256, new int[] { 0 }, new int[0]);
+		achievements[2] = new Achievement("Quick shot", "Shoot down the first Fast Bad Guy.", "FastBadGuy.png", new String[0], false, 768, -128, new int[] { 0 }, new int[0]);
+		achievements[3] = new Achievement("BOSS", "Defeat a Boss.", "FirstBoss.png", new String[0], true, 1536, -128, new int[] { 2 }, new int[] { 0 });
+		achievements[4] = new Achievement("Getting rich", "Earn 50 coins.", "2Coin.png", new String[] { "Magnetic Barrel" }, false, 1536, 128, new int[] { 1 }, new int[] { 0 });
+		achievements[5] = new Achievement("A lot of money", "Earn 200 coins.", "5Coin.png", new String[0], false, 2304, 128, new int[] { 4 }, new int[] { 4 });
+		achievements[6] = new Achievement("Power up", "Upgrade a barrel.", "Upgrade.png", new String[0], false, 1536, 384, new int[] { 1 }, new int[] { 0 });
+		achievements[7] = new Achievement("A great gun", "Max all properties in one barrel.", "GreatBarrel.png", new String[0], false, 2304, 384, new int[] { 6 }, new int[] { 6 });
 		
 		List<AchievementConnection> connectionList = new ArrayList<AchievementConnection>();
 		connectionList.addAll(Arrays.asList(AchievementConnection.getConnections(0, 1, 32, 0)));
@@ -131,7 +132,7 @@ public class Achievement {
 			else {
 				rectanglePosition = new Point(0, contentSize.height * 15 / 16 + (displayingState - 3500) * contentSize.height / 16 / 500);
 			}
-			nowDisplaying.paint(g, rectanglePosition, contentSize.height / 16);
+			nowDisplaying.paint(g, rectanglePosition, contentSize.height / 16, false);
 			rectanglePosition.y -= contentSize.height / 16;
 			g.setColor(Color.black);
 			Rectangle achievementTextRectangle = new Rectangle(rectanglePosition.x, rectanglePosition.y, contentSize.height * 3 / 16, contentSize.height / 16);
@@ -145,7 +146,7 @@ public class Achievement {
 		connectionList.addAll(Arrays.asList(AchievementConnection.getConnections(indexFrom, indexTo)));
 	}
 
-	public void paint(Graphics2D g, Point position, int height) throws IOException {
+	public void paint(Graphics2D g, Point position, int height, boolean expanded) throws IOException {
 		if (this.achieved) {
 			g.setColor(Color.GREEN);
 		}
@@ -160,16 +161,45 @@ public class Achievement {
 			g.setColor(Color.white);
 		}
 		if (this.textureName == null) {
-			StringDraw.drawMaxString(g, height / 8, this.name, new Rectangle(position.x, position.y, height * 3, height));
+			StringDraw.drawMaxString(g, height / 8, this.name, StringDraw.TextAlign.LEFT, new Rectangle(position.x, position.y, height * 3, height));
 		}
 		else {
 			g.drawImage(ResourceHandler.getTexture(this.textureName, height * 3 / 4), position.x + height / 8, position.y + height / 8, null);
-			StringDraw.drawMaxString(g, height / 8, this.name, new Rectangle(position.x + height, position.y, height * 2, height));
+			StringDraw.drawMaxString(g, height / 8, this.name, StringDraw.TextAlign.LEFT, new Rectangle(position.x + height, position.y, height * 2, height));
+		}
+		if (expanded) {
+			Rectangle taskRect = new Rectangle(position.x, position.y + height, height * 3, height / 2);
+			g.setColor(Color.black);
+			g.fill(taskRect);
+			g.setColor(Color.white);
+			StringDraw.drawMaxString(g, height / 8, this.task, TextAlign.LEFT, taskRect);
+			if (this.unlockedItems.length != 0) {
+				Rectangle unlocksRect = new Rectangle(taskRect.x, (int) taskRect.getMaxY(), taskRect.width, taskRect.height);
+				g.setColor(Color.black);
+				g.fill(unlocksRect);
+				g.setColor(Color.magenta);
+				StringDraw.drawMaxString(g, height / 8, "Unlocks:", TextAlign.LEFT, unlocksRect);
+				for (int i = 0; i < this.unlockedItems.length; i++) {
+					Rectangle unlockedRect = new Rectangle(unlocksRect.x, (int) unlocksRect.getMaxY() + i * (height / 2), unlocksRect.width, unlocksRect.height);
+					g.setColor(Color.black);
+					g.fill(unlockedRect);
+					g.setColor(Color.white);
+					StringDraw.drawMaxString(g, height / 8, this.unlockedItems[i], TextAlign.LEFT, unlockedRect);
+				}
+			}
 		}
 	}
 
-	public Rectangle getSpaceRectangle() {
-		return new Rectangle(this.x - 192, this.y - 64, 384, 128);
+	public Rectangle getSpaceRectangle(boolean expanded) {
+		int height = 128;
+		if (expanded) {
+			height += 64;
+			if (this.unlockedItems.length != 0) {
+				height += 64;
+				height += 64 * this.unlockedItems.length;
+			}
+		}
+		return new Rectangle(this.x - 192, this.y - 64, 384, height);
 	}
 
 	public boolean shouldShow() {

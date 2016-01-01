@@ -1,5 +1,7 @@
 package game.mechanics.barrels;
 
+import game.Achievement;
+
 public class Barrel {
 
 	public static final BarrelGameProperty[] propertiesIndex = new BarrelGameProperty[] { new BarrelGameProperty("Loading time", 1), new BarrelGameProperty("Projectile power", 1), new BarrelGameProperty("Projectile speed", 1), new BarrelGameProperty("Coin magnet", 0) };
@@ -9,19 +11,21 @@ public class Barrel {
 	public static final int coinMagnetID = getPropertyID("Coin magnet");
 	
 	public BarrelPropertyImplementation[] gameProperties;
-	public int cost;
+	public final int cost;
 	public boolean bought;
-	public String textureName;
-	public String projectileTextureName;
-	public String name;
+	public final String textureName;
+	public final String projectileTextureName;
+	public final String name;
+	public final int achievementRequied;
 
-	public Barrel(BarrelPropertyImplementation[] gameProperties, int cost, String textureName, String projectileTextureName, boolean bought, String name) {
+	public Barrel(BarrelPropertyImplementation[] gameProperties, int cost, String textureName, String projectileTextureName, boolean bought, String name, int achievementRequied) {
 		this.gameProperties = gameProperties;
 		this.cost = cost;
 		this.textureName = textureName;
 		this.projectileTextureName = projectileTextureName;
 		this.bought = bought;
 		this.name = name;
+		this.achievementRequied = achievementRequied;
 	}
 
 	public float getProperty(int id) {
@@ -31,6 +35,13 @@ public class Barrel {
 			}
 		}
 		return propertiesIndex[id].defaultValue;
+	}
+	
+	public boolean doDisplay() {
+		if (achievementRequied == -1) {
+			return true;
+		}
+		return Achievement.achievements[achievementRequied].achieved;
 	}
 	
 	public static int getPropertyID(String name) {

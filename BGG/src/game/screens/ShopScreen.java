@@ -11,6 +11,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Area;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import game.Achievement;
 import game.Gui;
@@ -31,6 +33,7 @@ public final class ShopScreen extends Screen {
 	public static final Color CHAMPAGNE = new Color(247, 231, 206);
 
 	private float barrelsListPosition = 0;
+	private int[] displayedBarrels;
 	private boolean notBoughtWarning = false;
 	private float notBoughtStage = 0;
 	private float[] listsPosition = new float[Main.barrels.length];
@@ -57,6 +60,16 @@ public final class ShopScreen extends Screen {
 	@Override
 	public void onStart() {
 		this.initializeComponents();
+		List<Integer> barrelsList = new ArrayList<Integer>();
+		for (int i = 0; i < Main.barrels.length; i++) {
+			if (Main.barrels[i].doDisplay()) {
+				barrelsList.add(new Integer(i));
+			}
+		}
+		this.displayedBarrels = new int[barrelsList.size()];
+		for (int i = 0; i < this.displayedBarrels.length; i++) {
+			this.displayedBarrels[i] = barrelsList.get(i).intValue();
+		}
 	}
 
 	private void initializeComponents() {
@@ -175,7 +188,7 @@ public final class ShopScreen extends Screen {
 		StringDraw.drawMaxString(g, this.tableBordersSize, selectedBarrel.name, this.barrelNameBounds);
 
 		int maxBarrelIndex = (int) Math.floor(this.barrelsListPosition + (contentSize.width - contentSize.height / 8) / (float) (contentSize.height / 8 - contentSize.height / 256));
-		for (int i = (int) Math.floor(this.barrelsListPosition); i < Main.barrels.length && i <= maxBarrelIndex; i++) {
+		for (int i = (int) Math.floor(this.barrelsListPosition); i < this.displayedBarrels.length && i <= maxBarrelIndex; i++) {
 			this.drawBarrel(i);
 		}
 		g.setColor(Color.black);
@@ -233,12 +246,12 @@ public final class ShopScreen extends Screen {
 
 	private void drawBarrel(int index) throws IOException {
 		int x = (int) ((this.barrelsSize) * (index - this.barrelsListPosition)) + this.contentSize.height / 16;
-		this.g.drawImage(ResourceHandler.getTexture(Main.barrels[index].textureName, (int) this.barrelsSize), x, 0, null);
+		this.g.drawImage(ResourceHandler.getTexture(Main.barrels[this.displayedBarrels[index]].textureName, (int) this.barrelsSize), x, 0, null);
 		if (!Main.barrels[index].bought) {
 			this.g.setColor(PaintUtils.TRANSPARENT_GRAY);
 			this.g.fillRect(x, 0, this.barrelsSize, this.barrelsSize);
 		}
-		if (index == Main.selectedBarrel) {
+		if (this.displayedBarrels[index] == Main.selectedBarrel) {
 			float cornerSize = this.barrelsSize / (float) 16;
 			Area wholeBarrel = new Area(new Rectangle(x, 0, this.barrelsSize, this.barrelsSize));
 			wholeBarrel.subtract(new Area(new Rectangle((int) (x + cornerSize), (int) cornerSize, (int) (this.barrelsSize - cornerSize * 2), (int) (this.barrelsSize - cornerSize * 2))));
@@ -317,8 +330,8 @@ public final class ShopScreen extends Screen {
 		}
 		if (this.onLeftButton) {
 			this.barrelsListPosition += time / (float) 16 / (float) 40;
-			if (this.barrelsListPosition > Main.barrels.length - 1) {
-				this.barrelsListPosition = Main.barrels.length - 1;
+			if (this.barrelsListPosition > this.displayedBarrels.length - 1) {
+				this.barrelsListPosition = this.displayedBarrels.length - 1;
 			}
 		}
 		else if (this.onRightButton) {
@@ -350,8 +363,8 @@ public final class ShopScreen extends Screen {
 		if (event.getX() >= this.contentSize.height / 16 && event.getX() < this.contentSize.width - this.contentSize.height / 16 && event.getY() < this.barrelsSize) {
 			float relListClickPosition = this.barrelsListPosition + (event.getX() - this.contentSize.height / 16) / (float) this.barrelsSize;
 			int clickedBarrelIndex = (int) Math.floor(relListClickPosition);
-			if (clickedBarrelIndex < Main.barrels.length) {
-				Main.selectedBarrel = clickedBarrelIndex;
+			if (clickedBarrelIndex < this.displayedBarrels.length) {
+				Main.selectedBarrel = this.displayedBarrels[clickedBarrelIndex];
 				this.notBoughtWarning = false;
 			}
 		}

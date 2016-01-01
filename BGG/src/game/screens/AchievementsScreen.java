@@ -12,11 +12,14 @@ import java.io.IOException;
 
 import game.Achievement;
 import game.PaintUtils;
+import game.StringDraw;
 
 public class AchievementsScreen extends Screen {
 
 	private float positionX = 0;
 	private float positionY = 0;
+	private int expanded = -1;
+	private boolean wasDragging = true;
 
 	private boolean fromStartScreen;
 
@@ -42,7 +45,7 @@ public class AchievementsScreen extends Screen {
 		Rectangle viewRectangle = this.toSpaceRectangle(new Rectangle(new Point(0, 0), contentSize));
 		for (int i = 0; i < this.achievementsDrawn.length; i++) {
 			if (Achievement.achievements[i].shouldShow()) {
-				this.achievementsDrawn[i] = Achievement.achievements[i].getSpaceRectangle().intersects(viewRectangle);
+				this.achievementsDrawn[i] = Achievement.achievements[i].getSpaceRectangle(i == this.expanded).intersects(viewRectangle);
 			}
 			else {
 				this.achievementsDrawn[i] = false;
@@ -93,6 +96,9 @@ public class AchievementsScreen extends Screen {
 	@Override
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
 		this.updateComponents(g, contentSize, mousePosition);
+		g.setColor(Color.black);
+		Rectangle spaceHeadlineBounds = new Rectangle(-512, -512, 1024, 128);
+		StringDraw.drawMaxString(g, "Achievements", this.toScreenRectangle(spaceHeadlineBounds));
 		g.setStroke(new BasicStroke(this.toScreenLength(5)));
 		for (int i = 0; i < Achievement.connections.length; i++) {
 			if (this.connectionsDrawn[i]) {
@@ -108,11 +114,16 @@ public class AchievementsScreen extends Screen {
 			}
 		}
 		for (int i = 0; i < Achievement.achievements.length; i++) {
-			if (this.achievementsDrawn[i]) {
-				Rectangle spaceRectangle = Achievement.achievements[i].getSpaceRectangle();
+			if (this.achievementsDrawn[i] && i != this.expanded) {
+				Rectangle spaceRectangle = Achievement.achievements[i].getSpaceRectangle(false);
 				Rectangle screenRectangle = this.toScreenRectangle(spaceRectangle);
-				Achievement.achievements[i].paint(g, screenRectangle.getLocation(), screenRectangle.height);
+				Achievement.achievements[i].paint(g, screenRectangle.getLocation(), screenRectangle.height, false);
 			}
+		}
+		if (this.expanded != -1) {
+			Rectangle spaceRectangle = Achievement.achievements[this.expanded].getSpaceRectangle(false);
+			Rectangle screenRectangle = this.toScreenRectangle(spaceRectangle);
+			Achievement.achievements[this.expanded].paint(g, screenRectangle.getLocation(), screenRectangle.height, true);
 		}
 		PaintUtils.drawCurrentMoney(g, contentSize);
 	}
@@ -134,5 +145,28 @@ public class AchievementsScreen extends Screen {
 		this.positionX += this.toSpaceLength(this.mousePosition.x - event.getX());
 		this.positionY += this.toSpaceLength(this.mousePosition.y - event.getY());
 		this.mousePosition = event.getPoint();
+		this.wasDragging = true;
+	}
+	
+	@Override
+	public void mouseReleased(MouseEvent event) {
+		if (!this.wasDragging) {
+			Point spaceClickPosition = this.toSpacePoint(event.getPoint());
+			int achievementClicked = -1;
+			for (int i = 0; i < this.achievementsDrawn.length; i++) {
+				if (this.achievementsDrawn[i]) {
+					if (Achievement.achievements[i].getSpaceRectangle(i == this.expanded).contains(spaceClickPosition)) {
+						achievementClicked = i;
+						break;
+					}
+				}
+			}
+			this.expanded = achievementClicked;
+		}
+	}
+	
+	@Override
+	public void mousePressed(MouseEvent event) {
+		this.wasDragging = false;
 	}
 }
