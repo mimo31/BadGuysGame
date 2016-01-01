@@ -1,5 +1,6 @@
 2Coin.png 0.9 1
 5Coin.png 1.2beta 1
+10Coin.png 1.4beta 1
 ArmoredBadGuy.png 0.9 1
 Base.png 0.9 1
 BasicBadGuy.png 0.9 1
