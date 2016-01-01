@@ -40,6 +40,7 @@ public class Main {
 		currentScreen = new InitializationScreen();
 		updateThread = new Thread(null, new Updater(), "Bad Guys Game - Refresh Thread");
 		updateThread.start();
+		Achievement.initializeAchievements();
 		boolean IOsuccessfull = false;
 		try {
 			IOsuccessfull = IOInitialization.initialize();
@@ -73,7 +74,8 @@ public class Main {
 		Spawner fastSpw = new Spawner.FastSpawner();
 		Spawner armoredSpw = new Spawner.ArmoredSpawner();
 		Spawner heavyArmoredSpw = new Spawner.HeavyArmoredSpawner();
-		stages = new Stage[20];
+		Spawner firstBossSpw = new Spawner.FirstBossSpawner();
+		stages = new Stage[21];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -92,8 +94,9 @@ public class Main {
 		stages[15] = new Stage(new Spawner[] { heavyArmoredSpw, basicSpw, fastSpw, heavyArmoredSpw, basicSpw, fastSpw }, new int[] { 20, 20, 20, 80, 80, 80 });
 		stages[16] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, armoredSpw, armoredSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 100, 100, 100, 100 });
 		stages[17] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw }, new int[] { 20, 20, 20, 20 });
-		stages[18] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 60, 60 });
-		stages[19] = new Stage(new Spawner[] { fastSpw, fastSpw, fastSpw, fastSpw, heavyArmoredSpw, heavyArmoredSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
+		stages[18] = new Stage(new Spawner[] { fastSpw, fastSpw, fastSpw, fastSpw, heavyArmoredSpw, heavyArmoredSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
+		stages[19] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 60, 60 });
+		stages[20] = new Stage(new Spawner[] { firstBossSpw }, new int[] { 60 });
 	}
 
 	private static void initializeBarrels() {
@@ -131,7 +134,9 @@ public class Main {
 			float nsForRefresh = 1000000000 / (float) Gui.refreshRate;
 			while (running) {
 				long startTime = System.nanoTime();
-				currentScreen.update((int) (nsForRefresh / (float) 1000000));
+				int spentTime = (int) (nsForRefresh / (float) 1000000);
+				currentScreen.update(spentTime);
+				Achievement.update(spentTime);
 				long endTime = System.nanoTime();
 				int delayNs = (int) (endTime - startTime);
 				int remaingNs = (int) (nsForRefresh - delayNs);

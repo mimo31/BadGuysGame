@@ -77,4 +77,8 @@ public class Coin {
 	public static Coin coin5() {
 		return new Coin(5, "5Coin.png");
 	}
+	
+	public static Coin coin10() {
+		return new Coin(10, "10Coin.png");
+	}
 }

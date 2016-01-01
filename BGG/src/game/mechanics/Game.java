@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import game.Main;
+import game.Statistics;
 import game.io.ResourceHandler;
 import game.mechanics.GameReturnData.GameActionType;
 import game.mechanics.barrels.Barrel;
@@ -30,6 +31,7 @@ public class Game {
 
 	public static final Color TRANSPARENT_GREEN = new Color(0, 255, 127, 31);
 	public static final Color TRANSPARENT_RED = new Color(255, 0, 0, 31);
+	public static final Color LIFE_GREEN = new Color(0, 255, 127, 63);
 
 	public Game(int stage, Barrel barrel) {
 		this.currentStage = stage;
@@ -60,10 +62,16 @@ public class Game {
 
 	private void spawnBadGuysFromBuffer(Dimension contentSize) {
 		boolean[] isColumnOccupied = new boolean[4];
-		float heightSizeOfABadGuy = contentSize.width / (float) 16 / contentSize.height;
 		for (int i = 0; i < this.badGuys.size(); i++) {
 			BadGuy currentBadGuy = this.badGuys.get(i);
-			if (!currentBadGuy.isDead && currentBadGuy.y < heightSizeOfABadGuy) {
+			float heightSize;
+			if (currentBadGuy.isBig) {
+				heightSize = contentSize.width / (float) 8 / contentSize.height;
+			}
+			else {
+				heightSize = contentSize.width / (float) 16 / contentSize.height;
+			}
+			if (!currentBadGuy.isDead && currentBadGuy.y < heightSize) {
 				isColumnOccupied[currentBadGuy.x] = true;
 			}
 		}
@@ -144,6 +152,7 @@ public class Game {
 					currentBadGuy.live -= currentBadGuy.hitBy;
 					if (currentBadGuy.isDead) {
 						this.badGuys.remove(i);
+						Statistics.badGuyKilled(currentBadGuy.name);
 						i--;
 						if (this.isStageCompleted()) {
 							if (Main.stages.length == this.currentStage + 1) {
@@ -180,23 +189,31 @@ public class Game {
 				Coin currentCoin = this.coins.get(j);
 				if (circleCircleCollistion(currentCoin.x, currentCoin.y * contentSize.height / contentSize.width, currentProjectile.x, currentProjectile.y * contentSize.height / contentSize.width, 1 / (float) 128, 1 / (float) 128)) {
 					Main.money += currentCoin.value;
+					Statistics.moneyCollected(currentCoin.value);
 					this.coins.remove(j);
 					j--;
 				}
 			}
 			for (int j = 0; j < this.badGuys.size(); j++) {
 				BadGuy currentBadGuy = this.badGuys.get(j);
-				if (doesCollide(currentBadGuy.x / (float) 4 + 1 / (float) 8, currentBadGuy.y * contentSize.height / (float) contentSize.width - 1 / (float) 32, 1 / (float) 32, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
+				float badGuySize;
+				if (currentBadGuy.isBig) {
+					badGuySize = 1 / (float) 16;
+				}
+				else {
+					badGuySize = 1 / (float) 32;
+				}
+				if (doesCollide(currentBadGuy.x / (float) 4 + 1 / (float) 8, currentBadGuy.y * contentSize.height / (float) contentSize.width - badGuySize, badGuySize, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
 					if (!currentBadGuy.isDead) {
 						currentBadGuy.hit(currentProjectile.hitPower);
 						if (currentBadGuy.isDead) {
 							Coin addedCoin = currentBadGuy.getCoin();
 							addedCoin.x = 1 / (float) 8 + currentBadGuy.x / (float) 4;
-							if (contentSize.width / 32 + contentSize.width / 128 >= currentBadGuy.y * contentSize.height) {
+							if (badGuySize + contentSize.width / 128 >= currentBadGuy.y * contentSize.height) {
 								addedCoin.y = contentSize.width / (float) 128 / contentSize.height;
 							}
 							else {
-								addedCoin.y = currentBadGuy.y - contentSize.width / (float) 32 / contentSize.height;
+								addedCoin.y = currentBadGuy.y - badGuySize * contentSize.width / contentSize.height;
 							}
 							this.coins.add(addedCoin);
 						}
@@ -260,12 +277,19 @@ public class Game {
 	}
 
 	private void drawBadGuy(Graphics2D g, BadGuy badGuy, Dimension contentSize) throws IOException {
-		int screenX = (int) ((badGuy.x / (float) 4 + 1 / (float) 8 - 1 / (float) 32) * contentSize.width);
-		int screenY = (int) (badGuy.y * contentSize.height - contentSize.width / 16);
-		g.drawImage(ResourceHandler.getTexture(badGuy.textureName, contentSize.width / 16), screenX, screenY, null);
-		g.setColor(TRANSPARENT_GREEN);
-		int filledSize = (int) (badGuy.getShownLive() * contentSize.width / 16);
-		g.fillRect(screenX, screenY + contentSize.width / 16 - filledSize, contentSize.width / 16, filledSize);
+		float badGuyPixelSize;
+		if (badGuy.isBig) {
+			badGuyPixelSize = contentSize.width / 8;
+		}
+		else {
+			badGuyPixelSize = contentSize.width / 16;
+		}
+		int screenX = (int) ((badGuy.x / (float) 4 + 1 / (float) 8) * contentSize.width - badGuyPixelSize / 2);
+		int screenY = (int) (badGuy.y * contentSize.height - badGuyPixelSize);
+		g.drawImage(ResourceHandler.getTexture(badGuy.textureName, (int)badGuyPixelSize), screenX, screenY, null);
+		g.setColor(LIFE_GREEN);
+		int filledSize = (int) (badGuy.getShownLive() * badGuyPixelSize);
+		g.fillRect((int) (screenX + badGuyPixelSize * 7 / 8), (int) (screenY + badGuyPixelSize - filledSize), (int) (badGuyPixelSize / 8), filledSize);
 	}
 
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {

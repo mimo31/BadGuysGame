@@ -82,6 +82,17 @@ public class Barrel {
 		}
 	}
 	
+	public boolean isFullyUpgraded() {
+		for (int i = 0; i < this.gameProperties.length; i++) {
+			if (this.gameProperties[i] instanceof BarrelUpgradablePropertyImplementation) {
+				if (!((BarrelUpgradablePropertyImplementation)this.gameProperties[i]).isFullyUpgraded()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	@SuppressWarnings("serial")
 	public static class PropertyNotImplementedException extends Exception {
 		

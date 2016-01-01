@@ -70,7 +70,9 @@ public final class Gui {
 		public void paint(Graphics graphics) {
 			Graphics2D g = (Graphics2D) graphics;
 			try {
-				Main.currentScreen.paint(g, gui.getContentPane().getSize(), getMousePanePosition());
+				Dimension contentSize = gui.getContentPane().getSize();
+				Main.currentScreen.paint(g, contentSize, getMousePanePosition());
+				Achievement.paint(g, contentSize);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}

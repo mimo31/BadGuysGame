@@ -28,10 +28,10 @@ public class ChooseStageScreen extends ListScreen {
 
 	@Override
 	public void paintOver() throws IOException {
+		PaintUtils.drawCurrentMoney(super.g, super.contentSize);
 		if (this.showingStage) {
 			PaintUtils.drawStage(super.g, super.contentSize, "Stage " + String.valueOf(this.selectedStage), this.showingStageState);
 		}
-		PaintUtils.drawCurrentMoney(super.g, super.contentSize);
 	}
 
 	@Override

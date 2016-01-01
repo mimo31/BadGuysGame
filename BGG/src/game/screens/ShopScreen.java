@@ -12,6 +12,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Area;
 import java.io.IOException;
 
+import game.Achievement;
 import game.Gui;
 import game.Main;
 import game.PaintUtils;
@@ -385,6 +386,12 @@ public final class ShopScreen extends Screen {
 						if (Main.money >= upgradeCost) {
 							Main.money -= upgradeCost;
 							upgradableImplementation.upgrade();
+							if (!Achievement.achievements[6].achieved) {
+								Achievement.achieve(6);
+							}
+							if (selectedBarrel.isFullyUpgraded()) {
+								Achievement.achieve(7);
+							}
 						}
 					}
 				}

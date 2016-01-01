@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import game.Achievement;
 import game.Main;
+import game.Statistics;
 import game.mechanics.barrels.Barrel;
 
 public class IOBase {
@@ -27,6 +29,8 @@ public class IOBase {
 			Main.money = dataIn.readInt();
 			Main.maxReachedStage = dataIn.readInt();
 			Main.selectedBarrel = dataIn.readInt();
+			Statistics.load(dataIn);
+			Achievement.load(dataIn);
 			int index = 0;
 			while (dataIn.available() != 0 && index < Main.barrels.length) {
 				Barrel currentBarrel = Main.barrels[index];
@@ -52,6 +56,8 @@ public class IOBase {
 		dataOut.writeInt(Main.money);
 		dataOut.writeInt(Main.maxReachedStage);
 		dataOut.writeInt(Main.selectedBarrel);
+		Statistics.save(dataOut);
+		Achievement.save(dataOut);
 		for (int i = 0; i < Main.barrels.length; i++) {
 			dataOut.writeBoolean(Main.barrels[i].bought);
 			for (int j = 0; j < Main.barrels[i].gameProperties.length; j++) {

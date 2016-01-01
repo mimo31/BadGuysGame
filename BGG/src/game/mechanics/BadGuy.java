@@ -10,6 +10,8 @@ public abstract class BadGuy {
 	public float live;
 	public float speed;
 	public String textureName;
+	public String name;
+	public final boolean isBig;
 
 	public boolean isBeingHit;
 	public float hitBy;
@@ -22,13 +24,17 @@ public abstract class BadGuy {
 		this.live = 1;
 		this.speed = 1;
 		this.textureName = "BasicBadGuy.png";
+		this.name = "Basic";
+		this.isBig = false;
 	}
 
-	public BadGuy(float totalLive, float speed, String textureName) {
+	public BadGuy(float totalLive, float speed, String textureName, String name, boolean isBig) {
 		this.totalLive = totalLive;
 		this.live = totalLive;
 		this.speed = speed;
 		this.textureName = textureName;
+		this.name = name;
+		this.isBig = isBig;
 	}
 
 	public void hit(float hitPower) {
