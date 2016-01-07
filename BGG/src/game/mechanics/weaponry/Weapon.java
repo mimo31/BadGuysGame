@@ -1,16 +1,17 @@
-package game.mechanics.barrels;
+package game.mechanics.weaponry;
 
 import game.Achievement;
 
-public class Barrel {
+public class Weapon {
 
-	public static final BarrelGameProperty[] propertiesIndex = new BarrelGameProperty[] { new BarrelGameProperty("Loading time", 1), new BarrelGameProperty("Projectile power", 1), new BarrelGameProperty("Projectile speed", 1), new BarrelGameProperty("Coin magnet", 0) };
+	public static final GameProperty[] propertiesIndex = new GameProperty[] { new GameProperty("Loading time", 1), new GameProperty("Projectile power", 1), new GameProperty("Projectile speed", 1), new GameProperty("Coin magnet", 0), new GameProperty("Rotation speed", 1) };
 	public static final int loadingTimeID = getPropertyID("Loading time");
 	public static final int projectilePowerID = getPropertyID("Projectile power");
 	public static final int projectileSpeedID = getPropertyID("Projectile speed");
 	public static final int coinMagnetID = getPropertyID("Coin magnet");
+	public static final int rotationSpeedID = getPropertyID("Rotation speed");
 	
-	public BarrelPropertyImplementation[] gameProperties;
+	public PropertyImplementation[] gameProperties;
 	public final int cost;
 	public boolean bought;
 	public final String textureName;
@@ -18,7 +19,7 @@ public class Barrel {
 	public final String name;
 	public final int achievementRequied;
 
-	public Barrel(BarrelPropertyImplementation[] gameProperties, int cost, String textureName, String projectileTextureName, boolean bought, String name, int achievementRequied) {
+	public Weapon(PropertyImplementation[] gameProperties, int cost, String textureName, String projectileTextureName, boolean bought, String name, int achievementRequied) {
 		this.gameProperties = gameProperties;
 		this.cost = cost;
 		this.textureName = textureName;
@@ -53,7 +54,7 @@ public class Barrel {
 		return -1;
 	}
 	
-	private BarrelPropertyImplementation getPropertyImplementation(int id) {
+	private PropertyImplementation getPropertyImplementation(int id) {
 		for (int i = 0; i < this.gameProperties.length; i++) {
 			if (this.gameProperties[i].propertyType == propertiesIndex[id]) {
 				return this.gameProperties[i];
@@ -72,9 +73,9 @@ public class Barrel {
 	}
 	
 	public boolean isPropertyUpgradable(int id) throws PropertyNotImplementedException {
-		BarrelPropertyImplementation propertyImplementation = this.getPropertyImplementation(id);
+		PropertyImplementation propertyImplementation = this.getPropertyImplementation(id);
 		if (propertyImplementation != null) {
-			return propertyImplementation instanceof BarrelUpgradablePropertyImplementation;
+			return propertyImplementation instanceof UpgradablePropertyImplementation;
 		}
 		else {
 			throw new PropertyNotImplementedException();
@@ -95,8 +96,8 @@ public class Barrel {
 	
 	public boolean isFullyUpgraded() {
 		for (int i = 0; i < this.gameProperties.length; i++) {
-			if (this.gameProperties[i] instanceof BarrelUpgradablePropertyImplementation) {
-				if (!((BarrelUpgradablePropertyImplementation)this.gameProperties[i]).isFullyUpgraded()) {
+			if (this.gameProperties[i] instanceof UpgradablePropertyImplementation) {
+				if (!((UpgradablePropertyImplementation)this.gameProperties[i]).isFullyUpgraded()) {
 					return false;
 				}
 			}

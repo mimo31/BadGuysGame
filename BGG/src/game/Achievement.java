@@ -61,7 +61,7 @@ public class Achievement {
 		achievements[0] = new Achievement("That was easy", "Shoot down the first Bad Guy.", "BasicBadGuy.png", new String[] { "Fast Projectile Barrel" }, false, 0, 0, new int[0], new int[0]);
 		achievements[1] = new Achievement("Money is useful", "Earn a coin.", "BasicCoin.png", new String[0], false, 768, 256, new int[] { 0 }, new int[0]);
 		achievements[2] = new Achievement("Quick shot", "Shoot down the first Fast Bad Guy.", "FastBadGuy.png", new String[0], false, 768, -128, new int[] { 0 }, new int[0]);
-		achievements[3] = new Achievement("BOSS", "Defeat a Boss.", "FirstBoss.png", new String[0], true, 1536, -128, new int[] { 2 }, new int[] { 0 });
+		achievements[3] = new Achievement("BOSS", "Defeat a Boss.", "FirstBoss.png", new String[] { "Basic autoweapon" }, true, 1536, -128, new int[] { 2 }, new int[] { 0 });
 		achievements[4] = new Achievement("Getting rich", "Earn 50 coins.", "2Coin.png", new String[] { "Magnetic Barrel" }, false, 1536, 128, new int[] { 1 }, new int[] { 0 });
 		achievements[5] = new Achievement("A lot of money", "Earn 200 coins.", "5Coin.png", new String[0], false, 2304, 128, new int[] { 4 }, new int[] { 4 });
 		achievements[6] = new Achievement("Power up", "Upgrade a barrel.", "Upgrade.png", new String[0], false, 1536, 384, new int[] { 1 }, new int[] { 0 });

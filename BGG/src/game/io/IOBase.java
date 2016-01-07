@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 import game.Achievement;
 import game.Main;
 import game.Statistics;
-import game.mechanics.barrels.Barrel;
+import game.mechanics.weaponry.Weapon;
 
 public class IOBase {
 	public static final Version version = new Version();
@@ -28,23 +28,35 @@ public class IOBase {
 			DataInputStream dataIn = new DataInputStream(fileIn);
 			Main.money = dataIn.readInt();
 			Main.maxReachedStage = dataIn.readInt();
-			Main.selectedBarrel = dataIn.readInt();
+			Main.selectedBarrel.value = dataIn.readInt();
 			Statistics.load(dataIn);
 			Achievement.load(dataIn);
-			int index = 0;
-			while (dataIn.available() != 0 && index < Main.barrels.length) {
-				Barrel currentBarrel = Main.barrels[index];
+			int barrelsLength = dataIn.readInt();
+			for (int i = 0; i < barrelsLength; i++) {
+				Weapon currentBarrel = Main.barrels[i];
 				currentBarrel.bought = dataIn.readBoolean();
-				for (int i = 0; i < currentBarrel.gameProperties.length; i++) {
+				for (int j = 0; j < currentBarrel.gameProperties.length; j++) {
 					byte[] data = new byte[dataIn.readInt()];
 					dataIn.read(data, 0, data.length);
-					currentBarrel.gameProperties[i].loadFromBytes(data);
+					currentBarrel.gameProperties[j].loadFromBytes(data);
 				}
-				index++;
+			}
+			int autoweaponsLength = dataIn.readInt();
+			for (int i = 0; i < autoweaponsLength; i++) {
+				Weapon currentWeapon = Main.autoweapons[i];
+				currentWeapon.bought = dataIn.readBoolean();
+				for (int j = 0; j < currentWeapon.gameProperties.length; j++) {
+					byte[] data = new byte[dataIn.readInt()];
+					dataIn.read(data, 0, data.length);
+					currentWeapon.gameProperties[j].loadFromBytes(data);
+				}
 			}
 			fileIn.close();
 			dataIn.close();
 			Logging.log("The save was loaded.");
+		}
+		else {
+			Main.firstRun = true;
 		}
 		Logging.logEndSectionTag("GAMELOAD");
 	}
@@ -55,13 +67,23 @@ public class IOBase {
 		DataOutputStream dataOut = new DataOutputStream(fileOut);
 		dataOut.writeInt(Main.money);
 		dataOut.writeInt(Main.maxReachedStage);
-		dataOut.writeInt(Main.selectedBarrel);
+		dataOut.writeInt(Main.selectedBarrel.value);
 		Statistics.save(dataOut);
 		Achievement.save(dataOut);
+		dataOut.writeInt(Main.barrels.length);
 		for (int i = 0; i < Main.barrels.length; i++) {
 			dataOut.writeBoolean(Main.barrels[i].bought);
 			for (int j = 0; j < Main.barrels[i].gameProperties.length; j++) {
 				byte[] propData = Main.barrels[i].gameProperties[j].getBytes();
+				dataOut.writeInt(propData.length);
+				dataOut.write(propData);
+			}
+		}
+		dataOut.writeInt(Main.autoweapons.length);
+		for (int i = 0; i < Main.autoweapons.length; i++) {
+			dataOut.writeBoolean(Main.autoweapons[i].bought);
+			for (int j = 0; j < Main.autoweapons[i].gameProperties.length; j++) {
+				byte[] propData = Main.autoweapons[i].gameProperties[j].getBytes();
 				dataOut.writeInt(propData.length);
 				dataOut.write(propData);
 			}

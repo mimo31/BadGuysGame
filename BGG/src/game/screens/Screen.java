@@ -47,6 +47,7 @@ public abstract class Screen {
 	}
 
 	protected static void startNew(Screen screen) {
+		Main.currentScreen.getCloseReady();
 		Main.currentScreen = screen;
 		Gui.gui.repaint();
 	}

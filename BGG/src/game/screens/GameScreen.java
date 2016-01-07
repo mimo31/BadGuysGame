@@ -29,7 +29,7 @@ public class GameScreen extends Screen {
 	private Dimension contentSize;
 
 	public GameScreen(int stage, Point showingStageMousePos) {
-		this.game = new Game(stage, Main.getSelectedBarrel());
+		this.game = new Game(stage, Main.getSelectedBarrel(), Main.getSelectedAutoweapon());
 		this.usedMousePosition = showingStageMousePos;
 		this.showingStage = true;
 		this.showingStageState = Main.stageShowTime / 2;
@@ -85,12 +85,6 @@ public class GameScreen extends Screen {
 						break;
 					default:
 						break;
-				}
-				if (returnData.actionType != GameReturnData.GameActionType.NEXT_STAGE) {
-					int checkPointReached = returnData.stage / 5;
-					if (checkPointReached > Main.maxReachedStage) {
-						Main.maxReachedStage = checkPointReached;
-					}
 				}
 				this.showingStage = true;
 				this.showingStageState = 0;

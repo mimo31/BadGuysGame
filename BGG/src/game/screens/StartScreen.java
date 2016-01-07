@@ -2,17 +2,20 @@ package game.screens;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import game.Main;
 import game.PaintUtils;
+import game.StringDraw;
 
 public final class StartScreen extends MenuScreen {
 
-	// Components
 	private boolean showingStage;
 	private boolean noMoreStages;
 	private float showingStageState;
+	private boolean showingHelp;
 
 	public StartScreen() {
 		super(new String[] { "Play", "Shop", "Achievements" }, Color.black, Color.magenta, Color.white, 1 / (float) 2, 1 / (float) 6, 0);
@@ -28,7 +31,7 @@ public final class StartScreen extends MenuScreen {
 
 	@Override
 	protected boolean acceptInputs() {
-		return !this.showingStage;
+		return !this.showingStage && !this.showingHelp;
 	}
 
 	@Override
@@ -41,6 +44,11 @@ public final class StartScreen extends MenuScreen {
 			else {
 				PaintUtils.drawStage(super.g, super.contentSize, "Game Over", this.showingStageState);
 			}
+		}
+		if (showingHelp) {
+			PaintUtils.paintGenericHelpScreen(super.g, super.contentSize);
+			StringDraw.drawMaxString(g, "This is the main menu.", new Rectangle(super.contentSize.width / 4, super.contentSize.height / 4, super.contentSize.width / 2, super.contentSize.height / 8));
+			StringDraw.drawMaxString(g, "You can start playing, go to the shop or view your achievements.", new Rectangle(super.contentSize.width / 4, super.contentSize.height / 2, super.contentSize.width / 2, super.contentSize.height / 8));
 		}
 	}
 
@@ -60,10 +68,36 @@ public final class StartScreen extends MenuScreen {
 			Screen.startNew(new ChooseStageScreen());
 		}
 		else if (index == 1) {
-			Screen.startNew(new ShopScreen());
+			boolean unlockedFound = false;
+			for (int i = 0; i < Main.autoweapons.length; i++) {
+				if (Main.autoweapons[i].doDisplay()) {
+					unlockedFound = true;
+					break;
+				}
+			}
+			if (unlockedFound) {
+				Screen.startNew(new ShopRootScreen());
+			}
+			else {
+				Screen.startNew(new ShopScreen());
+			}
 		}
 		else {
 			Screen.startNew(new AchievementsScreen());
+		}
+	}
+	
+	@Override
+	public void keyPressed(KeyEvent event) {
+		if (this.showingHelp) {
+			if (event.getKeyCode() == KeyEvent.VK_ESCAPE || event.getKeyCode() == KeyEvent.VK_H) {
+				this.showingHelp = false;
+			}
+		}
+		else {
+			if (event.getKeyCode() == KeyEvent.VK_H && !this.showingStage) {
+				this.showingHelp = true;
+			}
 		}
 	}
 }

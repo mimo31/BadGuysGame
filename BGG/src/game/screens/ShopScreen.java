@@ -16,13 +16,14 @@ import java.util.List;
 
 import game.Achievement;
 import game.Gui;
+import game.IntHolder;
 import game.Main;
 import game.PaintUtils;
 import game.StringDraw;
 import game.StringDraw.TextAlign;
-import game.mechanics.barrels.Barrel;
-import game.mechanics.barrels.BarrelUpgradablePropertyImplementation;
 import game.io.ResourceHandler;
+import game.mechanics.weaponry.UpgradablePropertyImplementation;
+import game.mechanics.weaponry.Weapon;
 
 public final class ShopScreen extends Screen {
 
@@ -32,11 +33,14 @@ public final class ShopScreen extends Screen {
 	public static final Color DARK_RED = new Color(170, 56, 30);
 	public static final Color CHAMPAGNE = new Color(247, 231, 206);
 
-	private float barrelsListPosition = 0;
-	private int[] displayedBarrels;
+	private float weaponsListPosition = 0;
+	private Weapon[] displayedWeapons;
+	private int selectedWeapon;
+	private IntHolder realSelectedWeapon;
+	private Weapon[] realWeapons;
 	private boolean notBoughtWarning = false;
 	private float notBoughtStage = 0;
-	private float[] listsPosition = new float[Main.barrels.length];
+	private float[] listsPosition;
 
 	// Components
 	private Rectangle leftArrowButton;
@@ -50,26 +54,45 @@ public final class ShopScreen extends Screen {
 	private int coinIconSize;
 	private Rectangle moneySignBounds;
 	private Rectangle moneyAmountBounds;
-	private int barrelsSize;
+	private int weaponsSize;
 	private Rectangle buyButton;
 	private boolean onLeftButton;
 	private boolean onRightButton;
 	private Dimension contentSize;
 	private Graphics2D g;
 
+	public ShopScreen(Weapon[] weapons, IntHolder selectedWeapon) {
+		super();
+		this.realWeapons = weapons;
+		this.realSelectedWeapon = selectedWeapon;
+		if (selectedWeapon.value == -1) {
+			this.selectedWeapon = 0;
+		}
+		else {
+			this.selectedWeapon = selectedWeapon.value;
+		}
+		List<Weapon> weaponList = new ArrayList<Weapon>();
+		for (int i = 0; i < weapons.length; i++) {
+			if (weapons[i].doDisplay()) {
+				weaponList.add(weapons[i]);
+			}
+			else {
+				if (i < selectedWeapon.value) {
+					this.selectedWeapon--;
+				}
+			}
+		}
+		this.displayedWeapons = weaponList.toArray(new Weapon[weaponList.size()]);
+		this.listsPosition = new float[this.displayedWeapons.length];
+	}
+
+	public ShopScreen() {
+		this(Main.barrels, Main.selectedBarrel);
+	}
+
 	@Override
 	public void onStart() {
 		this.initializeComponents();
-		List<Integer> barrelsList = new ArrayList<Integer>();
-		for (int i = 0; i < Main.barrels.length; i++) {
-			if (Main.barrels[i].doDisplay()) {
-				barrelsList.add(new Integer(i));
-			}
-		}
-		this.displayedBarrels = new int[barrelsList.size()];
-		for (int i = 0; i < this.displayedBarrels.length; i++) {
-			this.displayedBarrels[i] = barrelsList.get(i).intValue();
-		}
 	}
 
 	private void initializeComponents() {
@@ -131,7 +154,7 @@ public final class ShopScreen extends Screen {
 			this.moneySignBounds.setBounds(0, contentSize.height * 7 / 8, contentSize.width / 2, (int) rowHeight);
 			this.moneyAmountBounds.setBounds(contentSize.width / 2, contentSize.height * 7 / 8, contentSize.width / 2 - this.coinIconSize * 2, (int) rowHeight);
 
-			this.barrelsSize = this.leftArrowButton.height;
+			this.weaponsSize = this.leftArrowButton.height;
 			this.buyButton.setBounds(0, (int) (rowHeight * 5), contentSize.width, (int) (rowHeight * 2));
 		}
 	}
@@ -140,23 +163,23 @@ public final class ShopScreen extends Screen {
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
 		this.updateComponents(g, contentSize);
 
-		// Draws the barrel's properties interface
-		Barrel selectedBarrel = Main.getSelectedBarrel();
-		int maxShownIndex = (int) Math.ceil(this.listsPosition[Main.selectedBarrel]) + 3;
-		if (selectedBarrel.bought) {
+		// Draws the weapon's properties interface
+		Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
+		int maxShownIndex = (int) Math.ceil(this.listsPosition[this.selectedWeapon]) + 3;
+		if (selectedWeapon.bought) {
 			maxShownIndex += 2;
 		}
-		for (int i = (int) Math.floor(this.listsPosition[Main.selectedBarrel]); i < maxShownIndex && i < selectedBarrel.gameProperties.length; i++) {
+		for (int i = (int) Math.floor(this.listsPosition[this.selectedWeapon]); i < maxShownIndex && i < selectedWeapon.gameProperties.length; i++) {
 			g.setColor(Color.orange);
-			int rowAbsoluteY = (int) ((i - this.listsPosition[Main.selectedBarrel] + 2) * contentSize.height / 8);
-			if (selectedBarrel.gameProperties[i] instanceof BarrelUpgradablePropertyImplementation) {
-				BarrelUpgradablePropertyImplementation upgradableImplementation = (BarrelUpgradablePropertyImplementation) selectedBarrel.gameProperties[i];
+			int rowAbsoluteY = (int) ((i - this.listsPosition[this.selectedWeapon] + 2) * contentSize.height / 8);
+			if (selectedWeapon.gameProperties[i] instanceof UpgradablePropertyImplementation) {
+				UpgradablePropertyImplementation upgradableImplementation = (UpgradablePropertyImplementation) selectedWeapon.gameProperties[i];
 				float fractionToFill = upgradableImplementation.getUpgradedDrawnFraction();
 				if (fractionToFill != 0) {
 					g.fillRect(0, rowAbsoluteY, (int) (contentSize.width * fractionToFill / 2), contentSize.height / 8);
 				}
 				Rectangle upgradeColumnRect = new Rectangle(contentSize.width * 3 / 4, rowAbsoluteY, contentSize.width / 4, contentSize.height / 8);
-				if (selectedBarrel.bought) {
+				if (selectedWeapon.bought) {
 					if (upgradableImplementation.isFullyUpgraded()) {
 						g.setColor(Color.black);
 						StringDraw.drawMaxString(g, this.tableBordersSize, "maxed", upgradeColumnRect);
@@ -175,21 +198,21 @@ public final class ShopScreen extends Screen {
 			Rectangle nameColumnRect = new Rectangle(0, rowAbsoluteY, contentSize.width / 2, contentSize.height / 8);
 			Rectangle valueColumnRect = new Rectangle(contentSize.width / 2, rowAbsoluteY, contentSize.width / 4, contentSize.height / 8);
 			g.setColor(Color.black);
-			StringDraw.drawMaxString(g, this.tableBordersSize, selectedBarrel.gameProperties[i].propertyType.name, TextAlign.LEFT, nameColumnRect);
-			StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedBarrel.gameProperties[i].getActualValue()), valueColumnRect);
+			StringDraw.drawMaxString(g, this.tableBordersSize, selectedWeapon.gameProperties[i].propertyType.name, TextAlign.LEFT, nameColumnRect);
+			StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedWeapon.gameProperties[i].getActualValue()), valueColumnRect);
 		}
 
 		g.setColor(Gui.gui.getBackground());
 		g.fillRect(0, 0, contentSize.width, contentSize.height / 4);
-		if (selectedBarrel.bought) {
+		if (selectedWeapon.bought) {
 			g.fillRect(0, contentSize.height * 7 / 8, contentSize.width, contentSize.height / 8);
 		}
 		g.setColor(Color.black);
-		StringDraw.drawMaxString(g, this.tableBordersSize, selectedBarrel.name, this.barrelNameBounds);
+		StringDraw.drawMaxString(g, this.tableBordersSize, selectedWeapon.name, this.barrelNameBounds);
 
-		int maxBarrelIndex = (int) Math.floor(this.barrelsListPosition + (contentSize.width - contentSize.height / 8) / (float) (contentSize.height / 8 - contentSize.height / 256));
-		for (int i = (int) Math.floor(this.barrelsListPosition); i < this.displayedBarrels.length && i <= maxBarrelIndex; i++) {
-			this.drawBarrel(i);
+		int maxWeaponIndex = (int) Math.floor(this.weaponsListPosition + (contentSize.width - contentSize.height / 8) / (float) (contentSize.height / 8 - contentSize.height / 256));
+		for (int i = (int) Math.floor(this.weaponsListPosition); i < this.displayedWeapons.length && i <= maxWeaponIndex; i++) {
+			this.drawWeapon(i);
 		}
 		g.setColor(Color.black);
 		g.fillRect(0, contentSize.height / 8 - contentSize.height / 256, contentSize.width, contentSize.height / 256);
@@ -223,7 +246,7 @@ public final class ShopScreen extends Screen {
 		g.fillPolygon(this.rightArrowTriangle);
 
 		// Draws the buy button
-		if (!selectedBarrel.bought) {
+		if (!selectedWeapon.bought) {
 			PaintUtils.drawChangingRect(g, this.buyButton, DARK_RED, CHAMPAGNE, mousePosition);
 			Color textColor;
 			if (this.buyButton.contains(mousePosition)) {
@@ -233,7 +256,7 @@ public final class ShopScreen extends Screen {
 				textColor = Color.white;
 			}
 			g.setColor(textColor);
-			StringDraw.drawMaxString(g, this.buyButton.height / 4, "Buy - " + String.valueOf(selectedBarrel.cost) + " coins", this.buyButton);
+			StringDraw.drawMaxString(g, this.buyButton.height / 4, "Buy - " + String.valueOf(selectedWeapon.cost) + " coins", this.buyButton);
 		}
 
 		// Draws the amount of money and the corresponding sign at the bottom
@@ -244,22 +267,22 @@ public final class ShopScreen extends Screen {
 		StringDraw.drawMaxString(g, this.tableBordersSize, String.valueOf(Main.money), TextAlign.RIGHT, this.moneyAmountBounds);
 	}
 
-	private void drawBarrel(int index) throws IOException {
-		int x = (int) ((this.barrelsSize) * (index - this.barrelsListPosition)) + this.contentSize.height / 16;
-		this.g.drawImage(ResourceHandler.getTexture(Main.barrels[this.displayedBarrels[index]].textureName, (int) this.barrelsSize), x, 0, null);
-		if (!Main.barrels[index].bought) {
+	private void drawWeapon(int index) throws IOException {
+		int x = (int) ((this.weaponsSize) * (index - this.weaponsListPosition)) + this.contentSize.height / 16;
+		this.g.drawImage(ResourceHandler.getTexture(this.displayedWeapons[index].textureName, (int) this.weaponsSize), x, 0, null);
+		if (!this.displayedWeapons[index].bought) {
 			this.g.setColor(PaintUtils.TRANSPARENT_GRAY);
-			this.g.fillRect(x, 0, this.barrelsSize, this.barrelsSize);
+			this.g.fillRect(x, 0, this.weaponsSize, this.weaponsSize);
 		}
-		if (this.displayedBarrels[index] == Main.selectedBarrel) {
-			float cornerSize = this.barrelsSize / (float) 16;
-			Area wholeBarrel = new Area(new Rectangle(x, 0, this.barrelsSize, this.barrelsSize));
-			wholeBarrel.subtract(new Area(new Rectangle((int) (x + cornerSize), (int) cornerSize, (int) (this.barrelsSize - cornerSize * 2), (int) (this.barrelsSize - cornerSize * 2))));
+		if (index == this.selectedWeapon) {
+			float cornerSize = this.weaponsSize / (float) 16;
+			Area wholeWeapon = new Area(new Rectangle(x, 0, this.weaponsSize, this.weaponsSize));
+			wholeWeapon.subtract(new Area(new Rectangle((int) (x + cornerSize), (int) cornerSize, (int) (this.weaponsSize - cornerSize * 2), (int) (this.weaponsSize - cornerSize * 2))));
 			this.g.setColor(CITRINE);
-			g.fill(wholeBarrel);
+			g.fill(wholeWeapon);
 			if (this.notBoughtWarning) {
 				this.g.setColor(new Color(255, 0, 0, (int) (this.notBoughtStage / (float) 30 * 255)));
-				this.g.fillRect(x, 0, this.barrelsSize, this.barrelsSize);
+				this.g.fillRect(x, 0, this.weaponsSize, this.weaponsSize);
 			}
 		}
 	}
@@ -273,16 +296,16 @@ public final class ShopScreen extends Screen {
 		}
 	}
 
-	private static String getLastColumnTextNotBought(BarrelUpgradablePropertyImplementation barrelProperties) {
+	private static String getLastColumnTextNotBought(UpgradablePropertyImplementation barrelProperties) {
 		return "best " + toString(barrelProperties.getMaxValue()) + "(" + String.valueOf(barrelProperties.getMaxCost()) + "c)";
 	}
 
-	private static String getLastColumnTextBought(BarrelUpgradablePropertyImplementation barrelProperties) {
-		if (barrelProperties.isFullyUpgraded()) {
+	private static String getLastColumnTextBought(UpgradablePropertyImplementation weaponProperties) {
+		if (weaponProperties.isFullyUpgraded()) {
 			return "maxed";
 		}
 		else {
-			float upgradeValue = barrelProperties.getUpgradeValue();
+			float upgradeValue = weaponProperties.getUpgradeValue();
 			String valuePart;
 			if (upgradeValue > 0) {
 				valuePart = "+" + toString(upgradeValue);
@@ -293,34 +316,34 @@ public final class ShopScreen extends Screen {
 			else {
 				valuePart = "±0";
 			}
-			return valuePart + "(" + String.valueOf(barrelProperties.getUpgradeCost()) + "c)";
+			return valuePart + "(" + String.valueOf(weaponProperties.getUpgradeCost()) + "c)";
 		}
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent event) {
 		int bottomYBound;
-		if (Main.getSelectedBarrel().bought) {
+		if (this.displayedWeapons[this.selectedWeapon].bought) {
 			bottomYBound = this.contentSize.height * 7 / 8;
 		}
 		else {
 			bottomYBound = this.contentSize.height * 5 / 8;
 		}
 		if (event.getY() < bottomYBound && event.getY() >= this.contentSize.height / 4) {
-			this.listsPosition[Main.selectedBarrel] += event.getWheelRotation() / (float) 4;
-			if (this.listsPosition[Main.selectedBarrel] < 0) {
-				this.listsPosition[Main.selectedBarrel] = 0;
+			this.listsPosition[this.selectedWeapon] += event.getWheelRotation() / (float) 4;
+			if (this.listsPosition[this.selectedWeapon] < 0) {
+				this.listsPosition[this.selectedWeapon] = 0;
 			}
-			else if (this.listsPosition[Main.selectedBarrel] > Main.getSelectedBarrel().gameProperties.length - 2) {
-				this.listsPosition[Main.selectedBarrel] = Main.getSelectedBarrel().gameProperties.length - 2;
+			else if (this.listsPosition[this.selectedWeapon] > Main.getSelectedBarrel().gameProperties.length - 2) {
+				this.listsPosition[this.selectedWeapon] = Main.getSelectedBarrel().gameProperties.length - 2;
 			}
 		}
 	};
 
 	@Override
 	public void update(int time) {
-		for (int i = 0; i < Main.barrels.length; i++) {
-			Main.barrels[i].update(time);
+		for (int i = 0; i < this.displayedWeapons.length; i++) {
+			this.displayedWeapons[i].update(time);
 		}
 		if (this.notBoughtWarning) {
 			this.notBoughtStage -= time / (float) 40;
@@ -329,15 +352,15 @@ public final class ShopScreen extends Screen {
 			}
 		}
 		if (this.onLeftButton) {
-			this.barrelsListPosition += time / (float) 16 / (float) 40;
-			if (this.barrelsListPosition > this.displayedBarrels.length - 1) {
-				this.barrelsListPosition = this.displayedBarrels.length - 1;
+			this.weaponsListPosition += time / (float) 16 / (float) 40;
+			if (this.weaponsListPosition > this.displayedWeapons.length - 1) {
+				this.weaponsListPosition = this.displayedWeapons.length - 1;
 			}
 		}
 		else if (this.onRightButton) {
-			this.barrelsListPosition -= time / (float) 16 / (float) 40;
-			if (this.barrelsListPosition < 0) {
-				this.barrelsListPosition = 0;
+			this.weaponsListPosition -= time / (float) 16 / (float) 40;
+			if (this.weaponsListPosition < 0) {
+				this.weaponsListPosition = 0;
 			}
 		}
 	}
@@ -345,39 +368,64 @@ public final class ShopScreen extends Screen {
 	@Override
 	public void keyPressed(KeyEvent event) {
 		if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			if (Main.getSelectedBarrel().bought) {
-				for (int i = 0; i < Main.barrels.length; i++) {
-					Main.barrels[i].forceUpgrade();
+			if (this.displayedWeapons[this.selectedWeapon].bought) {
+				for (int i = 0; i < this.displayedWeapons.length; i++) {
+					this.displayedWeapons[i].forceUpgrade();
 				}
-				Screen.startNew(new StartScreen());
+				boolean autoUnlockedFound = false;
+				for (int i = 0; i < Main.autoweapons.length; i++) {
+					if (Main.autoweapons[i].doDisplay()) {
+						autoUnlockedFound = true;
+						break;
+					}
+				}
+				if (autoUnlockedFound) {
+					Screen.startNew(new ShopRootScreen());
+				}
+				else {
+					Screen.startNew(new StartScreen());
+				}
 			}
 			else {
-				this.notBoughtWarning = true;
-				this.notBoughtStage = 30;
+				boolean isSomeBought = false;
+				for (int i = 0; i < this.displayedWeapons.length; i++) {
+					if (this.displayedWeapons[i].bought) {
+						isSomeBought = true;
+						break;
+					}
+				}
+				if (isSomeBought) {
+					this.notBoughtWarning = true;
+					this.notBoughtStage = 30;
+				}
+				else {
+					this.realSelectedWeapon.value = -1;
+					Screen.startNew(new ShopRootScreen());
+				}
 			}
 		}
 	}
 
 	@Override
 	public void mousePressed(MouseEvent event) {
-		if (event.getX() >= this.contentSize.height / 16 && event.getX() < this.contentSize.width - this.contentSize.height / 16 && event.getY() < this.barrelsSize) {
-			float relListClickPosition = this.barrelsListPosition + (event.getX() - this.contentSize.height / 16) / (float) this.barrelsSize;
-			int clickedBarrelIndex = (int) Math.floor(relListClickPosition);
-			if (clickedBarrelIndex < this.displayedBarrels.length) {
-				Main.selectedBarrel = this.displayedBarrels[clickedBarrelIndex];
+		if (event.getX() >= this.contentSize.height / 16 && event.getX() < this.contentSize.width - this.contentSize.height / 16 && event.getY() < this.weaponsSize) {
+			float relListClickPosition = this.weaponsListPosition + (event.getX() - this.contentSize.height / 16) / (float) this.weaponsSize;
+			int clickedWeaponIndex = (int) Math.floor(relListClickPosition);
+			if (clickedWeaponIndex < this.displayedWeapons.length) {
+				this.selectedWeapon = clickedWeaponIndex;
 				this.notBoughtWarning = false;
 			}
 		}
 		// Handles all the clicks on the properties interface
 		else if (event.getY() >= this.contentSize.height / 4 && event.getY() < this.contentSize.height / 8 * 7) {
-			Barrel selectedBarrel = Main.getSelectedBarrel();
+			Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
 			boolean clickedOnUpgrade = false;
-			if (!selectedBarrel.bought) {
+			if (!selectedWeapon.bought) {
 				if (event.getY() >= this.contentSize.height * 5 / 8) {
 					if (this.buyButton.contains(event.getPoint())) {
-						if (selectedBarrel.cost <= Main.money) {
-							Main.money -= selectedBarrel.cost;
-							selectedBarrel.bought = true;
+						if (selectedWeapon.cost <= Main.money) {
+							Main.money -= selectedWeapon.cost;
+							selectedWeapon.bought = true;
 						}
 					}
 				}
@@ -391,9 +439,9 @@ public final class ShopScreen extends Screen {
 				}
 			}
 			if (clickedOnUpgrade) {
-				int clickedIndex = (int) ((event.getY() - this.contentSize.height / 4) / (float) (this.contentSize.height / 8) + this.listsPosition[Main.selectedBarrel]);
-				if (selectedBarrel.gameProperties[clickedIndex] instanceof BarrelUpgradablePropertyImplementation) {
-					BarrelUpgradablePropertyImplementation upgradableImplementation = (BarrelUpgradablePropertyImplementation) selectedBarrel.gameProperties[clickedIndex];
+				int clickedIndex = (int) ((event.getY() - this.contentSize.height / 4) / (float) (this.contentSize.height / 8) + this.listsPosition[this.selectedWeapon]);
+				if (selectedWeapon.gameProperties[clickedIndex] instanceof UpgradablePropertyImplementation) {
+					UpgradablePropertyImplementation upgradableImplementation = (UpgradablePropertyImplementation) selectedWeapon.gameProperties[clickedIndex];
 					if (!upgradableImplementation.isFullyUpgraded()) {
 						int upgradeCost = upgradableImplementation.getUpgradeCost();
 						if (Main.money >= upgradeCost) {
@@ -402,7 +450,7 @@ public final class ShopScreen extends Screen {
 							if (!Achievement.achievements[6].achieved) {
 								Achievement.achieve(6);
 							}
-							if (selectedBarrel.isFullyUpgraded()) {
+							if (selectedWeapon.isFullyUpgraded()) {
 								Achievement.achieve(7);
 							}
 						}
@@ -411,10 +459,10 @@ public final class ShopScreen extends Screen {
 			}
 		}
 		else if (this.buyButton.contains(event.getPoint()) && !Main.getSelectedBarrel().bought) {
-			Barrel selectedBarrel = Main.getSelectedBarrel();
-			if (selectedBarrel.cost <= Main.money) {
-				Main.money -= selectedBarrel.cost;
-				selectedBarrel.bought = true;
+			Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
+			if (selectedWeapon.cost <= Main.money) {
+				Main.money -= selectedWeapon.cost;
+				selectedWeapon.bought = true;
 			}
 		}
 		else if (this.leftArrowButton.contains(event.getPoint())) {
@@ -444,11 +492,24 @@ public final class ShopScreen extends Screen {
 			}
 		}
 	}
-	
+
 	@Override
 	public void getCloseReady() {
-		if (!Main.getSelectedBarrel().bought) {
-			Main.selectedBarrel = 0;
+		if (!this.displayedWeapons[this.selectedWeapon].bought) {
+			if (this.realWeapons[0].bought) {
+				this.realSelectedWeapon.value = 0;
+			}
+			else {
+				this.realSelectedWeapon.value = -1;
+			}
+		}
+		else {
+			for (int i = 0; i < this.realWeapons.length; i++) {
+				if (this.realWeapons[i] == this.displayedWeapons[this.selectedWeapon]) {
+					this.realSelectedWeapon.value = i;
+					break;
+				}
+			}
 		}
 	}
 }

@@ -1,11 +1,11 @@
-package game.mechanics.barrels;
+package game.mechanics.weaponry;
 
-public abstract class BarrelPropertyImplementation {
+public abstract class PropertyImplementation {
 	
-	public BarrelGameProperty propertyType;
+	public GameProperty propertyType;
 	public abstract float getActualValue();
 
-	public BarrelPropertyImplementation(BarrelGameProperty propertyType) {
+	public PropertyImplementation(GameProperty propertyType) {
 		this.propertyType = propertyType;
 	}
 	

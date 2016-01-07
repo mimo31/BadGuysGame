@@ -57,7 +57,7 @@ public class Coin {
 			this.x = 127 / (float) 64 - this.x;
 		}
 		float upEdge = contentSize.width / (float) 128 / (float) contentSize.height;
-		float downEdge = 127 / (float) 128 * contentSize.width / contentSize.height;
+		float downEdge = 1 - contentSize.width / 128 / contentSize.height;
 		if (this.y < upEdge) {
 			this.y = upEdge * 2 - this.y;
 		}

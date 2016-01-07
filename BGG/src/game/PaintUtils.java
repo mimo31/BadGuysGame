@@ -14,6 +14,7 @@ public class PaintUtils {
 	
 	public static final Color DARK_GREEN2 = new Color(0, 127, 0);
 	public static final Color TRANSPARENT_GRAY = new Color(127, 127, 127, 63);
+	public static final Color TRANSPARENT_WHITE = new Color(255, 255, 255, 223);
 	
 	public static float shiftedSine(float x) {
 		return (float) (Math.sin(x * Math.PI - Math.PI / (double) 2) + 1) / (float) 2;
@@ -45,5 +46,12 @@ public class PaintUtils {
 		g.drawImage(ResourceHandler.getTexture("BasicCoin.png", contentSize.height / 32), contentSize.width - contentSize.height / 32 - contentSize.height / 64, contentSize.height / 64, null);
 		g.setColor(DARK_GREEN2);
 		StringDraw.drawMaxString(g, contentSize.height / 64, String.valueOf(Main.money), TextAlign.RIGHT, new Rectangle(0, 0, contentSize.width - contentSize.height / 16, contentSize.height / 16));
+	}
+	
+	public static void paintGenericHelpScreen(Graphics2D g, Dimension contentSize) {
+		g.setColor(TRANSPARENT_WHITE);
+		g.fillRect(0, 0, contentSize.width, contentSize.height);
+		g.setColor(Color.black);
+		StringDraw.drawMaxString(g, contentSize.height / 128, "Press the Esc key to exit the help mode.", TextAlign.DOWNRIGHT, new Rectangle(0, contentSize.height - contentSize.height / 32, contentSize.width, contentSize.height / 32));
 	}
 }

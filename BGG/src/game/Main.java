@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import game.mechanics.Spawner;
 import game.mechanics.Stage;
-import game.mechanics.barrels.Barrel;
-import game.mechanics.barrels.BarrelPropertyImplementation;
-import game.mechanics.barrels.BarrelUpgradablePropertyImplementation;
+import game.mechanics.weaponry.PropertyImplementation;
+import game.mechanics.weaponry.UpgradablePropertyImplementation;
+import game.mechanics.weaponry.Weapon;
 import game.io.IOBase;
 import game.io.IOInitialization;
 import game.io.Logging;
@@ -14,14 +14,17 @@ import game.screens.ConnectionProblemScreen;
 import game.screens.InitializationScreen;
 import game.screens.Screen;
 import game.screens.StartScreen;
+import game.screens.WelcomeScreen;
 
 public class Main {
 
 	public static boolean running;
 	public static Screen currentScreen;
 	public static Stage[] stages;
-	public static Barrel[] barrels;
-	public static int selectedBarrel;
+	public static Weapon[] barrels;
+	public static Weapon[] autoweapons;
+	public static IntHolder selectedBarrel = new IntHolder(0);
+	public static IntHolder selectedAutoweapon = new IntHolder(-1);
 	public static int money = 0;
 	public static String initText;
 	/**
@@ -29,6 +32,7 @@ public class Main {
 	 */
 	public static int maxReachedStage;
 	public static Thread updateThread;
+	public static boolean firstRun;
 
 	public static final int stageShowTime = 60;
 
@@ -50,12 +54,18 @@ public class Main {
 		if (IOsuccessfull) {
 			initializeStages();
 			initializeBarrels();
+			initializeAutoweapons();
 			try {
 				IOBase.loadSaveIfPresent();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			currentScreen = new StartScreen();
+			if (firstRun) {
+				currentScreen = new WelcomeScreen();
+			}
+			else {
+				currentScreen = new StartScreen();
+			}
 		}
 		else {
 			currentScreen = new ConnectionProblemScreen();
@@ -75,7 +85,7 @@ public class Main {
 		Spawner armoredSpw = new Spawner.ArmoredSpawner();
 		Spawner heavyArmoredSpw = new Spawner.HeavyArmoredSpawner();
 		Spawner firstBossSpw = new Spawner.FirstBossSpawner();
-		stages = new Stage[21];
+		stages = new Stage[23];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -97,30 +107,57 @@ public class Main {
 		stages[18] = new Stage(new Spawner[] { fastSpw, fastSpw, fastSpw, fastSpw, heavyArmoredSpw, heavyArmoredSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
 		stages[19] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 60, 60 });
 		stages[20] = new Stage(new Spawner[] { firstBossSpw }, new int[] { 60 });
+		stages[21] = new Stage(new Spawner[] { fastSpw, fastSpw, armoredSpw, armoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw}, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
+		stages[22] = new Stage(makeHomogenousSpawnerArray(basicSpw, 16), new int[] { 20, 20, 20, 20, 80, 80, 80, 80, 140, 140, 140, 140, 200, 200, 200, 200 });
 	}
 
 	private static void initializeBarrels() {
-		barrels = new Barrel[3];
-		BarrelPropertyImplementation loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1);
-		BarrelPropertyImplementation projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 1);
-		BarrelPropertyImplementation projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 1);
-		barrels[0] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel", -1);
+		barrels = new Weapon[3];
+		PropertyImplementation loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1);
+		PropertyImplementation projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 1);
+		PropertyImplementation projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 1);
+		barrels[0] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 0, "BasicBarrel.png", "BasicProjectile.png", true, "Basic Barrel", -1);
 
-		loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 20, 30 }, new float[] { -0.13f, -0.05f }, 0.8f);
-		projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 50 }, new float[] { 1 }, 1);
-		projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f }, 1.75f);
-		barrels[1] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel", 0);
+		loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 20, 30 }, new float[] { -0.13f, -0.05f }, 0.8f);
+		projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 50 }, new float[] { 1 }, 1);
+		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f }, 1.75f);
+		barrels[1] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel", 0);
 
-		loadingTime = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.loadingTimeID], new int[] { 10, 30 }, new float[] { -0.5f, -0.2f }, 1.5f);
-		projectilePower = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectilePowerID], new int[] { 25, 45 }, new float[] { 1, 0.5f }, 2);
-		projectileSpeed = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.5f, 0.5f, 0.3f }, 0.7f);
-		BarrelPropertyImplementation coinMagnet = new BarrelUpgradablePropertyImplementation(Barrel.propertiesIndex[Barrel.coinMagnetID], new int[] { 50 }, new float[] { 1 }, 1);
-		barrels[2] = new Barrel(new BarrelPropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, coinMagnet }, 75, "MagneticBarrel.png", "MagneticProjectile.png", false, "Magnetic Barrel", 4);
-		selectedBarrel = 0;
+		loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 10, 30 }, new float[] { -0.5f, -0.2f }, 1.5f);
+		projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 25, 45 }, new float[] { 1, 0.5f }, 2);
+		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.5f, 0.5f, 0.3f }, 0.7f);
+		PropertyImplementation coinMagnet = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.coinMagnetID], new int[] { 50 }, new float[] { 1 }, 1);
+		barrels[2] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, coinMagnet }, 75, "MagneticBarrel.png", "MagneticProjectile.png", false, "Magnetic Barrel", 4);
 	}
 
-	public static Barrel getSelectedBarrel() {
-		return barrels[selectedBarrel];
+	private static void initializeAutoweapons() {
+		autoweapons = new Weapon[1];
+		PropertyImplementation loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1.5f);
+		PropertyImplementation projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 0.7f);
+		PropertyImplementation projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 0.7f);
+		PropertyImplementation rotationSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.rotationSpeedID], new int[] { 15 }, new float[] { 0.3f }, 1f);
+		autoweapons[0] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, rotationSpeed }, 50, "BasicAutoweapon.png", "BasicProjectile.png", false, "Basic autoweapon", 3);
+	}
+	
+	private static Spawner[] makeHomogenousSpawnerArray(Spawner element, int length) {
+		Spawner[] array = new Spawner[length];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = element;
+		}
+		return array;
+	}
+	
+	public static Weapon getSelectedBarrel() {
+		return barrels[selectedBarrel.value];
+	}
+	
+	public static Weapon getSelectedAutoweapon() {
+		if (selectedAutoweapon.value == -1) {
+			return null;
+		}
+		else {
+			return autoweapons[selectedAutoweapon.value];
+		}
 	}
 
 	private static class Updater implements Runnable {

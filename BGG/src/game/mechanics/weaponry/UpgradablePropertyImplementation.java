@@ -1,10 +1,10 @@
-package game.mechanics.barrels;
+package game.mechanics.weaponry;
 
 import java.nio.ByteBuffer;
 
 import game.PaintUtils;
 
-public class BarrelUpgradablePropertyImplementation extends BarrelPropertyImplementation {
+public class UpgradablePropertyImplementation extends PropertyImplementation {
 
 	int[] upgradeCosts;
 	float[] upgradeValues;
@@ -14,7 +14,7 @@ public class BarrelUpgradablePropertyImplementation extends BarrelPropertyImplem
 	float upgradingProgress = 0;
 	int upgradingBy = 0;
 
-	public BarrelUpgradablePropertyImplementation(BarrelGameProperty propertyType, int[] upgradeCosts, float[] upgradeValues, float startValue) {
+	public UpgradablePropertyImplementation(GameProperty propertyType, int[] upgradeCosts, float[] upgradeValues, float startValue) {
 		super(propertyType);
 		this.upgradeCosts = upgradeCosts;
 		this.upgradeValues = upgradeValues;
