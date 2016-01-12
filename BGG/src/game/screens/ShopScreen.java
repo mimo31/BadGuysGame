@@ -1,5 +1,6 @@
 package game.screens;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -41,6 +42,8 @@ public final class ShopScreen extends Screen {
 	private boolean notBoughtWarning = false;
 	private float notBoughtStage = 0;
 	private float[] listsPosition;
+	private boolean showingHelp;
+	private boolean secondHelpPage;
 
 	// Components
 	private Rectangle leftArrowButton;
@@ -60,6 +63,7 @@ public final class ShopScreen extends Screen {
 	private boolean onRightButton;
 	private Dimension contentSize;
 	private Graphics2D g;
+	private Point usedMousePosition = new Point(0, 0);
 
 	public ShopScreen(Weapon[] weapons, IntHolder selectedWeapon) {
 		super();
@@ -117,8 +121,11 @@ public final class ShopScreen extends Screen {
 		this.buyButton = new Rectangle();
 	}
 
-	private void updateComponents(Graphics2D g, Dimension contentSize) {
+	private void updateComponents(Graphics2D g, Dimension contentSize, Point mousePosition) {
 		this.g = g;
+		if (!this.showingHelp) {
+			this.usedMousePosition = mousePosition;
+		}
 		if (!(contentSize.width == this.contentSize.width && contentSize.height == this.contentSize.height)) {
 			this.contentSize = contentSize;
 			this.leftArrowButton.setBounds(0, 0, contentSize.height / 16 - contentSize.height / 256, contentSize.height / 8 - contentSize.height / 256);
@@ -161,7 +168,7 @@ public final class ShopScreen extends Screen {
 
 	@Override
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
-		this.updateComponents(g, contentSize);
+		this.updateComponents(g, contentSize, mousePosition);
 
 		// Draws the weapon's properties interface
 		Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
@@ -185,7 +192,7 @@ public final class ShopScreen extends Screen {
 						StringDraw.drawMaxString(g, this.tableBordersSize, "maxed", upgradeColumnRect);
 					}
 					else {
-						PaintUtils.drawChangingRect(g, upgradeColumnRect, Color.cyan, Color.red, mousePosition);
+						PaintUtils.drawChangingRect(g, upgradeColumnRect, Color.cyan, Color.red, this.usedMousePosition);
 						g.setColor(Color.black);
 						StringDraw.drawMaxString(g, this.tableBordersSize, getLastColumnTextBought(upgradableImplementation), upgradeColumnRect);
 					}
@@ -218,8 +225,8 @@ public final class ShopScreen extends Screen {
 		g.fillRect(0, contentSize.height / 8 - contentSize.height / 256, contentSize.width, contentSize.height / 256);
 		g.fillRect(this.leftArrowButton.width, 0, contentSize.height / 256, this.leftArrowButton.height);
 		g.fillRect(this.rightArrowButton.x - contentSize.height / 256, 0, contentSize.height / 256, this.rightArrowButton.height);
-		PaintUtils.drawChangingRect(g, this.leftArrowButton, GREEN, DARK_GREEN, mousePosition);
-		if (this.leftArrowButton.contains(mousePosition)) {
+		PaintUtils.drawChangingRect(g, this.leftArrowButton, GREEN, DARK_GREEN, this.usedMousePosition);
+		if (this.leftArrowButton.contains(this.usedMousePosition)) {
 			if (this.onLeftButton) {
 				g.setColor(Color.red);
 			}
@@ -231,8 +238,8 @@ public final class ShopScreen extends Screen {
 			g.setColor(Color.white);
 		}
 		g.fillPolygon(this.leftArrowTriangle);
-		PaintUtils.drawChangingRect(g, this.rightArrowButton, GREEN, DARK_GREEN, mousePosition);
-		if (this.rightArrowButton.contains(mousePosition)) {
+		PaintUtils.drawChangingRect(g, this.rightArrowButton, GREEN, DARK_GREEN, this.usedMousePosition);
+		if (this.rightArrowButton.contains(this.usedMousePosition)) {
 			if (this.onRightButton) {
 				g.setColor(Color.red);
 			}
@@ -247,9 +254,9 @@ public final class ShopScreen extends Screen {
 
 		// Draws the buy button
 		if (!selectedWeapon.bought) {
-			PaintUtils.drawChangingRect(g, this.buyButton, DARK_RED, CHAMPAGNE, mousePosition);
+			PaintUtils.drawChangingRect(g, this.buyButton, DARK_RED, CHAMPAGNE, this.usedMousePosition);
 			Color textColor;
-			if (this.buyButton.contains(mousePosition)) {
+			if (this.buyButton.contains(this.usedMousePosition)) {
 				textColor = Color.black;
 			}
 			else {
@@ -259,12 +266,42 @@ public final class ShopScreen extends Screen {
 			StringDraw.drawMaxString(g, this.buyButton.height / 4, "Buy - " + String.valueOf(selectedWeapon.cost) + " coins", this.buyButton);
 		}
 
-		// Draws the amount of money and the corresponding sign at the bottom
+		// Draws the amount of money and the corresponding sign at the
+		// bottom
 		g.setColor(Color.black);
 		g.drawImage(ResourceHandler.getTexture("BasicCoin.png", this.coinIconSize), this.coinIconX, this.coinIconY, null);
 		StringDraw.drawMaxString(g, this.tableBordersSize, "Total money", TextAlign.LEFT, this.moneySignBounds);
 		g.setColor(PaintUtils.DARK_GREEN2);
 		StringDraw.drawMaxString(g, this.tableBordersSize, String.valueOf(Main.money), TextAlign.RIGHT, this.moneyAmountBounds);
+		
+		if (this.showingHelp) {
+			PaintUtils.paintGenericHelpScreen(g, contentSize);
+			if (!this.secondHelpPage) {
+				StringDraw.drawMaxString(g, "This is the shop.", new Rectangle(contentSize.width / 4, contentSize.height / 4, contentSize.width / 2, contentSize.height / 8));
+				StringDraw.drawMaxString(g, "You can buy new weapons or upgrade the older ones.", new Rectangle(contentSize.width / 4, contentSize.height / 2, contentSize.width / 2, contentSize.height / 16));
+				StringDraw.drawMaxString(g, "Click anywhere to see more details.", new Rectangle(contentSize.width / 4, contentSize.height - contentSize.height / 8, contentSize.width / 2, contentSize.height / 16));
+			}
+			else {
+				int lineWidth = contentSize.width / 256;
+				g.setStroke(new BasicStroke(lineWidth));
+				g.setColor(Color.red);
+				g.drawRect(lineWidth / 2, lineWidth / 2, contentSize.width - lineWidth, contentSize.height / 8 - lineWidth);
+				StringDraw.drawMaxString(g, this.tableBordersSize, "Choose a weapon here.", new Rectangle(contentSize.width / 2, 0, contentSize.width / 2, contentSize.height / 8));
+				g.setColor(Color.green);
+				g.drawRect(lineWidth / 2, contentSize.height / 8 + lineWidth / 2, contentSize.width - lineWidth, contentSize.height / 8 - lineWidth);
+				StringDraw.drawMaxString(g, this.tableBordersSize, "Weapon name", new Rectangle(0, contentSize.height / 8, contentSize.width / 2, contentSize.height / 8));
+				g.setColor(Color.blue);
+				int propertiesHeight;
+				if (this.displayedWeapons[this.selectedWeapon].bought) {
+					propertiesHeight = contentSize.height / 2;
+				}
+				else {
+					propertiesHeight = contentSize.height * 3 / 8;
+				}
+				g.drawRect(lineWidth / 2, contentSize.height / 4 + lineWidth / 2, contentSize.width - lineWidth, propertiesHeight - lineWidth);
+				StringDraw.drawMaxString(g, this.tableBordersSize, "Weapon properties", new Rectangle(0, contentSize.height * 3 / 8 + contentSize.height / 16, contentSize.width / 2, contentSize.height / 8));
+			}
+		}
 	}
 
 	private void drawWeapon(int index) throws IOException {
@@ -322,173 +359,199 @@ public final class ShopScreen extends Screen {
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent event) {
-		int bottomYBound;
-		if (this.displayedWeapons[this.selectedWeapon].bought) {
-			bottomYBound = this.contentSize.height * 7 / 8;
-		}
-		else {
-			bottomYBound = this.contentSize.height * 5 / 8;
-		}
-		if (event.getY() < bottomYBound && event.getY() >= this.contentSize.height / 4) {
-			this.listsPosition[this.selectedWeapon] += event.getWheelRotation() / (float) 4;
-			if (this.listsPosition[this.selectedWeapon] < 0) {
-				this.listsPosition[this.selectedWeapon] = 0;
+		if (!this.showingHelp) {
+			int bottomYBound;
+			if (this.displayedWeapons[this.selectedWeapon].bought) {
+				bottomYBound = this.contentSize.height * 7 / 8;
 			}
-			else if (this.listsPosition[this.selectedWeapon] > Main.getSelectedBarrel().gameProperties.length - 2) {
-				this.listsPosition[this.selectedWeapon] = Main.getSelectedBarrel().gameProperties.length - 2;
+			else {
+				bottomYBound = this.contentSize.height * 5 / 8;
+			}
+			if (event.getY() < bottomYBound && event.getY() >= this.contentSize.height / 4) {
+				this.listsPosition[this.selectedWeapon] += event.getWheelRotation() / (float) 4;
+				if (this.listsPosition[this.selectedWeapon] < 0) {
+					this.listsPosition[this.selectedWeapon] = 0;
+				}
+				else if (this.listsPosition[this.selectedWeapon] > Main.getSelectedBarrel().gameProperties.length - 2) {
+					this.listsPosition[this.selectedWeapon] = Main.getSelectedBarrel().gameProperties.length - 2;
+				}
 			}
 		}
-	};
+	}
 
 	@Override
 	public void update(int time) {
-		for (int i = 0; i < this.displayedWeapons.length; i++) {
-			this.displayedWeapons[i].update(time);
-		}
-		if (this.notBoughtWarning) {
-			this.notBoughtStage -= time / (float) 40;
-			if (this.notBoughtStage <= 0) {
-				this.notBoughtWarning = false;
+		if (!this.showingHelp) {
+			for (int i = 0; i < this.displayedWeapons.length; i++) {
+				this.displayedWeapons[i].update(time);
 			}
-		}
-		if (this.onLeftButton) {
-			this.weaponsListPosition += time / (float) 16 / (float) 40;
-			if (this.weaponsListPosition > this.displayedWeapons.length - 1) {
-				this.weaponsListPosition = this.displayedWeapons.length - 1;
+			if (this.notBoughtWarning) {
+				this.notBoughtStage -= time / (float) 40;
+				if (this.notBoughtStage <= 0) {
+					this.notBoughtWarning = false;
+				}
 			}
-		}
-		else if (this.onRightButton) {
-			this.weaponsListPosition -= time / (float) 16 / (float) 40;
-			if (this.weaponsListPosition < 0) {
-				this.weaponsListPosition = 0;
+			if (this.onLeftButton) {
+				this.weaponsListPosition += time / (float) 16 / (float) 40;
+				if (this.weaponsListPosition > this.displayedWeapons.length - 1) {
+					this.weaponsListPosition = this.displayedWeapons.length - 1;
+				}
+			}
+			else if (this.onRightButton) {
+				this.weaponsListPosition -= time / (float) 16 / (float) 40;
+				if (this.weaponsListPosition < 0) {
+					this.weaponsListPosition = 0;
+				}
 			}
 		}
 	}
 
 	@Override
 	public void keyPressed(KeyEvent event) {
-		if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			if (this.displayedWeapons[this.selectedWeapon].bought) {
-				for (int i = 0; i < this.displayedWeapons.length; i++) {
-					this.displayedWeapons[i].forceUpgrade();
-				}
-				boolean autoUnlockedFound = false;
-				for (int i = 0; i < Main.autoweapons.length; i++) {
-					if (Main.autoweapons[i].doDisplay()) {
-						autoUnlockedFound = true;
-						break;
+		if (this.showingHelp) {
+			if (event.getKeyCode() == KeyEvent.VK_H || event.getKeyCode() == KeyEvent.VK_ESCAPE) {
+				this.showingHelp = false;
+				this.onLeftButton = false;
+				this.onRightButton = false;
+				this.secondHelpPage = false;
+			}
+		}
+		else {
+			if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
+				if (this.displayedWeapons[this.selectedWeapon].bought) {
+					for (int i = 0; i < this.displayedWeapons.length; i++) {
+						this.displayedWeapons[i].forceUpgrade();
+					}
+					boolean autoUnlockedFound = false;
+					for (int i = 0; i < Main.autoweapons.length; i++) {
+						if (Main.autoweapons[i].doDisplay()) {
+							autoUnlockedFound = true;
+							break;
+						}
+					}
+					if (autoUnlockedFound) {
+						Screen.startNew(new ShopRootScreen());
+					}
+					else {
+						Screen.startNew(new StartScreen());
 					}
 				}
-				if (autoUnlockedFound) {
-					Screen.startNew(new ShopRootScreen());
-				}
 				else {
-					Screen.startNew(new StartScreen());
+					boolean isSomeBought = false;
+					for (int i = 0; i < this.displayedWeapons.length; i++) {
+						if (this.displayedWeapons[i].bought) {
+							isSomeBought = true;
+							break;
+						}
+					}
+					if (isSomeBought) {
+						this.notBoughtWarning = true;
+						this.notBoughtStage = 30;
+					}
+					else {
+						this.realSelectedWeapon.value = -1;
+						Screen.startNew(new ShopRootScreen());
+					}
 				}
 			}
-			else {
-				boolean isSomeBought = false;
-				for (int i = 0; i < this.displayedWeapons.length; i++) {
-					if (this.displayedWeapons[i].bought) {
-						isSomeBought = true;
-						break;
-					}
-				}
-				if (isSomeBought) {
-					this.notBoughtWarning = true;
-					this.notBoughtStage = 30;
-				}
-				else {
-					this.realSelectedWeapon.value = -1;
-					Screen.startNew(new ShopRootScreen());
-				}
+			else if (event.getKeyCode() == KeyEvent.VK_H) {
+				this.showingHelp = true;
 			}
 		}
 	}
 
 	@Override
 	public void mousePressed(MouseEvent event) {
-		if (event.getX() >= this.contentSize.height / 16 && event.getX() < this.contentSize.width - this.contentSize.height / 16 && event.getY() < this.weaponsSize) {
-			float relListClickPosition = this.weaponsListPosition + (event.getX() - this.contentSize.height / 16) / (float) this.weaponsSize;
-			int clickedWeaponIndex = (int) Math.floor(relListClickPosition);
-			if (clickedWeaponIndex < this.displayedWeapons.length) {
-				this.selectedWeapon = clickedWeaponIndex;
-				this.notBoughtWarning = false;
-			}
-		}
-		// Handles all the clicks on the properties interface
-		else if (event.getY() >= this.contentSize.height / 4 && event.getY() < this.contentSize.height / 8 * 7) {
-			Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
-			boolean clickedOnUpgrade = false;
-			if (!selectedWeapon.bought) {
-				if (event.getY() >= this.contentSize.height * 5 / 8) {
-					if (this.buyButton.contains(event.getPoint())) {
-						if (selectedWeapon.cost <= Main.money) {
-							Main.money -= selectedWeapon.cost;
-							selectedWeapon.bought = true;
-						}
-					}
-				}
-				else if (event.getX() >= this.contentSize.width * 3 / 4) {
-					clickedOnUpgrade = true;
+		if (!this.showingHelp) {
+			if (event.getX() >= this.contentSize.height / 16 && event.getX() < this.contentSize.width - this.contentSize.height / 16 && event.getY() < this.weaponsSize) {
+				float relListClickPosition = this.weaponsListPosition + (event.getX() - this.contentSize.height / 16) / (float) this.weaponsSize;
+				int clickedWeaponIndex = (int) Math.floor(relListClickPosition);
+				if (clickedWeaponIndex < this.displayedWeapons.length) {
+					this.selectedWeapon = clickedWeaponIndex;
+					this.notBoughtWarning = false;
 				}
 			}
-			else {
-				if (event.getX() >= this.contentSize.width * 3 / 4) {
-					clickedOnUpgrade = true;
-				}
-			}
-			if (clickedOnUpgrade) {
-				int clickedIndex = (int) ((event.getY() - this.contentSize.height / 4) / (float) (this.contentSize.height / 8) + this.listsPosition[this.selectedWeapon]);
-				if (selectedWeapon.gameProperties[clickedIndex] instanceof UpgradablePropertyImplementation) {
-					UpgradablePropertyImplementation upgradableImplementation = (UpgradablePropertyImplementation) selectedWeapon.gameProperties[clickedIndex];
-					if (!upgradableImplementation.isFullyUpgraded()) {
-						int upgradeCost = upgradableImplementation.getUpgradeCost();
-						if (Main.money >= upgradeCost) {
-							Main.money -= upgradeCost;
-							upgradableImplementation.upgrade();
-							if (!Achievement.achievements[6].achieved) {
-								Achievement.achieve(6);
-							}
-							if (selectedWeapon.isFullyUpgraded()) {
-								Achievement.achieve(7);
+			// Handles all the clicks on the properties interface
+			else if (event.getY() >= this.contentSize.height / 4 && event.getY() < this.contentSize.height / 8 * 7) {
+				Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
+				boolean clickedOnUpgrade = false;
+				if (!selectedWeapon.bought) {
+					if (event.getY() >= this.contentSize.height * 5 / 8) {
+						if (this.buyButton.contains(event.getPoint())) {
+							if (selectedWeapon.cost <= Main.money) {
+								Main.money -= selectedWeapon.cost;
+								selectedWeapon.bought = true;
 							}
 						}
 					}
+					else if (event.getX() >= this.contentSize.width * 3 / 4) {
+						clickedOnUpgrade = true;
+					}
+				}
+				else {
+					if (event.getX() >= this.contentSize.width * 3 / 4) {
+						clickedOnUpgrade = true;
+					}
+				}
+				if (clickedOnUpgrade) {
+					int clickedIndex = (int) ((event.getY() - this.contentSize.height / 4) / (float) (this.contentSize.height / 8) + this.listsPosition[this.selectedWeapon]);
+					if (selectedWeapon.gameProperties[clickedIndex] instanceof UpgradablePropertyImplementation) {
+						UpgradablePropertyImplementation upgradableImplementation = (UpgradablePropertyImplementation) selectedWeapon.gameProperties[clickedIndex];
+						if (!upgradableImplementation.isFullyUpgraded()) {
+							int upgradeCost = upgradableImplementation.getUpgradeCost();
+							if (Main.money >= upgradeCost) {
+								Main.money -= upgradeCost;
+								upgradableImplementation.upgrade();
+								if (!Achievement.achievements[6].achieved) {
+									Achievement.achieve(6);
+								}
+								if (selectedWeapon.isFullyUpgraded()) {
+									Achievement.achieve(7);
+								}
+							}
+						}
+					}
 				}
 			}
-		}
-		else if (this.buyButton.contains(event.getPoint()) && !Main.getSelectedBarrel().bought) {
-			Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
-			if (selectedWeapon.cost <= Main.money) {
-				Main.money -= selectedWeapon.cost;
-				selectedWeapon.bought = true;
+			else if (this.buyButton.contains(event.getPoint()) && !Main.getSelectedBarrel().bought) {
+				Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
+				if (selectedWeapon.cost <= Main.money) {
+					Main.money -= selectedWeapon.cost;
+					selectedWeapon.bought = true;
+				}
+			}
+			else if (this.leftArrowButton.contains(event.getPoint())) {
+				this.onLeftButton = true;
+			}
+			else if (this.rightArrowButton.contains(event.getPoint())) {
+				this.onRightButton = true;
 			}
 		}
-		else if (this.leftArrowButton.contains(event.getPoint())) {
-			this.onLeftButton = true;
-		}
-		else if (this.rightArrowButton.contains(event.getPoint())) {
-			this.onRightButton = true;
+		else {
+			this.secondHelpPage = true;
 		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent event) {
-		this.onLeftButton = false;
-		this.onRightButton = false;
+		if (!this.showingHelp) {
+			this.onLeftButton = false;
+			this.onRightButton = false;
+		}
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent event) {
-		if (this.onLeftButton) {
-			if (!this.leftArrowButton.contains(event.getPoint())) {
-				this.onLeftButton = false;
+		if (!this.showingHelp) {
+			if (this.onLeftButton) {
+				if (!this.leftArrowButton.contains(event.getPoint())) {
+					this.onLeftButton = false;
+				}
 			}
-		}
-		if (this.onRightButton) {
-			if (!this.rightArrowButton.contains(event.getPoint())) {
-				this.onRightButton = false;
+			if (this.onRightButton) {
+				if (!this.rightArrowButton.contains(event.getPoint())) {
+					this.onRightButton = false;
+				}
 			}
 		}
 	}

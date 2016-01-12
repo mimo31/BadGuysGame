@@ -29,6 +29,7 @@ public class IOBase {
 			Main.money = dataIn.readInt();
 			Main.maxReachedStage = dataIn.readInt();
 			Main.selectedBarrel.value = dataIn.readInt();
+			Main.selectedAutoweapon.value = dataIn.readInt();
 			Statistics.load(dataIn);
 			Achievement.load(dataIn);
 			int barrelsLength = dataIn.readInt();
@@ -68,6 +69,7 @@ public class IOBase {
 		dataOut.writeInt(Main.money);
 		dataOut.writeInt(Main.maxReachedStage);
 		dataOut.writeInt(Main.selectedBarrel.value);
+		dataOut.writeInt(Main.selectedAutoweapon.value);
 		Statistics.save(dataOut);
 		Achievement.save(dataOut);
 		dataOut.writeInt(Main.barrels.length);

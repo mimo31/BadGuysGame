@@ -1,17 +1,20 @@
 package game.screens;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import game.Main;
 import game.PaintUtils;
+import game.StringDraw;
 
 public class ChooseStageScreen extends ListScreen {
 
 	private float showingStageState = 0;
 	private boolean showingStage = false;
 	private int selectedStage;
+	private boolean showingHelp;
 
 	public ChooseStageScreen() {
 		super(getButtonTextes(), Color.BLUE, Color.RED, Color.WHITE);
@@ -31,6 +34,10 @@ public class ChooseStageScreen extends ListScreen {
 		PaintUtils.drawCurrentMoney(super.g, super.contentSize);
 		if (this.showingStage) {
 			PaintUtils.drawStage(super.g, super.contentSize, "Stage " + String.valueOf(this.selectedStage), this.showingStageState);
+		}
+		if (this.showingHelp) {
+			PaintUtils.paintGenericHelpScreen(super.g, super.contentSize);
+			StringDraw.drawMaxString(super.g, "This is a menu to choose the stage you want to play.", new Rectangle(super.contentSize.width / 4, super.contentSize.height / 4, super.contentSize.width / 2, super.contentSize.height / 8));
 		}
 	}
 
@@ -53,18 +60,28 @@ public class ChooseStageScreen extends ListScreen {
 
 	@Override
 	public void keyPressed(KeyEvent event) {
-		if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			if (this.showingStage) {
-				this.showingStage = false;
+		if (this.showingHelp) {
+			if (event.getKeyCode() == KeyEvent.VK_ESCAPE || event.getKeyCode() == KeyEvent.VK_H) {
+				this.showingHelp = false;
 			}
-			else {
-				Screen.startNew(new StartScreen());
+		}
+		else {
+			if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
+				if (this.showingStage) {
+					this.showingStage = false;
+				}
+				else {
+					Screen.startNew(new StartScreen());
+				}
+			}
+			else if (event.getKeyCode() == KeyEvent.VK_H && !this.showingStage) {
+				this.showingHelp = true;
 			}
 		}
 	}
 
 	@Override
 	protected boolean acceptInputs() {
-		return !this.showingStage;
+		return !this.showingStage && !this.showingHelp;
 	}
 }

@@ -18,6 +18,9 @@ import game.screens.WelcomeScreen;
 
 public class Main {
 
+	// Set to false when you're making a public release.
+	public static final boolean debugging = true;
+	
 	public static boolean running;
 	public static Screen currentScreen;
 	public static Stage[] stages;
@@ -85,7 +88,8 @@ public class Main {
 		Spawner armoredSpw = new Spawner.ArmoredSpawner();
 		Spawner heavyArmoredSpw = new Spawner.HeavyArmoredSpawner();
 		Spawner firstBossSpw = new Spawner.FirstBossSpawner();
-		stages = new Stage[23];
+		Spawner speedySpw = new Spawner.SpeedySpawner();
+		stages = new Stage[26];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -109,6 +113,9 @@ public class Main {
 		stages[20] = new Stage(new Spawner[] { firstBossSpw }, new int[] { 60 });
 		stages[21] = new Stage(new Spawner[] { fastSpw, fastSpw, armoredSpw, armoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw}, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
 		stages[22] = new Stage(makeHomogenousSpawnerArray(basicSpw, 16), new int[] { 20, 20, 20, 20, 80, 80, 80, 80, 140, 140, 140, 140, 200, 200, 200, 200 });
+		stages[23] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, fastSpw, fastSpw}, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
+		stages[24] = new Stage(new Spawner[] { fastSpw, fastSpw, armoredSpw, armoredSpw, fastSpw, fastSpw, armoredSpw, armoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw}, new int[] { 20, 20, 20, 20, 80, 80, 80, 80, 140, 140, 140, 140 });
+		stages[25] = new Stage(new Spawner[] { speedySpw }, new int[] { 20 });
 	}
 
 	private static void initializeBarrels() {

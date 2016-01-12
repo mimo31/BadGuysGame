@@ -36,6 +36,22 @@ public interface Spawner {
 
 	}
 
+	public static class SpeedySpawner implements Spawner {
+
+		@Override
+		public BadGuy getBadGuy() {
+			return new BadGuy(1, 4, "SpeedyBadGuy.png", "Speedy", false) {
+
+				@Override
+				public Coin getCoin() {
+					return Coin.coin5();
+				}
+				
+			};
+		}
+
+	}
+
 	public static class ArmoredSpawner implements Spawner {
 
 		@Override

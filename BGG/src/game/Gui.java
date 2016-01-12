@@ -80,7 +80,7 @@ public final class Gui {
 	};
 
 	private static WindowAdapter windowEvents = new WindowAdapter() {
-		
+
 		@Override
 		public void windowClosing(WindowEvent event) {
 			try {
@@ -93,9 +93,9 @@ public final class Gui {
 				e.printStackTrace();
 			}
 		}
-		
+
 	};
-	
+
 	private static MouseInputAdapter mouseEventsHandler = new MouseInputAdapter() {
 
 		@Override
@@ -107,23 +107,23 @@ public final class Gui {
 		public void mouseReleased(MouseEvent event) {
 			Main.currentScreen.mouseReleased(event);
 		}
-		
+
 		@Override
 		public void mouseMoved(MouseEvent event) {
 			Main.currentScreen.mouseMoved(event);
-			//gui.repaint();
+			// gui.repaint();
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent event) {
 			Main.currentScreen.mouseDragged(event);
-			//gui.repaint();
+			// gui.repaint();
 		}
-		
+
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent event) {
 			Main.currentScreen.mouseWheelMoved(event);
-			//gui.repaint();
+			// gui.repaint();
 		}
 	};
 
@@ -131,6 +131,15 @@ public final class Gui {
 
 		@Override
 		public void keyPressed(KeyEvent event) {
+			if (Main.debugging) {
+				if (event.getKeyCode() == KeyEvent.VK_Q) {
+					Main.money += 1000;
+					Main.maxReachedStage = Main.stages.length / 5;
+					for (int i = 0; i < Achievement.achievements.length; i++) {
+						Achievement.achieve(i);
+					}
+				}
+			}
 			Main.currentScreen.keyPressed(event);
 		}
 	};

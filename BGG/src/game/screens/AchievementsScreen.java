@@ -20,6 +20,7 @@ public class AchievementsScreen extends Screen {
 	private float positionY = 0;
 	private int expanded = -1;
 	private boolean wasDragging = true;
+	private boolean showingHelp;
 
 	private boolean fromStartScreen;
 
@@ -126,47 +127,69 @@ public class AchievementsScreen extends Screen {
 			Achievement.achievements[this.expanded].paint(g, screenRectangle.getLocation(), screenRectangle.height, true);
 		}
 		PaintUtils.drawCurrentMoney(g, contentSize);
+		if (this.showingHelp) {
+			PaintUtils.paintGenericHelpScreen(g, contentSize);
+			StringDraw.drawMaxString(g, "These are your achievements.", new Rectangle(contentSize.width / 4, contentSize.height / 4, contentSize.width / 2, contentSize.height / 12));
+			StringDraw.drawMaxString(g, "Click on an achievement to get more information about it.", new Rectangle(contentSize.width / 8, contentSize.height / 2, contentSize.width * 3 / 4, contentSize.height / 12));
+		}
 	}
 
 	@Override
 	public void keyPressed(KeyEvent event) {
-		if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			if (this.fromStartScreen) {
-				Screen.startNew(new StartScreen());
+		if (this.showingHelp) {
+			if (event.getKeyCode() == KeyEvent.VK_ESCAPE || event.getKeyCode() == KeyEvent.VK_H) {
+				this.showingHelp = false;
+				this.wasDragging = false;
 			}
-			else {
+		}
+		else {
+			if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
+				if (this.fromStartScreen) {
+					Screen.startNew(new StartScreen());
+				}
+				else {
 
+				}
+			}
+			else if (event.getKeyCode() == KeyEvent.VK_H) {
+				this.showingHelp = true;
 			}
 		}
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent event) {
-		this.positionX += this.toSpaceLength(this.mousePosition.x - event.getX());
-		this.positionY += this.toSpaceLength(this.mousePosition.y - event.getY());
-		this.mousePosition = event.getPoint();
-		this.wasDragging = true;
-	}
-	
-	@Override
-	public void mouseReleased(MouseEvent event) {
-		if (!this.wasDragging) {
-			Point spaceClickPosition = this.toSpacePoint(event.getPoint());
-			int achievementClicked = -1;
-			for (int i = 0; i < this.achievementsDrawn.length; i++) {
-				if (this.achievementsDrawn[i]) {
-					if (Achievement.achievements[i].getSpaceRectangle(i == this.expanded).contains(spaceClickPosition)) {
-						achievementClicked = i;
-						break;
-					}
-				}
-			}
-			this.expanded = achievementClicked;
+		if (!this.showingHelp) {
+			this.positionX += this.toSpaceLength(this.mousePosition.x - event.getX());
+			this.positionY += this.toSpaceLength(this.mousePosition.y - event.getY());
+			this.mousePosition = event.getPoint();
+			this.wasDragging = true;
 		}
 	}
-	
+
+	@Override
+	public void mouseReleased(MouseEvent event) {
+		if (!this.showingHelp) {
+			if (!this.wasDragging) {
+				Point spaceClickPosition = this.toSpacePoint(event.getPoint());
+				int achievementClicked = -1;
+				for (int i = 0; i < this.achievementsDrawn.length; i++) {
+					if (this.achievementsDrawn[i]) {
+						if (Achievement.achievements[i].getSpaceRectangle(i == this.expanded).contains(spaceClickPosition)) {
+							achievementClicked = i;
+							break;
+						}
+					}
+				}
+				this.expanded = achievementClicked;
+			}
+		}
+	}
+
 	@Override
 	public void mousePressed(MouseEvent event) {
-		this.wasDragging = false;
+		if (!this.showingHelp) {
+			this.wasDragging = false;
+		}
 	}
 }
