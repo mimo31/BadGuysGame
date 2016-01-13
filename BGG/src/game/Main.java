@@ -19,7 +19,7 @@ import game.screens.WelcomeScreen;
 public class Main {
 
 	// Set to false when you're making a public release.
-	public static final boolean debugging = true;
+	public static final boolean debugging = false;
 	
 	public static boolean running;
 	public static Screen currentScreen;
@@ -206,7 +206,7 @@ public class Main {
 				nsForRefresh = 1000000000 / (float) Gui.refreshRate;
 				Gui.gui.repaint();
 			}
-			Logging.log("Game loop has been broken.");
+			Logging.log("The Game loop has been broken.");
 		}
 
 	}

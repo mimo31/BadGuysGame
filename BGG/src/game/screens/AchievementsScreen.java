@@ -22,7 +22,7 @@ public class AchievementsScreen extends Screen {
 	private boolean wasDragging = true;
 	private boolean showingHelp;
 
-	private boolean fromStartScreen;
+	private Screen returnScreen = null;
 
 	// Components
 	private boolean[] achievementsDrawn = new boolean[Achievement.achievements.length];
@@ -32,12 +32,11 @@ public class AchievementsScreen extends Screen {
 
 	public AchievementsScreen() {
 		super();
-		this.fromStartScreen = true;
 	}
 
-	public AchievementsScreen(boolean fromStartScreen) {
+	public AchievementsScreen(Screen returnScreen) {
 		super();
-		this.fromStartScreen = fromStartScreen;
+		this.returnScreen = returnScreen;
 	}
 
 	private void updateComponents(Graphics2D g, Dimension contentSize, Point mousePosition) {
@@ -144,11 +143,11 @@ public class AchievementsScreen extends Screen {
 		}
 		else {
 			if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-				if (this.fromStartScreen) {
-					Screen.startNew(new StartScreen());
+				if (this.returnScreen != null) {
+					Screen.startNew(this.returnScreen);
 				}
 				else {
-
+					Screen.startNew(new StartScreen());
 				}
 			}
 			else if (event.getKeyCode() == KeyEvent.VK_H) {
@@ -190,6 +189,13 @@ public class AchievementsScreen extends Screen {
 	public void mousePressed(MouseEvent event) {
 		if (!this.showingHelp) {
 			this.wasDragging = false;
+		}
+	}
+	
+	@Override
+	public void getCloseReady() {
+		if (this.returnScreen != null) {
+			this.returnScreen.getCloseReady();
 		}
 	}
 }

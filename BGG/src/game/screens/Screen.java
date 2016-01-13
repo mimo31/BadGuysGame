@@ -51,4 +51,9 @@ public abstract class Screen {
 		Main.currentScreen = screen;
 		Gui.gui.repaint();
 	}
+	
+	protected static void startNewWithoutClosing(Screen screen) {
+		Main.currentScreen = screen;
+		Gui.gui.repaint();
+	}
 }

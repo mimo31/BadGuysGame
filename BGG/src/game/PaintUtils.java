@@ -49,7 +49,15 @@ public class PaintUtils {
 	}
 	
 	public static void paintGenericHelpScreen(Graphics2D g, Dimension contentSize) {
-		g.setColor(TRANSPARENT_WHITE);
+		paintGenericHelpScreen(g, contentSize, TRANSPARENT_WHITE);
+	}
+	
+	public static void paintGenericHelpScreen(Graphics2D g, Dimension contentSize, int alpha) {
+		paintGenericHelpScreen(g, contentSize, new Color(255, 255, 255, alpha));
+	}
+	
+	public static void paintGenericHelpScreen(Graphics2D g, Dimension contentSize, Color color) {
+		g.setColor(color);
 		g.fillRect(0, 0, contentSize.width, contentSize.height);
 		g.setColor(Color.black);
 		StringDraw.drawMaxString(g, contentSize.height / 128, "Press the Esc key to exit the help mode.", TextAlign.DOWNRIGHT, new Rectangle(0, contentSize.height - contentSize.height / 32, contentSize.width, contentSize.height / 32));
