@@ -21,7 +21,7 @@ public class GameScreen extends Screen {
 
 	public static final Color TRANSPARENT_GREEN = new Color(0, 255, 127, 31);
 	public static final Color TRANSPARENT_RED = new Color(255, 0, 0, 31);
-	public static final Color TRANSPARENT_GRAY = new Color(127, 127, 127, 191);
+	public static final Color TRANSPARENT_BLUE = new Color(0, 0, 127, 127);
 
 	private Game game;
 	private boolean showingStage;
@@ -82,18 +82,17 @@ public class GameScreen extends Screen {
 			}
 		}
 		if (this.paused) {
-			g.setColor(TRANSPARENT_GRAY);
+			g.setColor(TRANSPARENT_BLUE);
 			g.fillRect(0, 0, contentSize.width, contentSize.height);
 			g.setColor(Color.white);
 			StringDraw.drawMaxString(g, "Paused", new Rectangle(contentSize.width / 4, contentSize.height / 8, contentSize.width / 2, contentSize.height / 6));
-			g.setColor(Color.white);
-			PaintUtils.drawChangingRect(g, this.pauseContinueButton, Color.white, Color.blue, this.usedMousePosition);
-			PaintUtils.drawChangingRect(g, this.pauseAchievementsButton, Color.white, Color.blue, this.usedMousePosition);
-			PaintUtils.drawChangingRect(g, this.pauseQuitButton, Color.white, Color.blue, this.usedMousePosition);
-			g.setColor(Color.green);
-			StringDraw.drawMaxString(g, contentSize.height / 64, "Resume", this.pauseContinueButton);
-			StringDraw.drawMaxString(g, contentSize.height / 64, "Achievements", this.pauseAchievementsButton);
-			StringDraw.drawMaxString(g, contentSize.height / 64, "Quit this game", this.pauseQuitButton);
+			PaintUtils.drawChangingRect(g, this.pauseContinueButton, Color.white, Color.red, this.usedMousePosition);
+			PaintUtils.drawChangingRect(g, this.pauseAchievementsButton, Color.white, Color.red, this.usedMousePosition);
+			PaintUtils.drawChangingRect(g, this.pauseQuitButton, Color.white, Color.red, this.usedMousePosition);
+			g.setColor(Color.black);
+			StringDraw.drawMaxString(g, contentSize.height / 48, "Resume", this.pauseContinueButton);
+			StringDraw.drawMaxString(g, contentSize.height / 48, "Achievements", this.pauseAchievementsButton);
+			StringDraw.drawMaxString(g, contentSize.height / 48, "Quit this game", this.pauseQuitButton);
 		}
 		if (this.showingHelp) {
 			if (this.paused) {
