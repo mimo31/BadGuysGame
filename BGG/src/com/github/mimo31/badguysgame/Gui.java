@@ -15,6 +15,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.event.MouseInputAdapter;
@@ -49,6 +50,11 @@ public final class Gui {
 			maxScreenRefreshRate = refreshRate;
 		}
 		gui = new JFrame("The Bad Guys Game");
+		try {
+			gui.setIconImage(ImageIO.read(ClassLoader.getSystemResource("com/github/mimo31/badguysgame/resources/Icon.png")));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		gui.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		gui.setVisible(true);
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
