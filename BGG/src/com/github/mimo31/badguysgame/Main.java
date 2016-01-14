@@ -7,6 +7,7 @@ import com.github.mimo31.badguysgame.io.IOInitialization;
 import com.github.mimo31.badguysgame.io.Logging;
 import com.github.mimo31.badguysgame.mechanics.Spawner;
 import com.github.mimo31.badguysgame.mechanics.Stage;
+import com.github.mimo31.badguysgame.mechanics.weaponry.NotUpgradablePropertyImplementation;
 import com.github.mimo31.badguysgame.mechanics.weaponry.PropertyImplementation;
 import com.github.mimo31.badguysgame.mechanics.weaponry.UpgradablePropertyImplementation;
 import com.github.mimo31.badguysgame.mechanics.weaponry.Weapon;
@@ -19,8 +20,8 @@ import com.github.mimo31.badguysgame.screens.WelcomeScreen;
 public class Main {
 
 	// Set to false when you're making a public release.
-	public static final boolean debugging = false;
-	
+	public static final boolean debugging = true;
+
 	public static boolean running;
 	public static Screen currentScreen;
 	public static Stage[] stages;
@@ -86,10 +87,10 @@ public class Main {
 		Spawner basicSpw = new Spawner.BasicSpawner();
 		Spawner fastSpw = new Spawner.FastSpawner();
 		Spawner armoredSpw = new Spawner.ArmoredSpawner();
-		Spawner heavyArmoredSpw = new Spawner.HeavyArmoredSpawner();
+		Spawner heavilyArmoredSpw = new Spawner.HeavyArmoredSpawner();
 		Spawner firstBossSpw = new Spawner.FirstBossSpawner();
 		Spawner speedySpw = new Spawner.SpeedySpawner();
-		stages = new Stage[26];
+		stages = new Stage[30];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -103,23 +104,27 @@ public class Main {
 		stages[10] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
 		stages[11] = new Stage(new Spawner[] { armoredSpw, armoredSpw, armoredSpw, fastSpw }, new int[] { 20, 20, 20, 100 });
 		stages[12] = new Stage(new Spawner[] { fastSpw, fastSpw, fastSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 20, 60, 60 });
-		stages[13] = new Stage(new Spawner[] { heavyArmoredSpw }, new int[] { 20 });
-		stages[14] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, fastSpw }, new int[] { 20, 40, 60 });
-		stages[15] = new Stage(new Spawner[] { heavyArmoredSpw, basicSpw, fastSpw, heavyArmoredSpw, basicSpw, fastSpw }, new int[] { 20, 20, 20, 80, 80, 80 });
-		stages[16] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, armoredSpw, armoredSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 100, 100, 100, 100 });
-		stages[17] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw }, new int[] { 20, 20, 20, 20 });
-		stages[18] = new Stage(new Spawner[] { fastSpw, fastSpw, fastSpw, fastSpw, heavyArmoredSpw, heavyArmoredSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
-		stages[19] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 60, 60 });
+		stages[13] = new Stage(new Spawner[] { heavilyArmoredSpw }, new int[] { 20 });
+		stages[14] = new Stage(new Spawner[] { heavilyArmoredSpw, heavilyArmoredSpw, fastSpw }, new int[] { 20, 40, 60 });
+		stages[15] = new Stage(new Spawner[] { heavilyArmoredSpw, basicSpw, fastSpw, heavilyArmoredSpw, basicSpw, fastSpw }, new int[] { 20, 20, 20, 80, 80, 80 });
+		stages[16] = new Stage(new Spawner[] { heavilyArmoredSpw, heavilyArmoredSpw, armoredSpw, armoredSpw, armoredSpw, armoredSpw }, new int[] { 20, 20, 100, 100, 100, 100 });
+		stages[17] = new Stage(new Spawner[] { heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw }, new int[] { 20, 20, 20, 20 });
+		stages[18] = new Stage(new Spawner[] { fastSpw, fastSpw, fastSpw, fastSpw, heavilyArmoredSpw, heavilyArmoredSpw, basicSpw, basicSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
+		stages[19] = new Stage(new Spawner[] { heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 60, 60 });
 		stages[20] = new Stage(new Spawner[] { firstBossSpw }, new int[] { 60 });
-		stages[21] = new Stage(new Spawner[] { fastSpw, fastSpw, armoredSpw, armoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw}, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
+		stages[21] = new Stage(new Spawner[] { fastSpw, fastSpw, armoredSpw, armoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
 		stages[22] = new Stage(makeHomogenousSpawnerArray(basicSpw, 16), new int[] { 20, 20, 20, 20, 80, 80, 80, 80, 140, 140, 140, 140, 200, 200, 200, 200 });
-		stages[23] = new Stage(new Spawner[] { heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, fastSpw, fastSpw}, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
-		stages[24] = new Stage(new Spawner[] { fastSpw, fastSpw, armoredSpw, armoredSpw, fastSpw, fastSpw, armoredSpw, armoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw, heavyArmoredSpw}, new int[] { 20, 20, 20, 20, 80, 80, 80, 80, 140, 140, 140, 140 });
+		stages[23] = new Stage(new Spawner[] { heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80 });
+		stages[24] = new Stage(new Spawner[] { fastSpw, fastSpw, armoredSpw, armoredSpw, fastSpw, fastSpw, armoredSpw, armoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80, 140, 140, 140, 140 });
 		stages[25] = new Stage(new Spawner[] { speedySpw }, new int[] { 20 });
+		stages[26] = new Stage(new Spawner[] { speedySpw, speedySpw, speedySpw, speedySpw }, new int[] { 20, 20, 20, 20 });
+		stages[27] = new Stage(new Spawner[] { heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, speedySpw, speedySpw, speedySpw, speedySpw }, new int[] { 20, 20, 20, 20, 60, 60, 60, 60 });
+		stages[28] = new Stage(new Spawner[] { basicSpw, basicSpw, armoredSpw, armoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, speedySpw, speedySpw, heavilyArmoredSpw, heavilyArmoredSpw, speedySpw, speedySpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80, 140, 140, 140, 140 });
+		stages[29] = new Stage(new Spawner[] { speedySpw, speedySpw, speedySpw, speedySpw, speedySpw, speedySpw, speedySpw, speedySpw }, new int[] { 20, 20, 20, 20, 100, 100, 100, 100 });
 	}
 
 	private static void initializeBarrels() {
-		barrels = new Weapon[3];
+		barrels = new Weapon[4];
 		PropertyImplementation loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1);
 		PropertyImplementation projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 1);
 		PropertyImplementation projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 1);
@@ -135,6 +140,12 @@ public class Main {
 		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.5f, 0.5f, 0.3f }, 0.7f);
 		PropertyImplementation coinMagnet = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.coinMagnetID], new int[] { 50 }, new float[] { 1 }, 1);
 		barrels[2] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, coinMagnet }, 75, "MagneticBarrel.png", "MagneticProjectile.png", false, "Magnetic Barrel", 4);
+
+		loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 30, 55 }, new float[] { -0.15f, -0.1f }, 0.9f);
+		projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 20, 60 }, new float[] { 1.5f, 1 }, 2);
+		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 25, 45, 65 }, new float[] { 1f, 0.8f, 0.7f }, 1f);
+		coinMagnet = new NotUpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.coinMagnetID], 1);
+		barrels[3] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, coinMagnet }, 150, "ElectroBarrel.png", "ElectricProjectile.png", false, "Electro Barrel", 8);
 	}
 
 	private static void initializeAutoweapons() {
@@ -145,7 +156,7 @@ public class Main {
 		PropertyImplementation rotationSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.rotationSpeedID], new int[] { 15 }, new float[] { 0.3f }, 1f);
 		autoweapons[0] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, rotationSpeed }, 50, "BasicAutoweapon.png", "BasicProjectile.png", false, "Basic autoweapon", 3);
 	}
-	
+
 	private static Spawner[] makeHomogenousSpawnerArray(Spawner element, int length) {
 		Spawner[] array = new Spawner[length];
 		for (int i = 0; i < array.length; i++) {
@@ -153,11 +164,11 @@ public class Main {
 		}
 		return array;
 	}
-	
+
 	public static Weapon getSelectedBarrel() {
 		return barrels[selectedBarrel.value];
 	}
-	
+
 	public static Weapon getSelectedAutoweapon() {
 		if (selectedAutoweapon.value == -1) {
 			return null;

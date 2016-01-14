@@ -33,6 +33,9 @@ public class Statistics {
 			else if (name.equals("Boss1")) {
 				Achievement.achieve(3);
 			}
+			else if (name.equals("Speedy")) {
+				Achievement.achieve(8);
+			}
 		}
 	}
 	
