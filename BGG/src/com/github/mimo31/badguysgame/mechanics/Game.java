@@ -44,10 +44,12 @@ public class Game {
 	private boolean usingAutoweapon;
 	/**
 	 * Rotation in radians.
+	 * Relative to the upward angle.
 	 */
 	private double leftAutoRotation = 0;
 	/**
 	 * Rotation in radians.
+	 * Relative to the upward angle.
 	 */
 	private double rightAutoRotation = 0;
 
@@ -249,7 +251,7 @@ public class Game {
 						if (currentBadGuy.isDead) {
 							Coin addedCoin = currentBadGuy.getCoin();
 							addedCoin.x = 1 / (float) 8 + currentBadGuy.x / (float) 4;
-							if (badGuySize + contentSize.width / 128 >= currentBadGuy.y * contentSize.height) {
+							if (badGuySize * contentSize.width + contentSize.width / 128 >= currentBadGuy.y * contentSize.height) {
 								addedCoin.y = contentSize.width / (float) 128 / contentSize.height;
 							}
 							else {
@@ -304,7 +306,7 @@ public class Game {
 				int diffX = targetedGuyX - contentSize.width / 4;
 				int diffY = contentSize.height - contentSize.width / 16 - targetedGuyY;
 				double appropriateAngle = Math.atan2(diffX, diffY);
-				double stepSize = Math.PI * this.autoRotationSpeed / 1024;
+				double stepSize = Math.PI * this.autoRotationSpeed * time / 20 / 1024;
 				shoot = this.rotateAutoweapon(true, stepSize, appropriateAngle);
 			}
 			if (shoot && this.autoLeftLoadState == 1) {
@@ -337,7 +339,7 @@ public class Game {
 				int diffX = targetedGuyX - contentSize.width * 3 / 4;
 				int diffY = contentSize.height - contentSize.width / 16 - targetedGuyY;
 				double appropriateAngle = Math.atan2(diffX, diffY);
-				double stepSize = Math.PI * this.autoRotationSpeed / 1024;
+				double stepSize = Math.PI * this.autoRotationSpeed * time / 20 / 1024;
 				shoot = this.rotateAutoweapon(false, stepSize, appropriateAngle);
 			}
 			if (shoot && this.autoRightLoadState == 1) {
@@ -386,7 +388,7 @@ public class Game {
 			}
 			else {
 				double rotAfterSubtracting = currentRotation - stepSize;
-				if (rotAfterSubtracting < Math.PI) {
+				if (rotAfterSubtracting < -Math.PI) {
 					rotAfterSubtracting += 2 * Math.PI;
 				}
 				currentRotation = rotAfterSubtracting;
