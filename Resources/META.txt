@@ -9,6 +9,8 @@ BasicBadGuy.png 0.9 1
 BasicBarrel.png 0.9 1
 BasicCoin.png 0.9 1
 BasicProjectile.png 0.9 1
+ElectricProjectile.png 1.6beta 1
+ElectroBarrel.png 1.6beta 1
 FastBadGuy.png 0.9 1
 FastBarrel.png 0.9 1
 FirstBoss.png 1.4beta 1
