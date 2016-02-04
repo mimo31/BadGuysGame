@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import com.github.mimo31.badguysgame.Achievement;
 import com.github.mimo31.badguysgame.Main;
-import com.github.mimo31.badguysgame.Statistics;
-import com.github.mimo31.badguysgame.mechanics.weaponry.Weapon;
 
 public class IOBase {
 	public static final Version version = new Version();
@@ -26,30 +23,28 @@ public class IOBase {
 		if (Files.exists(Paths.get(rootDirectory + "\\Save.dat"))) {
 			FileInputStream fileIn = new FileInputStream(new File(rootDirectory + "\\Save.dat"));
 			DataInputStream dataIn = new DataInputStream(fileIn);
-			Main.money = dataIn.readInt();
-			Main.maxReachedStage = dataIn.readInt();
-			Main.selectedBarrel.value = dataIn.readInt();
-			Main.selectedAutoweapon.value = dataIn.readInt();
-			Statistics.load(dataIn);
-			Achievement.load(dataIn);
-			int barrelsLength = dataIn.readInt();
-			for (int i = 0; i < barrelsLength; i++) {
-				Weapon currentBarrel = Main.barrels[i];
-				currentBarrel.bought = dataIn.readBoolean();
-				for (int j = 0; j < currentBarrel.gameProperties.length; j++) {
-					byte[] data = new byte[dataIn.readInt()];
-					dataIn.read(data, 0, data.length);
-					currentBarrel.gameProperties[j].loadFromBytes(data);
-				}
+			int numberOfSaveables = dataIn.readInt();
+			String[] codeNames = new String[numberOfSaveables];
+			int[] lengths = new int[numberOfSaveables];
+			for (int i = 0; i < numberOfSaveables; i++) {
+				codeNames[i] = dataIn.readUTF();
+				lengths[i] = dataIn.readInt();
 			}
-			int autoweaponsLength = dataIn.readInt();
-			for (int i = 0; i < autoweaponsLength; i++) {
-				Weapon currentWeapon = Main.autoweapons[i];
-				currentWeapon.bought = dataIn.readBoolean();
-				for (int j = 0; j < currentWeapon.gameProperties.length; j++) {
-					byte[] data = new byte[dataIn.readInt()];
-					dataIn.read(data, 0, data.length);
-					currentWeapon.gameProperties[j].loadFromBytes(data);
+			for (int i = 0; i < codeNames.length; i++) {
+				int saveablesIndex = -1;
+				for (int j = 0; j < Saveable.saveables.length; j++) {
+					if (Saveable.saveables[j].codeName.equals(codeNames[i])) {
+						saveablesIndex = j;
+					}
+				}
+				if (saveablesIndex == -1) {
+					dataIn.skipBytes(lengths[i]);
+				}
+				else {
+					byte[] readData = new byte[lengths[i]];
+					dataIn.read(readData, 0, readData.length);
+					Saveable.saveables[saveablesIndex].load(readData);
+					Logging.log("Loading " + Saveable.saveables[saveablesIndex].codeName + ".");
 				}
 			}
 			fileIn.close();
@@ -66,29 +61,16 @@ public class IOBase {
 		Logging.logStartSectionTag("GAMESAVE");
 		FileOutputStream fileOut = new FileOutputStream(new File(rootDirectory + "\\Save.dat"));
 		DataOutputStream dataOut = new DataOutputStream(fileOut);
-		dataOut.writeInt(Main.money);
-		dataOut.writeInt(Main.maxReachedStage);
-		dataOut.writeInt(Main.selectedBarrel.value);
-		dataOut.writeInt(Main.selectedAutoweapon.value);
-		Statistics.save(dataOut);
-		Achievement.save(dataOut);
-		dataOut.writeInt(Main.barrels.length);
-		for (int i = 0; i < Main.barrels.length; i++) {
-			dataOut.writeBoolean(Main.barrels[i].bought);
-			for (int j = 0; j < Main.barrels[i].gameProperties.length; j++) {
-				byte[] propData = Main.barrels[i].gameProperties[j].getBytes();
-				dataOut.writeInt(propData.length);
-				dataOut.write(propData);
-			}
+		dataOut.writeInt(Saveable.saveables.length);
+		byte[][] dataToSave = new byte[Saveable.saveables.length][];
+		for (int i = 0; i < dataToSave.length; i++) {
+			dataToSave[i] = Saveable.saveables[i].save();
+			dataOut.writeUTF(Saveable.saveables[i].codeName);
+			dataOut.writeInt(dataToSave[i].length);
 		}
-		dataOut.writeInt(Main.autoweapons.length);
-		for (int i = 0; i < Main.autoweapons.length; i++) {
-			dataOut.writeBoolean(Main.autoweapons[i].bought);
-			for (int j = 0; j < Main.autoweapons[i].gameProperties.length; j++) {
-				byte[] propData = Main.autoweapons[i].gameProperties[j].getBytes();
-				dataOut.writeInt(propData.length);
-				dataOut.write(propData);
-			}
+		for (int i = 0; i < dataToSave.length; i++) {
+			dataOut.write(dataToSave[i]);
+			Logging.log("Saving " + Saveable.saveables[i].codeName + ".");
 		}
 		fileOut.close();
 		dataOut.close();
