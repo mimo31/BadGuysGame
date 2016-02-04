@@ -1,6 +1,7 @@
 2Coin.png 0.9 1
 5Coin.png 1.2beta 1
 10Coin.png 1.4beta 1
+15Coin.png 1.6 1
 ArmoredBadGuy.png 0.9 1
 AutoweaponBase.png 1.5beta 1
 Base.png 0.9 1
@@ -18,5 +19,6 @@ GreatBarrel.png 1.4beta 1
 HeavyArmoredBadGuy.png 1.2beta 1
 MagneticBarrel.png 1.2beta 1
 MagneticProjectile.png 1.2beta 1
+SecondBoss.png 1.6 1
 SpeedyBadGuy.png 1.5beta 1
 Upgrade.png 1.4beta 1
