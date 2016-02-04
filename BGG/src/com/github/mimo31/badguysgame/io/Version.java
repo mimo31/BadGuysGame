@@ -21,7 +21,7 @@ class Version {
 		this.major = 1;
 		this.minor = 6;
 		this.build = 0;
-		this.type = ReleaseType.BETA;
+		this.type = ReleaseType.FINAL;
 	}
 
 	public boolean isNewer(Version anotherVersion) {

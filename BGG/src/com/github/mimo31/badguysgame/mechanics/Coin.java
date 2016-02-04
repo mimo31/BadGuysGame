@@ -81,4 +81,8 @@ public class Coin {
 	public static Coin coin10() {
 		return new Coin(10, "10Coin.png");
 	}
+	
+	public static Coin coin15() {
+		return new Coin(15, "15Coin.png");
+	}
 }

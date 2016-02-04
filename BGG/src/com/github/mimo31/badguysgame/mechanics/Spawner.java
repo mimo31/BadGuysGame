@@ -99,4 +99,20 @@ public interface Spawner {
 		}
 
 	}
+	
+	public static class SecondBossSpawner implements Spawner {
+
+		@Override
+		public BadGuy getBadGuy() {
+			return new BadGuy(64, 1f, "SecondBoss.png", "Boss2", true){
+				
+				@Override
+				public Coin getCoin() {
+					return Coin.coin15();
+				}
+				
+			};
+		}
+
+	}
 }

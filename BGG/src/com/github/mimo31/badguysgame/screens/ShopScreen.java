@@ -20,6 +20,7 @@ import com.github.mimo31.badguysgame.Gui;
 import com.github.mimo31.badguysgame.IntHolder;
 import com.github.mimo31.badguysgame.Main;
 import com.github.mimo31.badguysgame.PaintUtils;
+import com.github.mimo31.badguysgame.Statistics;
 import com.github.mimo31.badguysgame.StringDraw;
 import com.github.mimo31.badguysgame.StringDraw.TextAlign;
 import com.github.mimo31.badguysgame.io.ResourceHandler;
@@ -481,6 +482,7 @@ public final class ShopScreen extends Screen {
 							if (selectedWeapon.cost <= Main.money) {
 								Main.money -= selectedWeapon.cost;
 								selectedWeapon.bought = true;
+								Statistics.weaponBought(selectedWeapon);
 							}
 						}
 					}

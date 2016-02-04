@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.mimo31.badguysgame.mechanics.weaponry.Weapon;
+
 public class Statistics {
 
 	public static List<NumberByNameStatistic> badGuysKilledByType = new ArrayList<NumberByNameStatistic>();
@@ -73,6 +75,12 @@ public class Statistics {
 		totalMoneyEarned += amount;
 	}
 
+	public static void weaponBought(Weapon weapon) {
+		if (weapon.equals(Main.barrels[3])) {
+			Achievement.achieve(9);
+		}
+	}
+	
 	public static class NumberByNameStatistic {
 		
 		public int number;
