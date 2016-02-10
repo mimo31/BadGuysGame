@@ -4,7 +4,7 @@ import com.github.mimo31.badguysgame.Achievement;
 
 public class Weapon {
 
-	public static final GameProperty[] propertiesIndex = new GameProperty[] { new GameProperty("Loading time", 1), new GameProperty("Projectile power", 1), new GameProperty("Projectile speed", 1), new GameProperty("Coin magnet", 0), new GameProperty("Rotation speed", 1) };
+	public static final GameProperty[] propertiesIndex = new GameProperty[] { new GameProperty("Loading time", 1), new GameProperty("Projectile power", 1), new GameProperty("Projectile speed", 1), new GameProperty("Coin magnet", 0), new GameProperty("Rotation speed", 1), new GameProperty("Unblock speed", 1) };
 	public static final int loadingTimeID = getPropertyID("Loading time");
 	public static final int projectilePowerID = getPropertyID("Projectile power");
 	public static final int projectileSpeedID = getPropertyID("Projectile speed");

@@ -29,8 +29,11 @@ public class Game {
 	private float projectilePower;
 	private float projectileSpeed;
 	private float coinMagnet;
+	private float unblockSpeed;
 	private String textureName;
 	private String projectileTextureName;
+	private float mainBarrelBlockState;
+	private float mainBarrelBlockOriginal;
 
 	private float autoLeftLoadState = 1;
 	private float autoRightLoadState = 1;
@@ -39,17 +42,20 @@ public class Game {
 	private float autoProjectileSpeed;
 	private float autoCoinMagnet;
 	private float autoRotationSpeed;
+	private float autoUnblockSpeed;
 	private String autoTextureName;
 	private String autoProjectileTextureName;
 	private boolean usingAutoweapon;
+	private float autoLeftBlockState;
+	private float autoLeftBlockOriginal;
+	private float autoRightBlockState;
+	private float autoRightBlockOriginal;
 	/**
-	 * Rotation in radians.
-	 * Relative to the upward angle.
+	 * Rotation in radians. Relative to the upward angle.
 	 */
 	private double leftAutoRotation = 0;
 	/**
-	 * Rotation in radians.
-	 * Relative to the upward angle.
+	 * Rotation in radians. Relative to the upward angle.
 	 */
 	private double rightAutoRotation = 0;
 
@@ -73,6 +79,7 @@ public class Game {
 		this.projectilePower = barrel.getProperty(Weapon.projectilePowerID);
 		this.projectileSpeed = barrel.getProperty(Weapon.projectileSpeedID);
 		this.coinMagnet = barrel.getProperty(Weapon.coinMagnetID);
+		this.unblockSpeed = barrel.getProperty(Weapon.getPropertyID("Unblock speed"));
 		this.textureName = barrel.textureName;
 		this.projectileTextureName = barrel.projectileTextureName;
 	}
@@ -85,6 +92,7 @@ public class Game {
 			this.autoProjectileSpeed = autoweapon.getProperty(Weapon.projectileSpeedID);
 			this.autoCoinMagnet = autoweapon.getProperty(Weapon.coinMagnetID);
 			this.autoRotationSpeed = autoweapon.getProperty(Weapon.rotationSpeedID);
+			this.autoUnblockSpeed = autoweapon.getProperty(Weapon.getPropertyID("Unblock speed"));
 			this.autoTextureName = autoweapon.textureName;
 			this.autoProjectileTextureName = autoweapon.projectileTextureName;
 		}
@@ -214,6 +222,33 @@ public class Game {
 				if (currentBadGuy.y > 1) {
 					gameOver = true;
 				}
+				if (currentBadGuy instanceof ShootingBadGuy) {
+					ShootingBadGuy shootingGuy = (ShootingBadGuy) currentBadGuy;
+					shootingGuy.loadState += time / (32 * shootingGuy.loadingTime * 40);
+					if (shootingGuy.loadState >= 1) {
+						shootingGuy.loadState--;
+						float targetX;
+						if (!this.usingAutoweapon) {
+							targetX = 1 / (float) 2;
+						}
+						else {
+							if (shootingGuy.x == 0) {
+								targetX = 1 / (float) 4;
+							}
+							else if (shootingGuy.x == 3) {
+								targetX = 3 / (float) 4;
+							}
+							else {
+								targetX = 1 / (float) 2;
+							}
+						}
+						float targetY = 1 - contentSize.width / (float) 32 / contentSize.height;
+						float shootPositionX = shootingGuy.x * 1 / (float) 4 + 1 / (float) 8;
+						float shootPositionY = shootingGuy.y;
+						Projectile projectile = new Projectile(shootPositionX, shootPositionY, targetX - shootPositionX, targetY - shootPositionY, shootingGuy.projectileSpeed, shootingGuy.projectileTextureName, shootingGuy.projectilePower, 0, true);
+						this.projectiles.add(projectile);
+					}
+				}
 			}
 		}
 		this.updateCoins(contentSize, time);
@@ -227,62 +262,135 @@ public class Game {
 				i--;
 				continue;
 			}
-			for (int j = 0; j < this.coins.size(); j++) {
-				Coin currentCoin = this.coins.get(j);
-				if (circleCircleCollistion(currentCoin.x, currentCoin.y * contentSize.height / contentSize.width, currentProjectile.x, currentProjectile.y * contentSize.height / contentSize.width, 1 / (float) 128, 1 / (float) 128)) {
-					Main.money += currentCoin.value;
-					Statistics.moneyCollected(currentCoin.value);
-					this.coins.remove(j);
-					j--;
+			if (!currentProjectile.isFromBadGuy) {
+				for (int j = 0; j < this.coins.size(); j++) {
+					Coin currentCoin = this.coins.get(j);
+					if (circleCircleCollistion(currentCoin.x, currentCoin.y * contentSize.height / contentSize.width, currentProjectile.x, currentProjectile.y * contentSize.height / contentSize.width, 1 / (float) 128, 1 / (float) 128)) {
+						Main.money += currentCoin.value;
+						Statistics.moneyCollected(currentCoin.value);
+						this.coins.remove(j);
+						j--;
+					}
 				}
-			}
-			for (int j = 0; j < this.badGuys.size(); j++) {
-				BadGuy currentBadGuy = this.badGuys.get(j);
-				float badGuySize;
-				if (currentBadGuy.isBig) {
-					badGuySize = 1 / (float) 16;
-				}
-				else {
-					badGuySize = 1 / (float) 32;
-				}
-				if (doesCollide(currentBadGuy.x / (float) 4 + 1 / (float) 8, currentBadGuy.y * contentSize.height / (float) contentSize.width - badGuySize, badGuySize, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
-					if (!currentBadGuy.isDead) {
-						currentBadGuy.hit(currentProjectile.hitPower);
-						if (currentBadGuy.isDead) {
-							Coin addedCoin = currentBadGuy.getCoin();
-							addedCoin.x = 1 / (float) 8 + currentBadGuy.x / (float) 4;
-							if (badGuySize * contentSize.width + contentSize.width / 128 >= currentBadGuy.y * contentSize.height) {
-								addedCoin.y = contentSize.width / (float) 128 / contentSize.height;
+				for (int j = 0; j < this.badGuys.size(); j++) {
+					BadGuy currentBadGuy = this.badGuys.get(j);
+					float badGuySize;
+					if (currentBadGuy.isBig) {
+						badGuySize = 1 / (float) 16;
+					}
+					else {
+						badGuySize = 1 / (float) 32;
+					}
+					if (doesCollide(currentBadGuy.x / (float) 4 + 1 / (float) 8, currentBadGuy.y * contentSize.height / (float) contentSize.width - badGuySize, badGuySize, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
+						if (!currentBadGuy.isDead) {
+							currentBadGuy.hit(currentProjectile.hitPower);
+							if (currentBadGuy.isDead) {
+								Coin addedCoin = currentBadGuy.getCoin();
+								addedCoin.x = 1 / (float) 8 + currentBadGuy.x / (float) 4;
+								if (badGuySize * contentSize.width + contentSize.width / 128 >= currentBadGuy.y * contentSize.height) {
+									addedCoin.y = contentSize.width / (float) 128 / contentSize.height;
+								}
+								else {
+									addedCoin.y = currentBadGuy.y - badGuySize * contentSize.width / contentSize.height;
+								}
+								this.coins.add(addedCoin);
 							}
-							else {
-								addedCoin.y = currentBadGuy.y - badGuySize * contentSize.width / contentSize.height;
+						}
+						this.projectiles.remove(i);
+						i--;
+						break;
+					}
+				}
+				for (int j = 0; j < this.projectiles.size(); j++) {
+					Projectile currentBadProjectile = this.projectiles.get(j);
+					if (currentBadProjectile.isFromBadGuy) {
+						if (circleCircleCollistion(currentProjectile.x, currentProjectile.y * contentSize.height / contentSize.width, currentBadProjectile.x, currentBadProjectile.y * contentSize.height / contentSize.width, 1 / (float) 128, 1 / (float) 128)) {
+							this.projectiles.remove(j);
+							Statistics.projectileEliminated();
+							if (j < i) {
+								i--;
 							}
-							this.coins.add(addedCoin);
+							j--;
 						}
 					}
+				}
+			}
+			else {
+				float barrelsY = (contentSize.height - contentSize.width / (float) 32) / (float) contentSize.width;
+				float projectileY = currentProjectile.y * contentSize.height / contentSize.width;
+				if (doesCollide(1 / (float) 2, barrelsY, 1 / (float) 16, 1 / (float) 32, currentProjectile.x, projectileY, 1 / (float) 128)) {
+					this.mainBarrelBlockState += currentProjectile.hitPower;
+					this.mainBarrelBlockOriginal = this.mainBarrelBlockState;
 					this.projectiles.remove(i);
 					i--;
-					break;
+					continue;
+				}
+				if (this.usingAutoweapon) {
+					if (doesCollide(1 / (float) 4, barrelsY, 1 / (float) 32, currentProjectile.x, projectileY, 1 / (float) 128)) {
+						this.autoLeftBlockState += currentProjectile.hitPower;
+						this.autoLeftBlockOriginal = this.autoLeftBlockState;
+						this.projectiles.remove(i);
+						i--;
+						continue;
+					}
+					if (doesCollide(3 / (float) 4, barrelsY, 1 / (float) 32, currentProjectile.x, projectileY, 1 / (float) 128)) {
+						this.autoRightBlockState += currentProjectile.hitPower;
+						this.autoRightBlockOriginal = this.autoRightBlockState;
+						this.projectiles.remove(i);
+						i--;
+						continue;
+					}
 				}
 			}
 		}
-		if (this.loadState != 1) {
-			this.loadState += time / (float) (32 * this.loadingTime * 40);
-			if (this.loadState > 1) {
-				this.loadState = 1;
+		float mainLoadStep = time / (float) (32 * this.loadingTime * 40);
+		float mainUnblockStep = this.unblockSpeed * time / (float) (32 * 40);
+		float autoLoadStep = time / (float) (32 * this.autoLoadingTime * 40);
+		float autoUnblockStep = this.autoUnblockSpeed * time / (float) (32 * 40);
+		if (this.mainBarrelBlockState == 0) {
+			if (this.loadState != 1) {
+				this.loadState += mainLoadStep;
+				if (this.loadState > 1) {
+					this.loadState = 1;
+				}
+			}
+		}
+		else {
+			this.mainBarrelBlockState -= mainUnblockStep;
+			if (this.mainBarrelBlockState <= 0) {
+				this.mainBarrelBlockState = 0;
+				this.mainBarrelBlockOriginal = 0;
 			}
 		}
 		if (this.usingAutoweapon) {
-			if (this.autoLeftLoadState != 1) {
-				this.autoLeftLoadState += time / (float) (32 * this.autoLoadingTime * 40);
-				if (this.autoLeftLoadState > 1) {
-					this.autoLeftLoadState = 1;
+			if (this.autoLeftBlockState == 0) {
+				if (this.autoLeftLoadState != 1) {
+					this.autoLeftLoadState += autoLoadStep;
+					if (this.autoLeftLoadState > 1) {
+						this.autoLeftLoadState = 1;
+					}
 				}
 			}
-			if (this.autoRightLoadState != 1) {
-				this.autoRightLoadState += time / (float) (32 * this.autoLoadingTime * 40);
-				if (this.autoRightLoadState > 1) {
-					this.autoRightLoadState = 1;
+			else {
+				this.autoLeftBlockState -= autoUnblockStep;
+				if (this.autoLeftBlockState <= 0) {
+					this.autoLeftBlockState = 0;
+					this.autoLeftBlockOriginal = 0;
+				}
+			}
+			if (this.autoRightBlockState == 0) {
+				if (this.autoRightLoadState != 1) {
+					this.autoRightLoadState += autoLoadStep;
+					if (this.autoRightLoadState > 1) {
+						this.autoRightLoadState = 1;
+					}
+				}
+			}
+			else {
+				this.autoRightBlockState -= autoUnblockStep;
+				if (this.autoRightBlockState <= 0) {
+					this.autoRightBlockState = 0;
+					this.autoRightBlockOriginal = 0;
 				}
 			}
 
@@ -309,13 +417,13 @@ public class Game {
 				double stepSize = Math.PI * this.autoRotationSpeed * time / 20 / 1024;
 				shoot = this.rotateAutoweapon(true, stepSize, appropriateAngle);
 			}
-			if (shoot && this.autoLeftLoadState == 1) {
+			if (shoot && this.autoLeftLoadState == 1 && this.autoLeftBlockState == 0) {
 				this.autoLeftLoadState = 0;
 				float xDistance = (float) Math.sin(this.leftAutoRotation);
 				float yDistance = (float) Math.cos(this.leftAutoRotation);
 				float projectileX = 1 / (float) 4 + xDistance / 32;
 				float projectileY = 1 - contentSize.width / 16 / (float) contentSize.height - yDistance * contentSize.width / 32 / (float) contentSize.height;
-				Projectile projectile = new Projectile(projectileX, projectileY, xDistance / contentSize.width, -yDistance / contentSize.height, this.autoProjectileSpeed, this.autoProjectileTextureName, this.autoProjectilePower, this.autoCoinMagnet);
+				Projectile projectile = new Projectile(projectileX, projectileY, xDistance / contentSize.width, -yDistance / contentSize.height, this.autoProjectileSpeed, this.autoProjectileTextureName, this.autoProjectilePower, this.autoCoinMagnet, false);
 				projectiles.add(projectile);
 			}
 
@@ -342,13 +450,13 @@ public class Game {
 				double stepSize = Math.PI * this.autoRotationSpeed * time / 20 / 1024;
 				shoot = this.rotateAutoweapon(false, stepSize, appropriateAngle);
 			}
-			if (shoot && this.autoRightLoadState == 1) {
+			if (shoot && this.autoRightLoadState == 1 && this.autoRightBlockState == 0) {
 				this.autoRightLoadState = 0;
 				float xDistance = (float) Math.sin(this.rightAutoRotation);
 				float yDistance = (float) Math.cos(this.rightAutoRotation);
 				float projectileX = 3 / (float) 4 + xDistance / 32;
 				float projectileY = 1 - contentSize.width / 16 / (float) contentSize.height - yDistance * contentSize.width / 32 / (float) contentSize.height;
-				Projectile projectile = new Projectile(projectileX, projectileY, xDistance / contentSize.width, -yDistance / contentSize.height, this.autoProjectileSpeed, this.autoProjectileTextureName, this.autoProjectilePower, this.autoCoinMagnet);
+				Projectile projectile = new Projectile(projectileX, projectileY, xDistance / contentSize.width, -yDistance / contentSize.height, this.autoProjectileSpeed, this.autoProjectileTextureName, this.autoProjectilePower, this.autoCoinMagnet, false);
 				projectiles.add(projectile);
 			}
 		}
@@ -422,6 +530,12 @@ public class Game {
 		this.loadState = 1;
 		this.autoLeftLoadState = 1;
 		this.autoRightLoadState = 1;
+		this.autoLeftBlockState = 0;
+		this.autoRightBlockState = 0;
+		this.mainBarrelBlockState = 0;
+		this.autoLeftBlockOriginal = 0;
+		this.autoRightBlockOriginal = 0;
+		this.mainBarrelBlockOriginal = 0;
 	}
 
 	private static boolean circleCircleCollistion(float center1X, float center1Y, float center2X, float center2Y, float radius1, float radius2) {
@@ -430,24 +544,28 @@ public class Game {
 	}
 
 	private static boolean doesCollide(float squareCenterX, float squareCenterY, float squareSize, float circleCenterX, float circleCenterY, float circleRadius) {
-		float diffX = Math.abs(squareCenterX - circleCenterX);
-		float diffY = Math.abs(squareCenterY - circleCenterY);
+		return doesCollide(squareCenterX, squareCenterY, squareSize, squareSize, circleCenterX, circleCenterY, circleRadius);
+	}
 
-		if (diffX > squareSize + circleRadius) {
+	private static boolean doesCollide(float rectCenterX, float rectCenterY, float rectXSize, float rectYSize, float circleCenterX, float circleCenterY, float circleRadius) {
+		float diffX = Math.abs(rectCenterX - circleCenterX);
+		float diffY = Math.abs(rectCenterY - circleCenterY);
+
+		if (diffX > rectXSize + circleRadius) {
 			return false;
 		}
-		if (diffY > squareSize + circleRadius) {
+		if (diffY > rectYSize + circleRadius) {
 			return false;
 		}
 
-		if (diffX <= squareSize + circleRadius && diffY <= squareSize) {
+		if (diffX <= rectXSize + circleRadius && diffY <= rectYSize) {
 			return true;
 		}
-		if (diffY <= squareSize + circleRadius && diffX <= squareSize) {
+		if (diffY <= rectYSize + circleRadius && diffX <= rectXSize) {
 			return true;
 		}
 
-		float distToCornerSqr = (float) (Math.pow(diffX - squareSize, 2) + Math.pow(diffY - squareSize, 2));
+		float distToCornerSqr = (float) (Math.pow(diffX - rectXSize, 2) + Math.pow(diffY - rectYSize, 2));
 		return distToCornerSqr <= Math.pow(circleRadius, 2);
 	}
 
@@ -483,6 +601,10 @@ public class Game {
 		g.fillRect(baseScreenX, baseScreenY, greenWidth, contentSize.width / 16);
 		g.setColor(TRANSPARENT_RED);
 		g.fillRect(baseScreenX + greenWidth, baseScreenY, contentSize.width / 8 - greenWidth, contentSize.width / 16);
+		if (this.mainBarrelBlockState != 0) {
+			g.setColor(new Color(0, 0, 0, this.mainBarrelBlockState / this.mainBarrelBlockOriginal));
+			g.fillRect(baseScreenX, baseScreenY, contentSize.width / 8, contentSize.width / 16);
+		}
 		Point barrelCenter = new Point(contentSize.width / 2, contentSize.height - contentSize.width / 16);
 		AffineTransform transform = AffineTransform.getTranslateInstance(barrelCenter.x, barrelCenter.y);
 		double vecX = -barrelCenter.x + mousePosition.x;
@@ -500,6 +622,10 @@ public class Game {
 			g.fillRect(leftBaseX, baseY, greenWidth, contentSize.width / 16);
 			g.setColor(TRANSPARENT_RED);
 			g.fillRect(leftBaseX + greenWidth, baseY, contentSize.width / 16 - greenWidth, contentSize.width / 16);
+			if (this.autoLeftBlockState != 0) {
+				g.setColor(new Color(0, 0, 0, this.autoLeftBlockState / this.autoLeftBlockOriginal));
+				g.fillRect(leftBaseX, baseY, contentSize.width / 16, contentSize.width / 16);
+			}
 			int rightBaseX = contentSize.width * 3 / 4 - contentSize.width / 32;
 			g.drawImage(autoBaseTexture, rightBaseX, baseY, null);
 			greenWidth = (int) (contentSize.width / 16 * this.autoRightLoadState);
@@ -507,6 +633,10 @@ public class Game {
 			g.fillRect(rightBaseX, baseY, greenWidth, contentSize.width / 16);
 			g.setColor(TRANSPARENT_RED);
 			g.fillRect(rightBaseX + greenWidth, baseY, contentSize.width / 16 - greenWidth, contentSize.width / 16);
+			if (this.autoRightBlockState != 0) {
+				g.setColor(new Color(0, 0, 0, this.autoRightBlockState / this.autoRightBlockOriginal));
+				g.fillRect(rightBaseX, baseY, contentSize.width / 16, contentSize.width / 16);
+			}
 
 			int leftBarrelCenterX = contentSize.width / 4;
 			int rightBarrelCenterX = contentSize.width * 3 / 4;
@@ -531,7 +661,7 @@ public class Game {
 	}
 
 	public void clicked(int x, int y, Dimension contentSize) {
-		if (this.loadState == 1) {
+		if (this.loadState == 1 && this.mainBarrelBlockState == 0) {
 			Point barrelCenter = new Point(contentSize.width / 2, contentSize.height - contentSize.width / 16);
 			float vecX = x - barrelCenter.x;
 			float vecY = y - barrelCenter.y;
@@ -539,7 +669,7 @@ public class Game {
 			Point firePoint = new Point((int) (barrelCenter.x + vecX * factor), (int) (barrelCenter.y + vecY * factor));
 			float dirX = vecX / (float) contentSize.width;
 			float dirY = vecY / (float) contentSize.height;
-			Projectile projectile = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, dirX, dirY, this.projectileSpeed, this.projectileTextureName, this.projectilePower, this.coinMagnet);
+			Projectile projectile = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, dirX, dirY, this.projectileSpeed, this.projectileTextureName, this.projectilePower, this.coinMagnet, false);
 			this.projectiles.add(projectile);
 			this.loadState = 0;
 		}

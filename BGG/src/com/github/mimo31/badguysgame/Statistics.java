@@ -13,6 +13,7 @@ public class Statistics {
 	public static List<NumberByNameStatistic> badGuysKilledByType = new ArrayList<NumberByNameStatistic>();
 	public static int totalBadGuysKilled = 0;
 	public static int totalMoneyEarned = 0;
+	public static int totalProjectilesEliminated = 0;
 	
 	public static void badGuyKilled(String name) {
 		if (totalBadGuysKilled == 0) {
@@ -49,6 +50,7 @@ public class Statistics {
 		}
 		outputStream.writeInt(totalBadGuysKilled);
 		outputStream.writeInt(totalMoneyEarned);
+		outputStream.writeInt(totalProjectilesEliminated);
 	}
 	
 	public static void load(DataInputStream inputStream) throws IOException {
@@ -60,6 +62,9 @@ public class Statistics {
 		}
 		totalBadGuysKilled = inputStream.readInt();
 		totalMoneyEarned = inputStream.readInt();
+		if (inputStream.available() != 0) {
+			totalProjectilesEliminated = inputStream.readInt();
+		}
 	}
 	
 	public static void moneyCollected(int amount) {
@@ -78,6 +83,13 @@ public class Statistics {
 	public static void weaponBought(Weapon weapon) {
 		if (weapon.equals(Main.barrels[3])) {
 			Achievement.achieve(9);
+		}
+	}
+	
+	public static void projectileEliminated() {
+		totalProjectilesEliminated++;
+		if (totalProjectilesEliminated == 1) {
+			Achievement.achieve(10);
 		}
 	}
 	

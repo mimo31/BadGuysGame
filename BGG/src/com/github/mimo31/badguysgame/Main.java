@@ -91,7 +91,8 @@ public class Main {
 		Spawner firstBossSpw = new Spawner.FirstBossSpawner();
 		Spawner secondBossSpw = new Spawner.SecondBossSpawner();
 		Spawner speedySpw = new Spawner.SpeedySpawner();
-		stages = new Stage[31];
+		Spawner shootingSpw = new Spawner.ShootingSpawner();
+		stages = new Stage[36];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -123,6 +124,11 @@ public class Main {
 		stages[28] = new Stage(new Spawner[] { basicSpw, basicSpw, armoredSpw, armoredSpw, heavilyArmoredSpw, heavilyArmoredSpw, speedySpw, speedySpw, heavilyArmoredSpw, heavilyArmoredSpw, speedySpw, speedySpw }, new int[] { 20, 20, 20, 20, 80, 80, 80, 80, 140, 140, 140, 140 });
 		stages[29] = new Stage(new Spawner[] { speedySpw, speedySpw, speedySpw, speedySpw, speedySpw, speedySpw, speedySpw, speedySpw }, new int[] { 20, 20, 20, 20, 100, 100, 100, 100 });
 		stages[30] = new Stage(new Spawner[] { secondBossSpw }, new int[] { 60 });
+		stages[31] = new Stage(new Spawner[] { shootingSpw, shootingSpw }, new int[] { 30, 30 });
+		stages[32] = new Stage(new Spawner[] { shootingSpw, shootingSpw, speedySpw, speedySpw }, new int[] { 30, 30, 30, 30 });
+		stages[33] = new Stage(new Spawner[] { shootingSpw, shootingSpw, shootingSpw, shootingSpw }, new int[] { 30, 30, 30, 30 });
+		stages[34] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, shootingSpw, speedySpw, shootingSpw, basicSpw, basicSpw }, new int[] { 30, 30, 30, 30, 70, 70, 70, 70 });
+		stages[35] = new Stage(new Spawner[] { armoredSpw, armoredSpw, shootingSpw, shootingSpw, speedySpw, speedySpw, fastSpw, fastSpw }, new int[] { 30, 30, 30, 30, 70, 70, 70, 70 });
 	}
 
 	private static void initializeBarrels() {
@@ -151,12 +157,19 @@ public class Main {
 	}
 
 	private static void initializeAutoweapons() {
-		autoweapons = new Weapon[1];
+		autoweapons = new Weapon[2];
 		PropertyImplementation loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1.5f);
 		PropertyImplementation projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 0.7f);
 		PropertyImplementation projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 0.7f);
 		PropertyImplementation rotationSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.rotationSpeedID], new int[] { 15 }, new float[] { 0.3f }, 1f);
 		autoweapons[0] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, rotationSpeed }, 50, "BasicAutoweapon.png", "BasicProjectile.png", false, "Basic autoweapon", 3);
+		
+		loadingTime = new NotUpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], 0.9f);
+		projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 40 }, new float[] { 0.5f }, 1f);
+		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 45 }, new float[] { 0.6f }, 1.15f);
+		rotationSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.rotationSpeedID], new int[] { 40, 55 }, new float[] { 0.5f, 0.35f }, 1.5f);
+		PropertyImplementation unBlockSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.getPropertyID("Unblock speed")], new int[] { 40 }, new float[] { 0.35f }, 1.5f);
+		autoweapons[1] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, rotationSpeed, unBlockSpeed }, 100, "ProtectedAutoweapon.png", "BasicProjectile.png", false, "Protected autoweapon", 10);
 	}
 
 	private static Spawner[] makeHomogenousSpawnerArray(Spawner element, int length) {
