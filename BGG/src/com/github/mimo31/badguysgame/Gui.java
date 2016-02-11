@@ -1,5 +1,6 @@
 package com.github.mimo31.badguysgame;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.Graphics;
@@ -7,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -69,6 +71,11 @@ public final class Gui {
 		Logging.logEndSectionTag("GUI");
 	}
 
+	private static void drawDebugMode(Graphics2D g, Dimension contentSize) {
+		g.setColor(Color.black);
+		StringDraw.drawMaxString(g, contentSize.height / 256, String.valueOf(refreshRate) + " fps", new Rectangle(contentSize.width - contentSize.width / 16, 0, contentSize.width / 16, contentSize.height / 16));
+	}
+	
 	@SuppressWarnings("serial")
 	private static JComponent paintComponent = new JComponent() {
 
@@ -79,6 +86,9 @@ public final class Gui {
 				Dimension contentSize = gui.getContentPane().getSize();
 				Main.currentScreen.paint(g, contentSize, getMousePanePosition());
 				Achievement.paint(g, contentSize);
+				if (Main.inDebugMode) {
+					drawDebugMode(g, contentSize);
+				}
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
@@ -117,19 +127,16 @@ public final class Gui {
 		@Override
 		public void mouseMoved(MouseEvent event) {
 			Main.currentScreen.mouseMoved(event);
-			// gui.repaint();
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent event) {
 			Main.currentScreen.mouseDragged(event);
-			// gui.repaint();
 		}
 
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent event) {
 			Main.currentScreen.mouseWheelMoved(event);
-			// gui.repaint();
 		}
 	};
 
@@ -144,6 +151,9 @@ public final class Gui {
 					for (int i = 0; i < Achievement.achievements.length; i++) {
 						Achievement.achieve(i);
 					}
+				}
+				else if (event.getKeyCode() == KeyEvent.VK_D) {
+					Main.inDebugMode = !Main.inDebugMode;
 				}
 			}
 			Main.currentScreen.keyPressed(event);

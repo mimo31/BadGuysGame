@@ -8,8 +8,8 @@ public abstract class ShootingBadGuy extends BadGuy {
 	public final String projectileTextureName;
 	public float loadState;
 	
-	protected ShootingBadGuy(float totalLive, float speed, String textureName, String name, boolean isBig, float projectileSpeed, float projectilePower, float loadingTime, String projectileTextureName) {
-		super(totalLive, speed, textureName, name, isBig);
+	protected ShootingBadGuy(float totalLive, float speed, String textureName, String name, float size, float projectileSpeed, float projectilePower, float loadingTime, String projectileTextureName) {
+		super(totalLive, speed, size, textureName, name);
 		this.projectileSpeed = projectileSpeed;
 		this.projectilePower = projectilePower;
 		this.loadingTime = loadingTime;

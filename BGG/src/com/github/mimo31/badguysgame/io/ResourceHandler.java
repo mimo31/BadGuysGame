@@ -47,7 +47,7 @@ public class ResourceHandler {
 				}
 			}
 		}
-		// If the original texture was found (but with wrong width), then this
+		// If the original texture was found (but with a wrong width), then this
 		// looks into scaledTextures for the corresponding texture.
 		// If it finds the texture, it scales it to the requested width (if
 		// necessary) and returns the scaled texture.

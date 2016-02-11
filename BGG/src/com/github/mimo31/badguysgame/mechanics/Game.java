@@ -19,9 +19,9 @@ public class Game {
 
 	private int currentStage;
 	private float timeInStage;
-	private ArrayList<BadGuy> badGuys;
+	private ArrayList<FallingObject> fallingObjects;
 	private ArrayList<Projectile> projectiles;
-	private ArrayList<BadGuy> badGuysBuffer;
+	private ArrayList<FallingObject> fallingObjectsBuffer;
 	private ArrayList<Coin> coins;
 
 	private float loadState = 1;
@@ -66,9 +66,9 @@ public class Game {
 	public Game(int stage, Weapon barrel, Weapon autoweapon) {
 		this.currentStage = stage;
 		this.timeInStage = 0;
-		this.badGuys = new ArrayList<BadGuy>();
+		this.fallingObjects = new ArrayList<FallingObject>();
 		this.projectiles = new ArrayList<Projectile>();
-		this.badGuysBuffer = new ArrayList<BadGuy>();
+		this.fallingObjectsBuffer = new ArrayList<FallingObject>();
 		this.coins = new ArrayList<Coin>();
 		this.updateBarrel(barrel);
 		this.updateAutoweapon(autoweapon);
@@ -105,30 +105,24 @@ public class Game {
 		for (int i = 0; i < Main.stages[this.currentStage].spawners.length; i++) {
 			int spawnTime = Main.stages[this.currentStage].spawnTimes[i];
 			if (this.timeInStage - (time / (float) 40) <= spawnTime && spawnTime < this.timeInStage) {
-				this.badGuysBuffer.add(Main.stages[this.currentStage].spawners[i].getBadGuy());
+				this.fallingObjectsBuffer.add(Main.stages[this.currentStage].spawners[i].getFallingObject());
 			}
 		}
 	}
 
-	private void spawnBadGuysFromBuffer(Dimension contentSize) {
+	private void spawnObjectsFromBuffer(Dimension contentSize) {
 		boolean[] isColumnOccupied = new boolean[4];
-		for (int i = 0; i < this.badGuys.size(); i++) {
-			BadGuy currentBadGuy = this.badGuys.get(i);
-			float heightSize;
-			if (currentBadGuy.isBig) {
-				heightSize = contentSize.width / (float) 8 / contentSize.height;
-			}
-			else {
-				heightSize = contentSize.width / (float) 16 / contentSize.height;
-			}
-			if (!currentBadGuy.isDead && currentBadGuy.y < heightSize) {
-				isColumnOccupied[currentBadGuy.x] = true;
+		for (int i = 0; i < this.fallingObjects.size(); i++) {
+			FallingObject currentObject = this.fallingObjects.get(i);
+			float heightSize = contentSize.width / 4 * currentObject.size / contentSize.height;
+			if (!currentObject.isDead && currentObject.y < heightSize) {
+				isColumnOccupied[currentObject.x] = true;
 			}
 		}
-		while (!isFull(isColumnOccupied) && !(badGuysBuffer.size() == 0)) {
-			badGuysBuffer.get(0).x = takeFree(isColumnOccupied);
-			badGuys.add(badGuysBuffer.get(0));
-			badGuysBuffer.remove(0);
+		while (!isFull(isColumnOccupied) && !(fallingObjectsBuffer.size() == 0)) {
+			fallingObjectsBuffer.get(0).x = takeFree(isColumnOccupied);
+			fallingObjects.add(fallingObjectsBuffer.get(0));
+			fallingObjectsBuffer.remove(0);
 		}
 	}
 
@@ -162,7 +156,12 @@ public class Game {
 	}
 
 	private boolean isStageCompleted() {
-		return this.badGuys.isEmpty() && this.badGuysBuffer.isEmpty() && Main.stages[currentStage].allSpawned(this.timeInStage);
+		for (int i = 0; i < this.fallingObjects.size(); i++) {
+			if (this.fallingObjects.get(i).isGameEnding) {
+				return false;
+			}
+		}
+		return this.fallingObjectsBuffer.isEmpty() && Main.stages[currentStage].allSpawned(this.timeInStage);
 	}
 
 	private void updateCoins(Dimension contentSize, int time) {
@@ -192,17 +191,17 @@ public class Game {
 		boolean gameOver = false;
 		boolean noMoreStages = false;
 		this.addBadGuysToBuffer(time);
-		this.spawnBadGuysFromBuffer(contentSize);
-		for (int i = 0; i < this.badGuys.size(); i++) {
-			BadGuy currentBadGuy = this.badGuys.get(i);
-			if (currentBadGuy.isBeingHit) {
-				currentBadGuy.hittingProgress += time / (float) 32 / (float) 40;
-				if (currentBadGuy.hittingProgress >= 1) {
-					currentBadGuy.isBeingHit = false;
-					currentBadGuy.live -= currentBadGuy.hitBy;
-					if (currentBadGuy.isDead) {
-						this.badGuys.remove(i);
-						Statistics.badGuyKilled(currentBadGuy.name);
+		this.spawnObjectsFromBuffer(contentSize);
+		for (int i = 0; i < this.fallingObjects.size(); i++) {
+			FallingObject currentObject = this.fallingObjects.get(i);
+			if (currentObject.isBeingHit) {
+				currentObject.hittingProgress += time / (float) 32 / (float) 40;
+				if (currentObject.hittingProgress >= 1) {
+					currentObject.isBeingHit = false;
+					currentObject.live -= currentObject.hitBy;
+					if (currentObject.isDead) {
+						this.fallingObjects.remove(i);
+						Statistics.badGuyKilled(currentObject.name);
 						i--;
 						if (this.isStageCompleted()) {
 							if (Main.stages.length == this.currentStage + 1) {
@@ -217,13 +216,13 @@ public class Game {
 					}
 				}
 			}
-			if (!currentBadGuy.isDead) {
-				currentBadGuy.move(time);
-				if (currentBadGuy.y > 1) {
+			if (!currentObject.isDead) {
+				currentObject.move(time);
+				if (currentObject.y > 1 && currentObject.isGameEnding) {
 					gameOver = true;
 				}
-				if (currentBadGuy instanceof ShootingBadGuy) {
-					ShootingBadGuy shootingGuy = (ShootingBadGuy) currentBadGuy;
+				if (currentObject instanceof ShootingBadGuy) {
+					ShootingBadGuy shootingGuy = (ShootingBadGuy) currentObject;
 					shootingGuy.loadState += time / (32 * shootingGuy.loadingTime * 40);
 					if (shootingGuy.loadState >= 1) {
 						shootingGuy.loadState--;
@@ -272,28 +271,24 @@ public class Game {
 						j--;
 					}
 				}
-				for (int j = 0; j < this.badGuys.size(); j++) {
-					BadGuy currentBadGuy = this.badGuys.get(j);
-					float badGuySize;
-					if (currentBadGuy.isBig) {
-						badGuySize = 1 / (float) 16;
-					}
-					else {
-						badGuySize = 1 / (float) 32;
-					}
-					if (doesCollide(currentBadGuy.x / (float) 4 + 1 / (float) 8, currentBadGuy.y * contentSize.height / (float) contentSize.width - badGuySize, badGuySize, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
-						if (!currentBadGuy.isDead) {
-							currentBadGuy.hit(currentProjectile.hitPower);
-							if (currentBadGuy.isDead) {
-								Coin addedCoin = currentBadGuy.getCoin();
-								addedCoin.x = 1 / (float) 8 + currentBadGuy.x / (float) 4;
-								if (badGuySize * contentSize.width + contentSize.width / 128 >= currentBadGuy.y * contentSize.height) {
-									addedCoin.y = contentSize.width / (float) 128 / contentSize.height;
+				for (int j = 0; j < this.fallingObjects.size(); j++) {
+					FallingObject currentObject = this.fallingObjects.get(j);
+					float objectSize = currentObject.size / 8;
+					if (doesCollide(currentObject.x / (float) 4 + 1 / (float) 8, currentObject.y * contentSize.height / (float) contentSize.width - objectSize, objectSize, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
+						if (!currentObject.isDead) {
+							currentObject.hit(currentProjectile.hitPower);
+							if (currentObject.isDead) {
+								Coin addedCoin = currentObject.getCoin();
+								if (addedCoin != null) {
+									addedCoin.x = 1 / (float) 8 + currentObject.x / (float) 4;
+									if (objectSize * contentSize.width + contentSize.width / 128 >= currentObject.y * contentSize.height) {
+										addedCoin.y = contentSize.width / (float) 128 / contentSize.height;
+									}
+									else {
+										addedCoin.y = currentObject.y - objectSize * contentSize.width / contentSize.height;
+									}
+									this.coins.add(addedCoin);
 								}
-								else {
-									addedCoin.y = currentBadGuy.y - badGuySize * contentSize.width / contentSize.height;
-								}
-								this.coins.add(addedCoin);
 							}
 						}
 						this.projectiles.remove(i);
@@ -398,10 +393,10 @@ public class Game {
 			float biggestYValue = 0;
 			int biggestYIndex = -1;
 			boolean shoot;
-			for (int i = 0; i < this.badGuys.size(); i++) {
-				BadGuy currentBadGuy = this.badGuys.get(i);
-				if ((currentBadGuy.x == 0 || currentBadGuy.x == 1) && currentBadGuy.y > biggestYValue && !currentBadGuy.isDead) {
-					biggestYValue = currentBadGuy.y;
+			for (int i = 0; i < this.fallingObjects.size(); i++) {
+				FallingObject currentObject = this.fallingObjects.get(i);
+				if ((currentObject.x == 0 || currentObject.x == 1) && currentObject.y > biggestYValue && !currentObject.isDead && currentObject.isGameEnding) {
+					biggestYValue = currentObject.y;
 					biggestYIndex = i;
 				}
 			}
@@ -409,8 +404,8 @@ public class Game {
 				shoot = false;
 			}
 			else {
-				int targetedGuyX = this.badGuys.get(biggestYIndex).x * contentSize.width / 4 + contentSize.width / 8;
-				int targetedGuyY = (int) (this.badGuys.get(biggestYIndex).y * contentSize.height);
+				int targetedGuyX = this.fallingObjects.get(biggestYIndex).x * contentSize.width / 4 + contentSize.width / 8;
+				int targetedGuyY = (int) (this.fallingObjects.get(biggestYIndex).y * contentSize.height);
 				int diffX = targetedGuyX - contentSize.width / 4;
 				int diffY = contentSize.height - contentSize.width / 16 - targetedGuyY;
 				double appropriateAngle = Math.atan2(diffX, diffY);
@@ -431,10 +426,10 @@ public class Game {
 			biggestYValue = 0;
 			biggestYIndex = -1;
 			shoot = false;
-			for (int i = 0; i < this.badGuys.size(); i++) {
-				BadGuy currentBadGuy = this.badGuys.get(i);
-				if ((currentBadGuy.x == 2 || currentBadGuy.x == 3) && currentBadGuy.y > biggestYValue && !currentBadGuy.isDead) {
-					biggestYValue = currentBadGuy.y;
+			for (int i = 0; i < this.fallingObjects.size(); i++) {
+				FallingObject currentObject = this.fallingObjects.get(i);
+				if ((currentObject.x == 2 || currentObject.x == 3) && currentObject.y > biggestYValue && !currentObject.isDead && currentObject.isGameEnding) {
+					biggestYValue = currentObject.y;
 					biggestYIndex = i;
 				}
 			}
@@ -442,8 +437,8 @@ public class Game {
 				shoot = false;
 			}
 			else {
-				int targetedGuyX = this.badGuys.get(biggestYIndex).x * contentSize.width / 4 + contentSize.width / 8;
-				int targetedGuyY = (int) (this.badGuys.get(biggestYIndex).y * contentSize.height);
+				int targetedGuyX = this.fallingObjects.get(biggestYIndex).x * contentSize.width / 4 + contentSize.width / 8;
+				int targetedGuyY = (int) (this.fallingObjects.get(biggestYIndex).y * contentSize.height);
 				int diffX = targetedGuyX - contentSize.width * 3 / 4;
 				int diffY = contentSize.height - contentSize.width / 16 - targetedGuyY;
 				double appropriateAngle = Math.atan2(diffX, diffY);
@@ -536,6 +531,12 @@ public class Game {
 		this.autoLeftBlockOriginal = 0;
 		this.autoRightBlockOriginal = 0;
 		this.mainBarrelBlockOriginal = 0;
+		for (int i = 0; i < this.projectiles.size(); i++) {
+			if (this.projectiles.get(i).isFromBadGuy) {
+				this.projectiles.remove(i);
+				i--;
+			}
+		}
 	}
 
 	private static boolean circleCircleCollistion(float center1X, float center1Y, float center2X, float center2Y, float radius1, float radius2) {
@@ -569,25 +570,19 @@ public class Game {
 		return distToCornerSqr <= Math.pow(circleRadius, 2);
 	}
 
-	private void drawBadGuy(Graphics2D g, BadGuy badGuy, Dimension contentSize) throws IOException {
-		float badGuyPixelSize;
-		if (badGuy.isBig) {
-			badGuyPixelSize = contentSize.width / 8;
-		}
-		else {
-			badGuyPixelSize = contentSize.width / 16;
-		}
-		int screenX = (int) ((badGuy.x / (float) 4 + 1 / (float) 8) * contentSize.width - badGuyPixelSize / 2);
-		int screenY = (int) (badGuy.y * contentSize.height - badGuyPixelSize);
-		g.drawImage(ResourceHandler.getTexture(badGuy.textureName, (int) badGuyPixelSize), screenX, screenY, null);
+	private void drawFallingObject(Graphics2D g, FallingObject fallingObject, Dimension contentSize) throws IOException {
+		float objectPixelSize = contentSize.width * fallingObject.size / 4;
+		int screenX = (int) ((fallingObject.x / (float) 4 + 1 / (float) 8) * contentSize.width - objectPixelSize / 2);
+		int screenY = (int) (fallingObject.y * contentSize.height - objectPixelSize);
+		g.drawImage(ResourceHandler.getTexture(fallingObject.textureName, (int) objectPixelSize), screenX, screenY, null);
 		g.setColor(LIFE_GREEN);
-		int filledSize = (int) (badGuy.getShownLive() * badGuyPixelSize);
-		g.fillRect((int) (screenX + badGuyPixelSize * 7 / 8), (int) (screenY + badGuyPixelSize - filledSize), (int) (badGuyPixelSize / 8), filledSize);
+		int filledSize = (int) (fallingObject.getShownLive() * objectPixelSize);
+		g.fillRect((int) (screenX + objectPixelSize * 7 / 8), (int) (screenY + objectPixelSize - filledSize), (int) (objectPixelSize / 8), filledSize);
 	}
 
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
-		for (int i = 0; i < this.badGuys.size(); i++) {
-			this.drawBadGuy(g, this.badGuys.get(i), contentSize);
+		for (int i = 0; i < this.fallingObjects.size(); i++) {
+			this.drawFallingObject(g, this.fallingObjects.get(i), contentSize);
 		}
 		for (int i = 0; i < this.coins.size(); i++) {
 			Coin currentCoin = this.coins.get(i);

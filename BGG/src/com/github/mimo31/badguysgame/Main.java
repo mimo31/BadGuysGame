@@ -37,6 +37,7 @@ public class Main {
 	public static int maxReachedStage;
 	public static Thread updateThread;
 	public static boolean firstRun;
+	public static boolean inDebugMode;
 
 	public static final int stageShowTime = 60;
 
@@ -92,7 +93,8 @@ public class Main {
 		Spawner secondBossSpw = new Spawner.SecondBossSpawner();
 		Spawner speedySpw = new Spawner.SpeedySpawner();
 		Spawner shootingSpw = new Spawner.ShootingSpawner();
-		stages = new Stage[36];
+		Spawner woodenBlockerSpw = new Spawner.WoodenBlockSpawner();
+		stages = new Stage[37];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -129,6 +131,7 @@ public class Main {
 		stages[33] = new Stage(new Spawner[] { shootingSpw, shootingSpw, shootingSpw, shootingSpw }, new int[] { 30, 30, 30, 30 });
 		stages[34] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, shootingSpw, speedySpw, shootingSpw, basicSpw, basicSpw }, new int[] { 30, 30, 30, 30, 70, 70, 70, 70 });
 		stages[35] = new Stage(new Spawner[] { armoredSpw, armoredSpw, shootingSpw, shootingSpw, speedySpw, speedySpw, fastSpw, fastSpw }, new int[] { 30, 30, 30, 30, 70, 70, 70, 70 });
+		stages[36] = new Stage(new Spawner[] { woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, speedySpw }, new int[] { 20, 20, 20, 20, 200 } );
 	}
 
 	private static void initializeBarrels() {
@@ -230,7 +233,7 @@ public class Main {
 					Gui.refreshRate = Gui.maxScreenRefreshRate;
 				}
 				nsForRefresh = 1000000000 / (float) Gui.refreshRate;
-				Gui.gui.repaint();
+				Gui.gui.getContentPane().repaint();
 			}
 			Logging.log("The Game loop has been broken.");
 		}
