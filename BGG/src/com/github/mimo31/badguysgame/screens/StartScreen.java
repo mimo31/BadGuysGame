@@ -68,22 +68,7 @@ public final class StartScreen extends MenuScreen {
 			Screen.startNew(new ChooseStageScreen());
 		}
 		else if (index == 1) {
-			boolean unlockedFound = false;
-			for (int i = 0; i < Main.autoweapons.length; i++) {
-				if (Main.autoweapons[i].doDisplay()) {
-					unlockedFound = true;
-					break;
-				}
-			}
-			if (!unlockedFound) {
-				for (int i = 0; i < Main.crushers.length; i++) {
-					if (Main.crushers[i].doDisplay()) {
-						unlockedFound = true;
-						break;
-					}
-				}
-			}
-			if (unlockedFound) {
+			if (Main.shopRootNeeded()) {
 				Screen.startNew(new ShopRootScreen());
 			}
 			else {

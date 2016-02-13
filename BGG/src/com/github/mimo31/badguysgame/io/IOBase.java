@@ -49,7 +49,7 @@ public class IOBase {
 			}
 			fileIn.close();
 			dataIn.close();
-			Logging.log("The save was loaded.");
+			Logging.log("The save has been loaded.");
 		}
 		else {
 			Main.firstRun = true;
@@ -74,7 +74,7 @@ public class IOBase {
 		}
 		fileOut.close();
 		dataOut.close();
-		Logging.log("The Game was saved.");
+		Logging.log("The Game has been saved.");
 		Logging.logEndSectionTag("GAMESAVE");
 	}
 }

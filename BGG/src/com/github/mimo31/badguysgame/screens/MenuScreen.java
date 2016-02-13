@@ -74,10 +74,12 @@ public class MenuScreen extends Screen {
 
 	@Override
 	public void mousePressed(MouseEvent event) {
-		for (int i = 0; i < this.buttons.length; i++) {
-			if (this.buttons[i].contains(event.getPoint())) {
-				this.buttonClicked(i);
-				break;
+		if (this.acceptInputs()) {
+			for (int i = 0; i < this.buttons.length; i++) {
+				if (this.buttons[i].contains(event.getPoint())) {
+					this.buttonClicked(i);
+					break;
+				}
 			}
 		}
 	}

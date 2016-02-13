@@ -607,7 +607,9 @@ public class Game {
 				i--;
 			}
 		}
-		this.crushersStates[0] = this.crushersStates[1] = this.crushersStates[2] = this.crushersStates[3] = 0;
+		if (this.usingCrusher) {
+			this.crushersStates[0] = this.crushersStates[1] = this.crushersStates[2] = this.crushersStates[3] = 0;
+		}
 		this.fallingObjects.clear();
 	}
 

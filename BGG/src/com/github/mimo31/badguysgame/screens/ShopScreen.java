@@ -66,7 +66,7 @@ public final class ShopScreen extends Screen {
 	private Graphics2D g;
 	private Point usedMousePosition = new Point(0, 0);
 
-	public ShopScreen(Weapon[] weapons, IntHolder selectedWeapon) {
+	public ShopScreen(Weapon[] weapons, IntHolder selectedWeapon, boolean offerNothing) {
 		super();
 		this.realWeapons = weapons;
 		this.realSelectedWeapon = selectedWeapon;
@@ -75,8 +75,14 @@ public final class ShopScreen extends Screen {
 		}
 		else {
 			this.selectedWeapon = selectedWeapon.value;
+			if (offerNothing) {
+				this.selectedWeapon++;
+			}
 		}
 		List<Weapon> weaponList = new ArrayList<Weapon>();
+		if (offerNothing) {
+			weaponList.add(null);
+		}
 		for (int i = 0; i < weapons.length; i++) {
 			if (weapons[i].doDisplay()) {
 				weaponList.add(weapons[i]);
@@ -92,7 +98,7 @@ public final class ShopScreen extends Screen {
 	}
 
 	public ShopScreen() {
-		this(Main.barrels, Main.selectedBarrel);
+		this(Main.barrels, Main.selectedBarrel, false);
 	}
 
 	@Override
@@ -173,50 +179,59 @@ public final class ShopScreen extends Screen {
 
 		// Draws the weapon's properties interface
 		Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
-		int maxShownIndex = (int) Math.ceil(this.listsPosition[this.selectedWeapon]) + 3;
-		if (selectedWeapon.bought) {
-			maxShownIndex += 2;
-		}
-		for (int i = (int) Math.floor(this.listsPosition[this.selectedWeapon]); i < maxShownIndex && i < selectedWeapon.gameProperties.length; i++) {
-			g.setColor(Color.orange);
-			int rowAbsoluteY = (int) ((i - this.listsPosition[this.selectedWeapon] + 2) * contentSize.height / 8);
-			if (selectedWeapon.gameProperties[i] instanceof UpgradablePropertyImplementation) {
-				UpgradablePropertyImplementation upgradableImplementation = (UpgradablePropertyImplementation) selectedWeapon.gameProperties[i];
-				float fractionToFill = upgradableImplementation.getUpgradedDrawnFraction();
-				if (fractionToFill != 0) {
-					g.fillRect(0, rowAbsoluteY, (int) (contentSize.width * fractionToFill / 2), contentSize.height / 8);
-				}
-				Rectangle upgradeColumnRect = new Rectangle(contentSize.width * 3 / 4, rowAbsoluteY, contentSize.width / 4, contentSize.height / 8);
-				if (selectedWeapon.bought) {
-					if (upgradableImplementation.isFullyUpgraded()) {
-						g.setColor(Color.black);
-						StringDraw.drawMaxString(g, this.tableBordersSize, "maxed", upgradeColumnRect);
+		if (selectedWeapon != null) {
+			int maxShownIndex = (int) Math.ceil(this.listsPosition[this.selectedWeapon]) + 3;
+			if (selectedWeapon.bought) {
+				maxShownIndex += 2;
+			}
+			for (int i = (int) Math.floor(this.listsPosition[this.selectedWeapon]); i < maxShownIndex && i < selectedWeapon.gameProperties.length; i++) {
+				g.setColor(Color.orange);
+				int rowAbsoluteY = (int) ((i - this.listsPosition[this.selectedWeapon] + 2) * contentSize.height / 8);
+				if (selectedWeapon.gameProperties[i] instanceof UpgradablePropertyImplementation) {
+					UpgradablePropertyImplementation upgradableImplementation = (UpgradablePropertyImplementation) selectedWeapon.gameProperties[i];
+					float fractionToFill = upgradableImplementation.getUpgradedDrawnFraction();
+					if (fractionToFill != 0) {
+						g.fillRect(0, rowAbsoluteY, (int) (contentSize.width * fractionToFill / 2), contentSize.height / 8);
+					}
+					Rectangle upgradeColumnRect = new Rectangle(contentSize.width * 3 / 4, rowAbsoluteY, contentSize.width / 4, contentSize.height / 8);
+					if (selectedWeapon.bought) {
+						if (upgradableImplementation.isFullyUpgraded()) {
+							g.setColor(Color.black);
+							StringDraw.drawMaxString(g, this.tableBordersSize, "maxed", upgradeColumnRect);
+						}
+						else {
+							PaintUtils.drawChangingRect(g, upgradeColumnRect, Color.cyan, Color.red, this.usedMousePosition);
+							g.setColor(Color.black);
+							StringDraw.drawMaxString(g, this.tableBordersSize, getLastColumnTextBought(upgradableImplementation), upgradeColumnRect);
+						}
 					}
 					else {
-						PaintUtils.drawChangingRect(g, upgradeColumnRect, Color.cyan, Color.red, this.usedMousePosition);
 						g.setColor(Color.black);
-						StringDraw.drawMaxString(g, this.tableBordersSize, getLastColumnTextBought(upgradableImplementation), upgradeColumnRect);
+						StringDraw.drawMaxString(g, this.tableBordersSize, getLastColumnTextNotBought(upgradableImplementation), upgradeColumnRect);
 					}
 				}
-				else {
-					g.setColor(Color.black);
-					StringDraw.drawMaxString(g, this.tableBordersSize, getLastColumnTextNotBought(upgradableImplementation), upgradeColumnRect);
-				}
+				Rectangle nameColumnRect = new Rectangle(0, rowAbsoluteY, contentSize.width / 2, contentSize.height / 8);
+				Rectangle valueColumnRect = new Rectangle(contentSize.width / 2, rowAbsoluteY, contentSize.width / 4, contentSize.height / 8);
+				g.setColor(Color.black);
+				StringDraw.drawMaxString(g, this.tableBordersSize, selectedWeapon.gameProperties[i].propertyType.name, TextAlign.LEFT, nameColumnRect);
+				StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedWeapon.gameProperties[i].getActualValue()), valueColumnRect);
 			}
-			Rectangle nameColumnRect = new Rectangle(0, rowAbsoluteY, contentSize.width / 2, contentSize.height / 8);
-			Rectangle valueColumnRect = new Rectangle(contentSize.width / 2, rowAbsoluteY, contentSize.width / 4, contentSize.height / 8);
-			g.setColor(Color.black);
-			StringDraw.drawMaxString(g, this.tableBordersSize, selectedWeapon.gameProperties[i].propertyType.name, TextAlign.LEFT, nameColumnRect);
-			StringDraw.drawMaxString(g, this.tableBordersSize, toString(selectedWeapon.gameProperties[i].getActualValue()), valueColumnRect);
-		}
 
-		g.setColor(Gui.gui.getBackground());
-		g.fillRect(0, 0, contentSize.width, contentSize.height / 4);
-		if (selectedWeapon.bought) {
-			g.fillRect(0, contentSize.height * 7 / 8, contentSize.width, contentSize.height / 8);
+			g.setColor(Gui.gui.getBackground());
+			g.fillRect(0, 0, contentSize.width, contentSize.height / 4);
+			if (selectedWeapon.bought) {
+				g.fillRect(0, contentSize.height * 7 / 8, contentSize.width, contentSize.height / 8);
+			}
 		}
 		g.setColor(Color.black);
-		StringDraw.drawMaxString(g, this.tableBordersSize, selectedWeapon.name, this.barrelNameBounds);
+		String nameText;
+		if (selectedWeapon == null) {
+			nameText = "Nothing selected";
+		}
+		else {
+			nameText = selectedWeapon.name;
+		}
+		StringDraw.drawMaxString(g, this.tableBordersSize, nameText, this.barrelNameBounds);
 
 		int maxWeaponIndex = (int) Math.floor(this.weaponsListPosition + (contentSize.width - contentSize.height / 8) / (float) (contentSize.height / 8 - contentSize.height / 256));
 		for (int i = (int) Math.floor(this.weaponsListPosition); i < this.displayedWeapons.length && i <= maxWeaponIndex; i++) {
@@ -254,17 +269,19 @@ public final class ShopScreen extends Screen {
 		g.fillPolygon(this.rightArrowTriangle);
 
 		// Draws the buy button
-		if (!selectedWeapon.bought) {
-			PaintUtils.drawChangingRect(g, this.buyButton, DARK_RED, CHAMPAGNE, this.usedMousePosition);
-			Color textColor;
-			if (this.buyButton.contains(this.usedMousePosition)) {
-				textColor = Color.black;
+		if (selectedWeapon != null) {
+			if (!selectedWeapon.bought) {
+				PaintUtils.drawChangingRect(g, this.buyButton, DARK_RED, CHAMPAGNE, this.usedMousePosition);
+				Color textColor;
+				if (this.buyButton.contains(this.usedMousePosition)) {
+					textColor = Color.black;
+				}
+				else {
+					textColor = Color.white;
+				}
+				g.setColor(textColor);
+				StringDraw.drawMaxString(g, this.buyButton.height / 4, "Buy - " + String.valueOf(selectedWeapon.cost) + " coins", this.buyButton);
 			}
-			else {
-				textColor = Color.white;
-			}
-			g.setColor(textColor);
-			StringDraw.drawMaxString(g, this.buyButton.height / 4, "Buy - " + String.valueOf(selectedWeapon.cost) + " coins", this.buyButton);
 		}
 
 		// Draws the amount of money and the corresponding sign at the
@@ -274,7 +291,7 @@ public final class ShopScreen extends Screen {
 		StringDraw.drawMaxString(g, this.tableBordersSize, "Total money", TextAlign.LEFT, this.moneySignBounds);
 		g.setColor(PaintUtils.DARK_GREEN2);
 		StringDraw.drawMaxString(g, this.tableBordersSize, String.valueOf(Main.money), TextAlign.RIGHT, this.moneyAmountBounds);
-		
+
 		if (this.showingHelp) {
 			PaintUtils.paintGenericHelpScreen(g, contentSize);
 			if (!this.secondHelpPage) {
@@ -307,10 +324,12 @@ public final class ShopScreen extends Screen {
 
 	private void drawWeapon(int index) throws IOException {
 		int x = (int) ((this.weaponsSize) * (index - this.weaponsListPosition)) + this.contentSize.height / 16;
-		this.g.drawImage(ResourceHandler.getTexture(this.displayedWeapons[index].textureName, (int) this.weaponsSize), x, 0, null);
-		if (!this.displayedWeapons[index].bought) {
-			this.g.setColor(PaintUtils.TRANSPARENT_GRAY);
-			this.g.fillRect(x, 0, this.weaponsSize, this.weaponsSize);
+		if (this.displayedWeapons[index] != null) {
+			this.g.drawImage(ResourceHandler.getTexture(this.displayedWeapons[index].textureName, (int) this.weaponsSize), x, 0, null);
+			if (!this.displayedWeapons[index].bought) {
+				this.g.setColor(PaintUtils.TRANSPARENT_GRAY);
+				this.g.fillRect(x, 0, this.weaponsSize, this.weaponsSize);
+			}
 		}
 		if (index == this.selectedWeapon) {
 			float cornerSize = this.weaponsSize / (float) 16;
@@ -360,7 +379,7 @@ public final class ShopScreen extends Screen {
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent event) {
-		if (!this.showingHelp) {
+		if (!this.showingHelp && this.displayedWeapons[selectedWeapon] != null) {
 			int bottomYBound;
 			if (this.displayedWeapons[this.selectedWeapon].bought) {
 				bottomYBound = this.contentSize.height * 7 / 8;
@@ -384,7 +403,9 @@ public final class ShopScreen extends Screen {
 	public void update(int time) {
 		if (!this.showingHelp) {
 			for (int i = 0; i < this.displayedWeapons.length; i++) {
-				this.displayedWeapons[i].update(time);
+				if (this.displayedWeapons[i] != null) {
+					this.displayedWeapons[i].update(time);
+				}
 			}
 			if (this.notBoughtWarning) {
 				this.notBoughtStage -= time / (float) 40;
@@ -419,18 +440,23 @@ public final class ShopScreen extends Screen {
 		}
 		else {
 			if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-				if (this.displayedWeapons[this.selectedWeapon].bought) {
+				boolean doExit;
+				if (this.displayedWeapons[this.selectedWeapon] == null) {
+					doExit = true;
+				}
+				else if (this.displayedWeapons[this.selectedWeapon].bought) {
+					doExit = true;
+				}
+				else {
+					doExit = false;
+				}
+				if (doExit) {
 					for (int i = 0; i < this.displayedWeapons.length; i++) {
-						this.displayedWeapons[i].forceUpgrade();
-					}
-					boolean autoUnlockedFound = false;
-					for (int i = 0; i < Main.autoweapons.length; i++) {
-						if (Main.autoweapons[i].doDisplay()) {
-							autoUnlockedFound = true;
-							break;
+						if (this.displayedWeapons[i] != null) {
+							this.displayedWeapons[i].forceUpgrade();
 						}
 					}
-					if (autoUnlockedFound) {
+					if (Main.shopRootNeeded()) {
 						Screen.startNew(new ShopRootScreen());
 					}
 					else {
@@ -474,48 +500,50 @@ public final class ShopScreen extends Screen {
 			}
 			// Handles all the clicks on the properties interface
 			else if (event.getY() >= this.contentSize.height / 4 && event.getY() < this.contentSize.height / 8 * 7) {
-				Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
-				boolean clickedOnUpgrade = false;
-				if (!selectedWeapon.bought) {
-					if (event.getY() >= this.contentSize.height * 5 / 8) {
-						if (this.buyButton.contains(event.getPoint())) {
-							if (selectedWeapon.cost <= Main.money) {
-								Main.money -= selectedWeapon.cost;
-								selectedWeapon.bought = true;
-								Statistics.weaponBought(selectedWeapon);
+				if (this.displayedWeapons[this.selectedWeapon] != null) {
+					Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
+					boolean clickedOnUpgrade = false;
+					if (!selectedWeapon.bought) {
+						if (event.getY() >= this.contentSize.height * 5 / 8) {
+							if (this.buyButton.contains(event.getPoint())) {
+								if (selectedWeapon.cost <= Main.money) {
+									Main.money -= selectedWeapon.cost;
+									selectedWeapon.bought = true;
+									Statistics.weaponBought(selectedWeapon);
+								}
 							}
 						}
+						else if (event.getX() >= this.contentSize.width * 3 / 4) {
+							clickedOnUpgrade = true;
+						}
 					}
-					else if (event.getX() >= this.contentSize.width * 3 / 4) {
-						clickedOnUpgrade = true;
+					else {
+						if (event.getX() >= this.contentSize.width * 3 / 4) {
+							clickedOnUpgrade = true;
+						}
 					}
-				}
-				else {
-					if (event.getX() >= this.contentSize.width * 3 / 4) {
-						clickedOnUpgrade = true;
-					}
-				}
-				if (clickedOnUpgrade) {
-					int clickedIndex = (int) ((event.getY() - this.contentSize.height / 4) / (float) (this.contentSize.height / 8) + this.listsPosition[this.selectedWeapon]);
-					if (selectedWeapon.gameProperties[clickedIndex] instanceof UpgradablePropertyImplementation) {
-						UpgradablePropertyImplementation upgradableImplementation = (UpgradablePropertyImplementation) selectedWeapon.gameProperties[clickedIndex];
-						if (!upgradableImplementation.isFullyUpgraded()) {
-							int upgradeCost = upgradableImplementation.getUpgradeCost();
-							if (Main.money >= upgradeCost) {
-								Main.money -= upgradeCost;
-								upgradableImplementation.upgrade();
-								if (!Achievement.achievements[6].achieved) {
-									Achievement.achieve(6);
-								}
-								if (selectedWeapon.isFullyUpgraded()) {
-									Achievement.achieve(7);
+					if (clickedOnUpgrade) {
+						int clickedIndex = (int) ((event.getY() - this.contentSize.height / 4) / (float) (this.contentSize.height / 8) + this.listsPosition[this.selectedWeapon]);
+						if (selectedWeapon.gameProperties[clickedIndex] instanceof UpgradablePropertyImplementation) {
+							UpgradablePropertyImplementation upgradableImplementation = (UpgradablePropertyImplementation) selectedWeapon.gameProperties[clickedIndex];
+							if (!upgradableImplementation.isFullyUpgraded()) {
+								int upgradeCost = upgradableImplementation.getUpgradeCost();
+								if (Main.money >= upgradeCost) {
+									Main.money -= upgradeCost;
+									upgradableImplementation.upgrade();
+									if (!Achievement.achievements[6].achieved) {
+										Achievement.achieve(6);
+									}
+									if (selectedWeapon.isFullyUpgraded()) {
+										Achievement.achieve(7);
+									}
 								}
 							}
 						}
 					}
 				}
 			}
-			else if (this.buyButton.contains(event.getPoint()) && !Main.getSelectedBarrel().bought) {
+			else if (this.buyButton.contains(event.getPoint()) && !Main.getSelectedBarrel().bought && this.displayedWeapons[this.selectedWeapon] != null) {
 				Weapon selectedWeapon = this.displayedWeapons[this.selectedWeapon];
 				if (selectedWeapon.cost <= Main.money) {
 					Main.money -= selectedWeapon.cost;
@@ -560,7 +588,10 @@ public final class ShopScreen extends Screen {
 
 	@Override
 	public void getCloseReady() {
-		if (!this.displayedWeapons[this.selectedWeapon].bought) {
+		if (this.displayedWeapons[this.selectedWeapon] == null) {
+			this.realSelectedWeapon.value = -1;
+		}
+		else if (!this.displayedWeapons[this.selectedWeapon].bought) {
 			if (this.realWeapons[0].bought) {
 				this.realSelectedWeapon.value = 0;
 			}

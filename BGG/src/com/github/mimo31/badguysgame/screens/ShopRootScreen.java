@@ -56,6 +56,7 @@ public class ShopRootScreen extends MenuScreen {
 	protected void buttonClicked(int index) {
 		IntHolder selectedItem = null;
 		Weapon[] weaponArray = null;
+		boolean offerNothing = false;
 		String clickedText = super.buttonsText[index];
 		if (clickedText.equals("Barrels")) {
 			selectedItem = Main.selectedBarrel;
@@ -64,12 +65,14 @@ public class ShopRootScreen extends MenuScreen {
 		else if (clickedText.equals("Autoweapons")) {
 			selectedItem = Main.selectedAutoweapon;
 			weaponArray = Main.autoweapons;
+			offerNothing = true;
 		}
 		else if (clickedText.equals("Crushers")) {
 			selectedItem = Main.selectedCrusher;
 			weaponArray = Main.crushers;
+			offerNothing = true;
 		}
-		Screen.startNew(new ShopScreen(weaponArray, selectedItem));
+		Screen.startNew(new ShopScreen(weaponArray, selectedItem, offerNothing));
 	}
 
 	@Override

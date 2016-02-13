@@ -213,6 +213,20 @@ public class Main {
 			
 		};
 	}
+	
+	public static boolean shopRootNeeded() {
+		for (int i = 0; i < Main.autoweapons.length; i++) {
+			if (Main.autoweapons[i].doDisplay()) {
+				return true;
+			}
+		}
+		for (int i = 0; i < Main.crushers.length; i++) {
+			if (Main.crushers[i].doDisplay()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private static Spawner[] makeHomogenousSpawnerArray(Spawner element, int length) {
 		Spawner[] array = new Spawner[length];
