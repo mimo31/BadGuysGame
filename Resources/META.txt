@@ -7,8 +7,10 @@ AutoweaponBase.png 1.5beta 1
 Base.png 0.9 1
 BasicAutoweapon.png 1.5beta 1
 BasicBadGuy.png 0.9 1
+BasicBadProjectile.png 1.7beta 1
 BasicBarrel.png 0.9 1
 BasicCoin.png 0.9 1
+BasicCrusher.png 1.7beta 1
 BasicProjectile.png 0.9 1
 ElectricProjectile.png 1.6beta 1
 ElectroBarrel.png 1.6beta 1
@@ -19,6 +21,9 @@ GreatBarrel.png 1.4beta 1
 HeavyArmoredBadGuy.png 1.2beta 1
 MagneticBarrel.png 1.2beta 1
 MagneticProjectile.png 1.2beta 1
+ProtectedAutoweapon.png 1.7beta 1
 SecondBoss.png 1.6 1
+ShootingBadGuy.png 1.7beta 1
 SpeedyBadGuy.png 1.5beta 1
 Upgrade.png 1.4beta 1
+WoodenBlocker.png 1.7beta 1
