@@ -4,19 +4,45 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.github.mimo31.badguysgame.IntHolder;
 import com.github.mimo31.badguysgame.Main;
 import com.github.mimo31.badguysgame.PaintUtils;
 import com.github.mimo31.badguysgame.StringDraw;
+import com.github.mimo31.badguysgame.mechanics.weaponry.Weapon;
 
 public class ShopRootScreen extends MenuScreen {
 
 	private boolean showingHelp;
 
 	public ShopRootScreen() {
-		super(new String[] { "Barrels", "Automatic weapons" }, Color.orange, Color.cyan, Color.white, 3 / (float) 5, 1 / (float) 4, 0);
+		this(getOfferedWeapons());
+	}
+	
+	private ShopRootScreen(String[] offeredWeapons) {
+		super(offeredWeapons, Color.orange, Color.cyan, Color.white, 3 / (float) 5, 1 / (float) (offeredWeapons.length + 2), 0);
 	}
 
+	private static String[] getOfferedWeapons() {
+		List<String> offerList = new ArrayList<String>();
+		offerList.add("Barrels");
+		for (int i = 0; i < Main.autoweapons.length; i++) {
+			if (Main.autoweapons[i].doDisplay()) {
+				offerList.add("Autoweapons");
+				break;
+			}
+		}
+		for (int i = 0; i < Main.crushers.length; i++) {
+			if (Main.crushers[i].doDisplay()) {
+				offerList.add("Crushers");
+				break;
+			}
+		}
+		return offerList.toArray(new String[offerList.size()]);
+	}
+	
 	@Override
 	public void paintOver() throws IOException {
 		PaintUtils.drawCurrentMoney(super.g, super.contentSize);
@@ -28,12 +54,22 @@ public class ShopRootScreen extends MenuScreen {
 
 	@Override
 	protected void buttonClicked(int index) {
-		if (index == 0) {
-			Screen.startNew(new ShopScreen(Main.barrels, Main.selectedBarrel));
+		IntHolder selectedItem = null;
+		Weapon[] weaponArray = null;
+		String clickedText = super.buttonsText[index];
+		if (clickedText.equals("Barrels")) {
+			selectedItem = Main.selectedBarrel;
+			weaponArray = Main.barrels;
 		}
-		else {
-			Screen.startNew(new ShopScreen(Main.autoweapons, Main.selectedAutoweapon));
+		else if (clickedText.equals("Autoweapons")) {
+			selectedItem = Main.selectedAutoweapon;
+			weaponArray = Main.autoweapons;
 		}
+		else if (clickedText.equals("Crushers")) {
+			selectedItem = Main.selectedCrusher;
+			weaponArray = Main.crushers;
+		}
+		Screen.startNew(new ShopScreen(weaponArray, selectedItem));
 	}
 
 	@Override

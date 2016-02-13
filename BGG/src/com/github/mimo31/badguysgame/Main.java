@@ -1,5 +1,8 @@
 package com.github.mimo31.badguysgame;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.io.IOException;
 
 import com.github.mimo31.badguysgame.io.IOBase;
@@ -7,6 +10,7 @@ import com.github.mimo31.badguysgame.io.IOInitialization;
 import com.github.mimo31.badguysgame.io.Logging;
 import com.github.mimo31.badguysgame.mechanics.Spawner;
 import com.github.mimo31.badguysgame.mechanics.Stage;
+import com.github.mimo31.badguysgame.mechanics.weaponry.Crusher;
 import com.github.mimo31.badguysgame.mechanics.weaponry.NotUpgradablePropertyImplementation;
 import com.github.mimo31.badguysgame.mechanics.weaponry.PropertyImplementation;
 import com.github.mimo31.badguysgame.mechanics.weaponry.UpgradablePropertyImplementation;
@@ -27,8 +31,10 @@ public class Main {
 	public static Stage[] stages;
 	public static Weapon[] barrels;
 	public static Weapon[] autoweapons;
+	public static Crusher[] crushers;
 	public static IntHolder selectedBarrel = new IntHolder(0);
 	public static IntHolder selectedAutoweapon = new IntHolder(-1);
+	public static IntHolder selectedCrusher = new IntHolder(-1);
 	public static int money = 0;
 	public static String initText;
 	/**
@@ -60,6 +66,7 @@ public class Main {
 			initializeStages();
 			initializeBarrels();
 			initializeAutoweapons();
+			initializeCrushers();
 			try {
 				IOBase.loadSaveIfPresent();
 			} catch (IOException e) {
@@ -94,7 +101,7 @@ public class Main {
 		Spawner speedySpw = new Spawner.SpeedySpawner();
 		Spawner shootingSpw = new Spawner.ShootingSpawner();
 		Spawner woodenBlockerSpw = new Spawner.WoodenBlockSpawner();
-		stages = new Stage[37];
+		stages = new Stage[40];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -132,6 +139,9 @@ public class Main {
 		stages[34] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw, shootingSpw, speedySpw, shootingSpw, basicSpw, basicSpw }, new int[] { 30, 30, 30, 30, 70, 70, 70, 70 });
 		stages[35] = new Stage(new Spawner[] { armoredSpw, armoredSpw, shootingSpw, shootingSpw, speedySpw, speedySpw, fastSpw, fastSpw }, new int[] { 30, 30, 30, 30, 70, 70, 70, 70 });
 		stages[36] = new Stage(new Spawner[] { woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, speedySpw }, new int[] { 20, 20, 20, 20, 200 } );
+		stages[37] = new Stage(new Spawner[] { woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, speedySpw, speedySpw, heavilyArmoredSpw, heavilyArmoredSpw }, new int[] { 20, 20, 20, 20, 200, 200, 200, 200 } );
+		stages[38] = new Stage(new Spawner[] { woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, speedySpw, speedySpw, shootingSpw, shootingSpw }, new int[] { 20, 20, 20, 20, 200, 200, 250, 250 } );
+		stages[39] = new Stage(new Spawner[] { woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, speedySpw, speedySpw, shootingSpw, shootingSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 200, 200, 250, 250, 280, 280 } );
 	}
 
 	private static void initializeBarrels() {
@@ -146,7 +156,7 @@ public class Main {
 		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.75f, 0.5f, 0.5f }, 1.75f);
 		barrels[1] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed }, 50, "FastBarrel.png", "BasicProjectile.png", false, "Fast Projectile Barrel", 0);
 
-		loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 10, 30 }, new float[] { -0.5f, -0.2f }, 1.5f);
+		loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 10, 30, 40 }, new float[] { -0.5f, -0.2f, -0.1f }, 1.5f);
 		projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 25, 45 }, new float[] { 1, 0.5f }, 2);
 		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 10, 25, 50 }, new float[] { 0.5f, 0.5f, 0.3f }, 0.7f);
 		PropertyImplementation coinMagnet = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.coinMagnetID], new int[] { 50 }, new float[] { 1 }, 1);
@@ -162,17 +172,46 @@ public class Main {
 	private static void initializeAutoweapons() {
 		autoweapons = new Weapon[2];
 		PropertyImplementation loadingTime = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], new int[] { 15 }, new float[] { -0.2f }, 1.5f);
-		PropertyImplementation projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 20 }, new float[] { 0.5f }, 0.7f);
+		PropertyImplementation projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 20, 40 }, new float[] { 0.5f, 0.5f }, 0.7f);
 		PropertyImplementation projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 20 }, new float[] { 0.5f }, 0.7f);
-		PropertyImplementation rotationSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.rotationSpeedID], new int[] { 15 }, new float[] { 0.3f }, 1f);
+		PropertyImplementation rotationSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.rotationSpeedID], new int[] { 15, 30 }, new float[] { 0.3f, 0.2f }, 1f);
 		autoweapons[0] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, rotationSpeed }, 50, "BasicAutoweapon.png", "BasicProjectile.png", false, "Basic autoweapon", 3);
 		
 		loadingTime = new NotUpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.loadingTimeID], 0.9f);
 		projectilePower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectilePowerID], new int[] { 40 }, new float[] { 0.5f }, 1f);
-		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 45 }, new float[] { 0.6f }, 1.15f);
+		projectileSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.projectileSpeedID], new int[] { 45 }, new float[] { 0.8f }, 1.15f);
 		rotationSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.rotationSpeedID], new int[] { 40, 55 }, new float[] { 0.5f, 0.35f }, 1.5f);
-		PropertyImplementation unBlockSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.getPropertyID("Unblock speed")], new int[] { 40 }, new float[] { 0.35f }, 1.5f);
+		PropertyImplementation unBlockSpeed = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.unblockSpeedID], new int[] { 40 }, new float[] { 0.35f }, 1.5f);
 		autoweapons[1] = new Weapon(new PropertyImplementation[] { loadingTime, projectilePower, projectileSpeed, rotationSpeed, unBlockSpeed }, 100, "ProtectedAutoweapon.png", "BasicProjectile.png", false, "Protected autoweapon", 10);
+	}
+	
+	private static void initializeCrushers() {
+		crushers = new Crusher[1];
+		PropertyImplementation crushPower = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.crushPowerID], new int[] { 40 }, new float[] { 0.5f }, 2);
+		PropertyImplementation crushFrequency = new UpgradablePropertyImplementation(Weapon.propertiesIndex[Weapon.crushFrequencyID], new int[] { 50 }, new float[] { 0.5f }, 1);
+		crushers[0] = new Crusher(new PropertyImplementation[] { crushPower, crushFrequency }, 120, "BasicCrusher.png", false, "Basic crusher", 11) {
+
+			@Override
+			public void draw(Graphics2D g, Point position, int size, float state) {
+				g.setColor(Color.black);
+				g.fillRect(position.x, position.y, size, size);
+				g.setColor(Color.gray);
+				g.fillRect(position.x + size / 16, position.y + size / 16, size - size / 8, size - size / 8);
+				int secondBlackDist = size / 8 + size / 32;
+				g.setColor(Color.black);
+				g.fillRect(position.x + secondBlackDist, position.y + secondBlackDist, size - secondBlackDist * 2, size - secondBlackDist * 2);
+				int redDist = secondBlackDist + size / 16;
+				g.setColor(Color.red);
+				g.fillRect(position.x + redDist, position.y + redDist, size - redDist * 2, size - redDist * 2);
+				float actualState = (float) (1 - (Math.abs(state - 0.5) * 2));
+				int sizeInside = size - 2 * redDist;
+				g.setColor(Color.black);
+				g.fillRect(position.x + redDist, position.y + redDist + sizeInside / 12, (int) (sizeInside * actualState), sizeInside / 6);
+				g.fillRect(position.x + redDist + sizeInside - (int) (sizeInside * actualState), position.y + redDist + sizeInside / 3 + sizeInside / 12, (int) (sizeInside * actualState), sizeInside / 6);
+				g.fillRect(position.x + redDist, position.y + redDist + sizeInside / 3 * 2 + sizeInside / 12, (int) (sizeInside * actualState), sizeInside / 6);
+			}
+			
+		};
 	}
 
 	private static Spawner[] makeHomogenousSpawnerArray(Spawner element, int length) {
@@ -193,6 +232,15 @@ public class Main {
 		}
 		else {
 			return autoweapons[selectedAutoweapon.value];
+		}
+	}
+	
+	public static Crusher getSelectedCrusher() {
+		if (selectedCrusher.value == -1) {
+			return null;
+		}
+		else {
+			return crushers[selectedCrusher.value];
 		}
 	}
 

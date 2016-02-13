@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 public class Achievement {
 
-	public static final Achievement[] achievements = new Achievement[11];
+	public static final Achievement[] achievements = new Achievement[12];
 	public static AchievementConnection[] connections;
 	public static final Rectangle achievementSpaceSize = new Rectangle();
 
@@ -69,6 +69,7 @@ public class Achievement {
 		achievements[8] = new Achievement("Speeding up", "Shot down the first Speedy Bad Guy.", "SpeedyBadGuy.png", new String[] { "Electro Barrel" }, true, 2304, -128, new int[] { 3 }, new int[] { 2 });
 		achievements[9] = new Achievement("Becoming powerful", "Buy the Electro Barrel.", "ElectroBarrel.png", new String[0], false, 3072, 128, new int[] { 5, 8 }, new int[] { 8 });
 		achievements[10] = new Achievement("Beware of projectiles", "Eliminate one projectile from a Bad Guy", "BasicBadProjectile.png", new String[] { "Protected autoweapon" }, false, 3072, -128, new int[] { 8 }, new int[0]);
+		achievements[11] = new Achievement("Not a Bad Guy?", "Shot down the first Projectile Blocker", "WoodenBlocker.png", new String[] { "Basic crusher" }, true, 3840, -128, new int[] { 10 }, new int[] { 8 });
 		
 		List<AchievementConnection> connectionList = new ArrayList<AchievementConnection>();
 		connectionList.addAll(Arrays.asList(AchievementConnection.getConnections(0, 1, 32, 0)));
@@ -82,6 +83,7 @@ public class Achievement {
 		connectionList.addAll(Arrays.asList(AchievementConnection.getConnections(8, 9, 32, -32)));
 		connectionList.addAll(Arrays.asList(AchievementConnection.getConnections(5, 9, 32, 32)));
 		connectionList.addAll(Arrays.asList(AchievementConnection.getConnections(8, 10, -32, -32)));
+		addConnection(connectionList, 10, 11);
 		connections = connectionList.toArray(new AchievementConnection[connectionList.size()]);
 	}
 	

@@ -39,6 +39,9 @@ public class Statistics {
 			else if (name.equals("Speedy")) {
 				Achievement.achieve(8);
 			}
+			else if (name.endsWith("Blocker")) {
+				Achievement.achieve(11);
+			}
 		}
 	}
 	

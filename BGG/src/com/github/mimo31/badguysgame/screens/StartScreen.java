@@ -75,6 +75,14 @@ public final class StartScreen extends MenuScreen {
 					break;
 				}
 			}
+			if (!unlockedFound) {
+				for (int i = 0; i < Main.crushers.length; i++) {
+					if (Main.crushers[i].doDisplay()) {
+						unlockedFound = true;
+						break;
+					}
+				}
+			}
 			if (unlockedFound) {
 				Screen.startNew(new ShopRootScreen());
 			}

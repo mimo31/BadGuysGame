@@ -42,7 +42,7 @@ public class GameScreen extends Screen {
 	private Rectangle pauseQuitButton = new Rectangle();
 
 	public GameScreen(int stage, Point showingStageMousePos) {
-		this.game = new Game(stage, Main.getSelectedBarrel(), Main.getSelectedAutoweapon());
+		this.game = new Game(stage, Main.getSelectedBarrel(), Main.getSelectedAutoweapon(), Main.getSelectedCrusher());
 		this.gameMousePosition = showingStageMousePos;
 		this.usedMousePosition = showingStageMousePos;
 		this.showingStage = true;

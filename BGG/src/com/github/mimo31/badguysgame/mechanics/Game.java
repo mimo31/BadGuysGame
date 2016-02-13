@@ -8,11 +8,13 @@ import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.github.mimo31.badguysgame.Main;
 import com.github.mimo31.badguysgame.Statistics;
 import com.github.mimo31.badguysgame.io.ResourceHandler;
 import com.github.mimo31.badguysgame.mechanics.GameReturnData.GameActionType;
+import com.github.mimo31.badguysgame.mechanics.weaponry.Crusher;
 import com.github.mimo31.badguysgame.mechanics.weaponry.Weapon;
 
 public class Game {
@@ -58,12 +60,18 @@ public class Game {
 	 * Rotation in radians. Relative to the upward angle.
 	 */
 	private double rightAutoRotation = 0;
+	
+	private boolean usingCrusher;
+	private float crushPower;
+	private float crushFrequency;
+	private float[] crushersStates;
+	private Crusher crusher;
 
 	public static final Color TRANSPARENT_GREEN = new Color(0, 255, 127, 31);
 	public static final Color TRANSPARENT_RED = new Color(255, 0, 0, 31);
 	public static final Color LIFE_GREEN = new Color(0, 255, 127, 63);
 
-	public Game(int stage, Weapon barrel, Weapon autoweapon) {
+	public Game(int stage, Weapon barrel, Weapon autoweapon, Crusher crusher) {
 		this.currentStage = stage;
 		this.timeInStage = 0;
 		this.fallingObjects = new ArrayList<FallingObject>();
@@ -72,6 +80,7 @@ public class Game {
 		this.coins = new ArrayList<Coin>();
 		this.updateBarrel(barrel);
 		this.updateAutoweapon(autoweapon);
+		this.updateCrusher(crusher);
 	}
 
 	public void updateBarrel(Weapon barrel) {
@@ -98,6 +107,19 @@ public class Game {
 		}
 		else {
 			this.usingAutoweapon = false;
+		}
+	}
+	
+	public void updateCrusher(Crusher crusher) {
+		if (crusher != null) {
+			this.usingCrusher = true;
+			this.crushersStates = new float[4];
+			this.crushPower = crusher.getProperty(Weapon.getPropertyID("Crush power"));
+			this.crushFrequency = crusher.getProperty(Weapon.getPropertyID("Crush frequency"));
+			this.crusher = crusher;
+		}
+		else {
+			this.usingCrusher = false;
 		}
 	}
 
@@ -195,7 +217,7 @@ public class Game {
 		for (int i = 0; i < this.fallingObjects.size(); i++) {
 			FallingObject currentObject = this.fallingObjects.get(i);
 			if (currentObject.isBeingHit) {
-				currentObject.hittingProgress += time / (float) 32 / (float) 40;
+				currentObject.hittingProgress += time * currentObject.hitProgressStep;
 				if (currentObject.hittingProgress >= 1) {
 					currentObject.isBeingHit = false;
 					currentObject.live -= currentObject.hitBy;
@@ -275,20 +297,18 @@ public class Game {
 					FallingObject currentObject = this.fallingObjects.get(j);
 					float objectSize = currentObject.size / 8;
 					if (doesCollide(currentObject.x / (float) 4 + 1 / (float) 8, currentObject.y * contentSize.height / (float) contentSize.width - objectSize, objectSize, currentProjectile.x, currentProjectile.y * contentSize.height / (float) contentSize.width, 1 / (float) 128)) {
-						if (!currentObject.isDead) {
-							currentObject.hit(currentProjectile.hitPower);
-							if (currentObject.isDead) {
-								Coin addedCoin = currentObject.getCoin();
-								if (addedCoin != null) {
-									addedCoin.x = 1 / (float) 8 + currentObject.x / (float) 4;
-									if (objectSize * contentSize.width + contentSize.width / 128 >= currentObject.y * contentSize.height) {
-										addedCoin.y = contentSize.width / (float) 128 / contentSize.height;
-									}
-									else {
-										addedCoin.y = currentObject.y - objectSize * contentSize.width / contentSize.height;
-									}
-									this.coins.add(addedCoin);
+						currentObject.hit(currentProjectile.hitPower);
+						if (currentObject.isDead) {
+							Coin addedCoin = currentObject.getCoin();
+							if (addedCoin != null) {
+								addedCoin.x = 1 / (float) 8 + currentObject.x / (float) 4;
+								if (objectSize * contentSize.width + contentSize.width / 128 >= currentObject.y * contentSize.height) {
+									addedCoin.y = contentSize.width / (float) 128 / contentSize.height;
 								}
+								else {
+									addedCoin.y = currentObject.y - objectSize * contentSize.width / contentSize.height;
+								}
+								this.coins.add(addedCoin);
 							}
 						}
 						this.projectiles.remove(i);
@@ -392,12 +412,15 @@ public class Game {
 			// Use the left autoweapon
 			float biggestYValue = 0;
 			int biggestYIndex = -1;
+			boolean isGameEnding = false;
 			boolean shoot;
 			for (int i = 0; i < this.fallingObjects.size(); i++) {
 				FallingObject currentObject = this.fallingObjects.get(i);
-				if ((currentObject.x == 0 || currentObject.x == 1) && currentObject.y > biggestYValue && !currentObject.isDead && currentObject.isGameEnding) {
+				boolean hasPriority = (currentObject.y > biggestYValue && !(isGameEnding && !currentObject.isGameEnding)) || (currentObject.isGameEnding && !isGameEnding);
+				if ((currentObject.x == 0 || currentObject.x == 1) && !currentObject.isDead && hasPriority) {
 					biggestYValue = currentObject.y;
 					biggestYIndex = i;
+					isGameEnding = currentObject.isGameEnding;
 				}
 			}
 			if (biggestYIndex == -1) {
@@ -425,12 +448,15 @@ public class Game {
 			// Use the right autoweapon
 			biggestYValue = 0;
 			biggestYIndex = -1;
+			isGameEnding = false;
 			shoot = false;
 			for (int i = 0; i < this.fallingObjects.size(); i++) {
 				FallingObject currentObject = this.fallingObjects.get(i);
-				if ((currentObject.x == 2 || currentObject.x == 3) && currentObject.y > biggestYValue && !currentObject.isDead && currentObject.isGameEnding) {
+				boolean hasPriority = (currentObject.y > biggestYValue && !(isGameEnding && !currentObject.isGameEnding)) || (currentObject.isGameEnding && !isGameEnding);
+				if ((currentObject.x == 2 || currentObject.x == 3) && !currentObject.isDead && hasPriority) {
 					biggestYValue = currentObject.y;
 					biggestYIndex = i;
+					isGameEnding = currentObject.isGameEnding;
 				}
 			}
 			if (biggestYIndex == -1) {
@@ -455,6 +481,50 @@ public class Game {
 				projectiles.add(projectile);
 			}
 		}
+		
+		// Use the crushers
+		if (this.usingCrusher) {
+			for (int i = 0; i < 4; i++) {
+				List<FallingObject> presentObjects = new ArrayList<FallingObject>();
+				for (int j = 0; j < this.fallingObjects.size(); j++) {
+					FallingObject currentObject = this.fallingObjects.get(j);
+					if (currentObject.isGameEnding) {
+						continue;
+					}
+					if (currentObject.x != i) {
+						continue;
+					}
+					float objectSizeInY = contentSize.width / 4 * currentObject.size / contentSize.height;
+					float minPos = (contentSize.height / 2 - contentSize.width / 32) / (float) contentSize.height;
+					float maxPos = (contentSize.height / 2 + contentSize.width / 32) / (float) contentSize.height + objectSizeInY;
+					if (currentObject.y < minPos || currentObject.y > maxPos) {
+						continue;
+					}
+					presentObjects.add(currentObject);
+				}
+				if (presentObjects.isEmpty()) {
+					if (this.crushersStates[i] >= 0.5) {
+						this.crushersStates[i] += time * this.crushFrequency / 1536;
+						while (this.crushersStates[i] >= 1) {
+							this.crushersStates[i]--;
+						}
+					}
+				}
+				else {
+					boolean wasBelow = this.crushersStates[i] < 0.5;
+					this.crushersStates[i] += time * this.crushFrequency / 1536;
+					if (wasBelow && (this.crushersStates[i] >= 0.5)) {
+						for (int j = 0; j < presentObjects.size(); j++) {
+							presentObjects.get(j).hit(this.crushPower);
+						}
+					}
+					while (this.crushersStates[i] >= 1) {
+						this.crushersStates[i]--;
+					}
+				}
+			}
+		}
+		
 		this.timeInStage += time / (float) 40;
 		if (nextStage) {
 			return new GameReturnData(GameActionType.NEXT_STAGE, this.currentStage);
@@ -469,7 +539,7 @@ public class Game {
 			return null;
 		}
 	}
-
+	
 	/*
 	 * @return Whether is the Autoweapon is shoot-ready.
 	 */
@@ -537,6 +607,8 @@ public class Game {
 				i--;
 			}
 		}
+		this.crushersStates[0] = this.crushersStates[1] = this.crushersStates[2] = this.crushersStates[3] = 0;
+		this.fallingObjects.clear();
 	}
 
 	private static boolean circleCircleCollistion(float center1X, float center1Y, float center2X, float center2Y, float radius1, float radius2) {
@@ -581,6 +653,14 @@ public class Game {
 	}
 
 	public void paint(Graphics2D g, Dimension contentSize, Point mousePosition) throws IOException {
+		if (this.usingCrusher) {
+			int crushersSize = contentSize.width / 16;
+			float crushersY = (contentSize.height - crushersSize) / 2;
+			float firstCrusherX = (contentSize.width / 4 - crushersSize) / 2;
+			for (int i = 0; i < 4; i++) {
+				this.crusher.draw(g, new Point((int) (firstCrusherX + i * contentSize.width / 4), (int) crushersY), crushersSize, this.crushersStates[i]);
+			}
+		}
 		for (int i = 0; i < this.fallingObjects.size(); i++) {
 			this.drawFallingObject(g, this.fallingObjects.get(i), contentSize);
 		}

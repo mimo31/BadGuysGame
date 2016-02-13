@@ -20,6 +20,7 @@ public abstract class FallingObject {
 	public boolean isBeingHit;
 	public float hitBy;
 	public float hittingProgress;
+	public float hitProgressStep;
 
 	public boolean isDead;
 	
@@ -35,14 +36,19 @@ public abstract class FallingObject {
 
 	public void hit(float hitPower) {
 		if (this.isBeingHit) {
-			if (this.hitBy + hitPower >= this.live) {
+			if (this.isDead) {
+				this.hitProgressStep = 1 / (float) 32 / 40 / (this.live / (hitPower + this.live * this.hitProgressStep * 32 * 40));
+			}
+			else if (this.hitBy + hitPower >= this.live) {
 				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hittingProgress) * this.hitBy / this.live);
+				this.hitProgressStep = 1 / (float) 32 / 40 / (this.live / (hitPower + this.hitBy));
 				this.isDead = true;
 				this.hitBy = this.live;
 			}
 			else {
 				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hittingProgress) * this.hitBy / (this.hitBy + hitPower));
 				this.hitBy = this.hitBy + hitPower;
+				this.hitProgressStep = 1 / (float) 32 / 40 * (1 - this.hittingProgress);
 			}
 		}
 		else {
@@ -51,9 +57,11 @@ public abstract class FallingObject {
 			if (hitPower >= this.live) {
 				this.isDead = true;
 				this.hitBy = this.live;
+				this.hitProgressStep = 1 / (float) 32 / 40 / (this.live / hitPower);
 			}
 			else {
 				this.hitBy = hitPower;
+				this.hitProgressStep = 1 / (float) 32 / 40;
 			}
 		}
 	}

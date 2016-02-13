@@ -12,7 +12,7 @@ import com.github.mimo31.badguysgame.StringDraw;
 
 public class MenuScreen extends Screen {
 
-	private final String[] buttonsText;
+	protected final String[] buttonsText;
 	private final Color defaultColor;
 	private final Color onMouseColor;
 	private final Color textColor;
