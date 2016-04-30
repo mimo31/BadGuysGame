@@ -10,6 +10,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import com.github.mimo31.badguysgame.Main;
 import com.github.mimo31.badguysgame.PaintUtils;
 import com.github.mimo31.badguysgame.StringDraw;
@@ -126,7 +129,7 @@ public class GameScreen extends Screen {
 	}
 
 	@Override
-	public void mousePressed(MouseEvent event) {
+	public void mousePressed(MouseEvent event) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 		if (this.showingHelp) {
 			if (!this.paused) {
 				this.secondHelpPage = true;
@@ -153,7 +156,7 @@ public class GameScreen extends Screen {
 	}
 
 	@Override
-	public void update(int time) {
+	public void update(int time) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 		if (!this.showingHelp && !this.paused) {
 			if (!this.showingStage) {
 				GameReturnData returnData = this.game.update(time, this.contentSize);

@@ -18,12 +18,18 @@ public class Coin {
 	public float y;
 	public String textureName;
 	public int value;
+	public final String collectSoundName;
 	
-	public Coin(int value, String textureName) {
+	public Coin(int value, String textureName, String collectSoundName) {
 		this.value = value;
 		this.textureName = textureName;
 		this.x = 0;
 		this.y = 0;
+		this.collectSoundName = collectSoundName;
+	}
+	
+	public Coin(int value, String textureName) {
+		this(value, textureName, "CoinCollect.wav");
 	}
 	
 	/**

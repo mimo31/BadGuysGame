@@ -2,8 +2,12 @@ package com.github.mimo31.badguysgame.mechanics;
 
 public class ProjectileBlocker extends FallingObject {
 
+	public ProjectileBlocker(float totalLive, float speed, float size, String textureName, String name, String destroySoundName) {
+		super(totalLive, speed, size, textureName, name, false, destroySoundName);
+	}
+	
 	public ProjectileBlocker(float totalLive, float speed, float size, String textureName, String name) {
-		super(totalLive, speed, size, textureName, name, false);
+		super(totalLive, speed, size, textureName, name, false, "BlockerDestroy.wav");
 	}
 
 	@Override

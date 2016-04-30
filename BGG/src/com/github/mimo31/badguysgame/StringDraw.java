@@ -7,15 +7,6 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 
 public class StringDraw {
-	public static final int Middle = 0;
-	public static final int Up = 1;
-	public static final int UpRight = 2;
-	public static final int Right = 3;
-	public static final int DownRight = 4;
-	public static final int Down = 5;
-	public static final int DownLeft = 6;
-	public static final int Left = 7;
-	public static final int UpLeft = 8;
 
 	public enum TextAlign {
 		MIDDLE, UP, UPRIGHT, RIGHT, DOWNRIGHT, DOWN, DOWNLEFT, LEFT, UPLEFT

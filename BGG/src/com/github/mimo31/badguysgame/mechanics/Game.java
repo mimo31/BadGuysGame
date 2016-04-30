@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import com.github.mimo31.badguysgame.Main;
 import com.github.mimo31.badguysgame.Statistics;
 import com.github.mimo31.badguysgame.io.ResourceHandler;
@@ -36,6 +39,7 @@ public class Game {
 	private String projectileTextureName;
 	private float mainBarrelBlockState;
 	private float mainBarrelBlockOriginal;
+	private String shootSoundName;
 
 	private float autoLeftLoadState = 1;
 	private float autoRightLoadState = 1;
@@ -91,6 +95,7 @@ public class Game {
 		this.unblockSpeed = barrel.getProperty(Weapon.getPropertyID("Unblock speed"));
 		this.textureName = barrel.textureName;
 		this.projectileTextureName = barrel.projectileTextureName;
+		this.shootSoundName = barrel.shootSoundName;
 	}
 
 	public void updateAutoweapon(Weapon autoweapon) {
@@ -186,7 +191,7 @@ public class Game {
 		return this.fallingObjectsBuffer.isEmpty() && Main.stages[currentStage].allSpawned(this.timeInStage);
 	}
 
-	private void updateCoins(Dimension contentSize, int time) {
+	private void updateCoins(Dimension contentSize, int time) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 		for (int i = 0; i < this.coins.size(); i++) {
 			boolean collected = false;
 			for (Projectile projectile : this.projectiles) {
@@ -199,6 +204,8 @@ public class Game {
 			}
 			if (collected) {
 				Main.money += coins.get(i).value;
+				ResourceHandler.playSound(coins.get(i).collectSoundName);
+				Statistics.moneyCollected(coins.get(i).value);
 				coins.remove(i);
 				i--;
 			}
@@ -208,7 +215,7 @@ public class Game {
 		}
 	}
 
-	public GameReturnData update(int time, Dimension contentSize) {
+	public GameReturnData update(int time, Dimension contentSize) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 		boolean nextStage = false;
 		boolean gameOver = false;
 		boolean noMoreStages = false;
@@ -266,6 +273,7 @@ public class Game {
 						float targetY = 1 - contentSize.width / (float) 32 / contentSize.height;
 						float shootPositionX = shootingGuy.x * 1 / (float) 4 + 1 / (float) 8;
 						float shootPositionY = shootingGuy.y;
+						ResourceHandler.playSound(shootingGuy.shootSoundName);
 						Projectile projectile = new Projectile(shootPositionX, shootPositionY, targetX - shootPositionX, targetY - shootPositionY, shootingGuy.projectileSpeed, shootingGuy.projectileTextureName, shootingGuy.projectilePower, 0, true);
 						this.projectiles.add(projectile);
 					}
@@ -289,6 +297,7 @@ public class Game {
 					if (circleCircleCollistion(currentCoin.x, currentCoin.y * contentSize.height / contentSize.width, currentProjectile.x, currentProjectile.y * contentSize.height / contentSize.width, 1 / (float) 128, 1 / (float) 128)) {
 						Main.money += currentCoin.value;
 						Statistics.moneyCollected(currentCoin.value);
+						ResourceHandler.playSound(currentCoin.collectSoundName);
 						this.coins.remove(j);
 						j--;
 					}
@@ -737,7 +746,7 @@ public class Game {
 		}
 	}
 
-	public void clicked(int x, int y, Dimension contentSize) {
+	public void clicked(int x, int y, Dimension contentSize) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 		if (this.loadState == 1 && this.mainBarrelBlockState == 0) {
 			Point barrelCenter = new Point(contentSize.width / 2, contentSize.height - contentSize.width / 16);
 			float vecX = x - barrelCenter.x;
@@ -748,6 +757,7 @@ public class Game {
 			float dirY = vecY / (float) contentSize.height;
 			Projectile projectile = new Projectile(firePoint.x / (float) contentSize.width, firePoint.y / (float) contentSize.height, dirX, dirY, this.projectileSpeed, this.projectileTextureName, this.projectilePower, this.coinMagnet, false);
 			this.projectiles.add(projectile);
+			ResourceHandler.playSound(this.shootSoundName);
 			this.loadState = 0;
 		}
 	}

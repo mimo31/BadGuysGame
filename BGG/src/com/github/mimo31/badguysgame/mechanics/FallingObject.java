@@ -1,6 +1,12 @@
 package com.github.mimo31.badguysgame.mechanics;
 
+import java.io.IOException;
+
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import com.github.mimo31.badguysgame.PaintUtils;
+import com.github.mimo31.badguysgame.io.ResourceHandler;
 
 public abstract class FallingObject {
 
@@ -16,6 +22,7 @@ public abstract class FallingObject {
 	public final String textureName;
 	public final String name;
 	public final boolean isGameEnding;
+	public final String destroySoundName;
 
 	public boolean isBeingHit;
 	public float hitBy;
@@ -24,7 +31,7 @@ public abstract class FallingObject {
 
 	public boolean isDead;
 	
-	public FallingObject(float totalLive, float speed, float size, String textureName, String name, boolean isGameEnding) {
+	public FallingObject(float totalLive, float speed, float size, String textureName, String name, boolean isGameEnding, String destroySoundName) {
 		this.totalLive = totalLive;
 		this.live = totalLive;
 		this.speed = speed;
@@ -32,14 +39,16 @@ public abstract class FallingObject {
 		this.textureName = textureName;
 		this.name = name;
 		this.isGameEnding = isGameEnding;
+		this.destroySoundName = destroySoundName;
 	}
 
-	public void hit(float hitPower) {
+	public void hit(float hitPower) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 		if (this.isBeingHit) {
 			if (this.isDead) {
 				this.hitProgressStep = 1 / (float) 32 / 40 / (this.live / (hitPower + this.live * this.hitProgressStep * 32 * 40));
 			}
 			else if (this.hitBy + hitPower >= this.live) {
+				this.playDestroySound();
 				this.hittingProgress = PaintUtils.shiftedArcsine(PaintUtils.shiftedSine(this.hittingProgress) * this.hitBy / this.live);
 				this.hitProgressStep = 1 / (float) 32 / 40 / (this.live / (hitPower + this.hitBy));
 				this.isDead = true;
@@ -55,6 +64,7 @@ public abstract class FallingObject {
 			this.isBeingHit = true;
 			this.hittingProgress = 0;
 			if (hitPower >= this.live) {
+				this.playDestroySound();
 				this.isDead = true;
 				this.hitBy = this.live;
 				this.hitProgressStep = 1 / (float) 32 / 40 / (this.live / hitPower);
@@ -64,6 +74,10 @@ public abstract class FallingObject {
 				this.hitProgressStep = 1 / (float) 32 / 40;
 			}
 		}
+	}
+	
+	private void playDestroySound() throws IOException, LineUnavailableException, UnsupportedAudioFileException {
+		ResourceHandler.playSound(this.destroySoundName);
 	}
 
 	public float getShownLive() {

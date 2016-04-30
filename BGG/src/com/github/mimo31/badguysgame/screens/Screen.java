@@ -19,10 +19,10 @@ public abstract class Screen {
 	public void onStart() {
 	}
 
-	public void update(int time) {
+	public void update(int time) throws Throwable {
 	}
 
-	public void mousePressed(MouseEvent event) {
+	public void mousePressed(MouseEvent event) throws Throwable {
 	}
 
 	public void mouseReleased(MouseEvent event) {

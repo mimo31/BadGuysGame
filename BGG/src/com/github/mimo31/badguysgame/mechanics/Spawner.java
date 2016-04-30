@@ -119,6 +119,22 @@ public interface Spawner {
 
 	}
 	
+	public static class ThirdBossSpawner implements Spawner {
+		
+		@Override
+		public BadGuy getFallingObject() {
+			return new BossSizeBadGuy(128, 0.7f, "ThirdBoss.png", "Boss3") {
+				
+				@Override
+				public Coin getCoin() {
+					return Coin.coin15();
+				}
+				
+			};
+		}
+		
+	}
+	
 	public static class ShootingSpawner implements Spawner {
 
 		@Override

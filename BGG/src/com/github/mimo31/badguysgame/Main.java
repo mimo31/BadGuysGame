@@ -98,10 +98,11 @@ public class Main {
 		Spawner heavilyArmoredSpw = new Spawner.HeavyArmoredSpawner();
 		Spawner firstBossSpw = new Spawner.FirstBossSpawner();
 		Spawner secondBossSpw = new Spawner.SecondBossSpawner();
+		Spawner thirdBossSpw = new Spawner.ThirdBossSpawner();
 		Spawner speedySpw = new Spawner.SpeedySpawner();
 		Spawner shootingSpw = new Spawner.ShootingSpawner();
 		Spawner woodenBlockerSpw = new Spawner.WoodenBlockSpawner();
-		stages = new Stage[40];
+		stages = new Stage[41];
 		stages[0] = new Stage(new Spawner[] { basicSpw }, new int[] { 10 });
 		stages[1] = new Stage(new Spawner[] { basicSpw, basicSpw }, new int[] { 10, 100 });
 		stages[2] = new Stage(new Spawner[] { basicSpw, basicSpw, basicSpw }, new int[] { 10, 75, 200 });
@@ -142,6 +143,7 @@ public class Main {
 		stages[37] = new Stage(new Spawner[] { woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, speedySpw, speedySpw, heavilyArmoredSpw, heavilyArmoredSpw }, new int[] { 20, 20, 20, 20, 200, 200, 200, 200 } );
 		stages[38] = new Stage(new Spawner[] { woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, speedySpw, speedySpw, shootingSpw, shootingSpw }, new int[] { 20, 20, 20, 20, 200, 200, 250, 250 } );
 		stages[39] = new Stage(new Spawner[] { woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, woodenBlockerSpw, speedySpw, speedySpw, shootingSpw, shootingSpw, fastSpw, fastSpw }, new int[] { 20, 20, 20, 20, 200, 200, 250, 250, 280, 280 } );
+		stages[40] = new Stage(new Spawner[] { thirdBossSpw }, new int[] { 40 });
 	}
 
 	private static void initializeBarrels() {
@@ -270,7 +272,11 @@ public class Main {
 			while (running) {
 				long startTime = System.nanoTime();
 				int spentTime = (int) (nsForRefresh / (float) 1000000);
-				currentScreen.update(spentTime);
+				try {
+					currentScreen.update(spentTime);
+				} catch (Throwable e1) {
+					e1.printStackTrace();
+				}
 				Achievement.update(spentTime);
 				long endTime = System.nanoTime();
 				int delayNs = (int) (endTime - startTime);

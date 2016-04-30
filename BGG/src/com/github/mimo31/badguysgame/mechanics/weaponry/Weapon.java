@@ -21,8 +21,9 @@ public class Weapon {
 	public final String projectileTextureName;
 	public final String name;
 	public final int achievementRequied;
+	public final String shootSoundName;
 
-	public Weapon(PropertyImplementation[] gameProperties, int cost, String textureName, String projectileTextureName, boolean bought, String name, int achievementRequied) {
+	public Weapon(PropertyImplementation[] gameProperties, int cost, String textureName, String projectileTextureName, boolean bought, String name, int achievementRequied, String shootSoundName) {
 		this.gameProperties = gameProperties;
 		this.cost = cost;
 		this.textureName = textureName;
@@ -30,6 +31,11 @@ public class Weapon {
 		this.bought = bought;
 		this.name = name;
 		this.achievementRequied = achievementRequied;
+		this.shootSoundName = shootSoundName;
+	}
+	
+	public Weapon(PropertyImplementation[] gameProperties, int cost, String textureName, String projectileTextureName, boolean bought, String name, int achievementRequied) {
+		this(gameProperties, cost, textureName, projectileTextureName, bought, name, achievementRequied, "Shot.wav");
 	}
 
 	public float getProperty(int id) {

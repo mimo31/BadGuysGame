@@ -116,7 +116,11 @@ public final class Gui {
 
 		@Override
 		public void mousePressed(MouseEvent event) {
-			Main.currentScreen.mousePressed(event);
+			try {
+				Main.currentScreen.mousePressed(event);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override

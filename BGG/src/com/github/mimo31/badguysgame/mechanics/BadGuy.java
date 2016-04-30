@@ -1,9 +1,13 @@
 package com.github.mimo31.badguysgame.mechanics;
 
 public abstract class BadGuy extends FallingObject {
-
+	
+	public BadGuy(float totalLive, float speed, float size, String textureName, String name, String destroySoundName) {
+		super(totalLive, speed, size, textureName, name, true, destroySoundName);
+	}
+	
 	public BadGuy(float totalLive, float speed, float size, String textureName, String name) {
-		super(totalLive, speed, size, textureName, name, true);
+		super(totalLive, speed, size, textureName, name, true, "BadGuyKill.wav");
 	}
 
 	public static abstract class ClassicSizeBadGuy extends BadGuy {
