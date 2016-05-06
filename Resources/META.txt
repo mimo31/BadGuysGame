@@ -4,6 +4,7 @@
 15Coin.png 1.6 1
 ArmoredBadGuy.png 0.9 1
 AutoweaponBase.png 1.5beta 1
+BadGuyKill.wav 1.7.1 1
 Base.png 0.9 1
 BasicAutoweapon.png 1.5beta 1
 BasicBadGuy.png 0.9 1
@@ -12,6 +13,9 @@ BasicBarrel.png 0.9 1
 BasicCoin.png 0.9 1
 BasicCrusher.png 1.7beta 1
 BasicProjectile.png 0.9 1
+BlockerDestroy.wav 1.7.1 1
+CoinCollect.wav 1.7.1 1
+DarkShot.wav 1.7.1 1
 ElectricProjectile.png 1.6beta 1
 ElectroBarrel.png 1.6beta 1
 FastBadGuy.png 0.9 1
@@ -24,6 +28,8 @@ MagneticProjectile.png 1.2beta 1
 ProtectedAutoweapon.png 1.7beta 1
 SecondBoss.png 1.6 1
 ShootingBadGuy.png 1.7beta 1
+Shot.wav 1.7.1 1
 SpeedyBadGuy.png 1.5beta 1
+ThirdBoss.png 1.7.1 1
 Upgrade.png 1.4beta 1
 WoodenBlocker.png 1.7beta 1
